@@ -80,7 +80,7 @@
 <link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Hexo, NexT" />
+  <meta name="keywords" content="Android,多线程," />
 
 
 
@@ -96,12 +96,17 @@
 
 
 
-<meta property="og:type" content="website">
-<meta property="og:title" content="Binac">
-<meta property="og:url" content="https://binac.io/index.html">
+<meta name="description" content="概述Android 的 UI 控件不是线程安全的，因此规定访问 UI 必须在主线程（即 UI 线程）中进行。ViewRootImpl 的checkThread()方法对 UI 操作进行验证，如果在后台线程中访问 UI，程序就会抛出异常。 但主线程中不适合进行耗时操作，因为这样会导致 ANR，所以耗时操作应在后台线程中进行。执行完成后，再使用 Handler 切换到主线程进行 UI 操作。 为什么">
+<meta name="keywords" content="Android,多线程">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android 消息机制原理">
+<meta property="og:url" content="https://binac.io/2017/06/02/message-handler-and-looper/index.html">
 <meta property="og:site_name" content="Binac">
+<meta property="og:description" content="概述Android 的 UI 控件不是线程安全的，因此规定访问 UI 必须在主线程（即 UI 线程）中进行。ViewRootImpl 的checkThread()方法对 UI 操作进行验证，如果在后台线程中访问 UI，程序就会抛出异常。 但主线程中不适合进行耗时操作，因为这样会导致 ANR，所以耗时操作应在后台线程中进行。执行完成后，再使用 Handler 切换到主线程进行 UI 操作。 为什么">
+<meta property="og:updated_time" content="2017-06-02T15:45:31.215Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Binac">
+<meta name="twitter:title" content="Android 消息机制原理">
+<meta name="twitter:description" content="概述Android 的 UI 控件不是线程安全的，因此规定访问 UI 必须在主线程（即 UI 线程）中进行。ViewRootImpl 的checkThread()方法对 UI 操作进行验证，如果在后台线程中访问 UI，程序就会抛出异常。 但主线程中不适合进行耗时操作，因为这样会导致 ANR，所以耗时操作应在后台线程中进行。执行完成后，再使用 Handler 切换到主线程进行 UI 操作。 为什么">
 
 
 
@@ -129,13 +134,13 @@
 
 
 
-  <link rel="canonical" href="https://binac.io/"/>
+  <link rel="canonical" href="https://binac.io/2017/06/02/message-handler-and-looper/"/>
 
 
 
 
 
-  <title>Binac</title>
+  <title>Android 消息机制原理 | Binac</title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -161,9 +166,7 @@
     
   
 
-  <div class="container sidebar-position-left 
-   page-home 
- ">
+  <div class="container sidebar-position-left page-post-detail ">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -246,9 +249,9 @@
         <div class="content-wrap">
           <div id="content" class="content">
             
-  <section id="posts" class="posts-expand">
+
+  <div id="posts" class="posts-expand">
     
-      
 
   
 
@@ -274,9 +277,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2017/06/02/message-handler-and-looper/" itemprop="url">Android 消息机制原理</a></h1>
+          <h1 class="post-title" itemprop="name headline">Android 消息机制原理</h1>
         
 
         <div class="post-meta">
@@ -334,9 +335,7 @@
       
 
       
-        
-          
-            <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>Android 的 UI 控件不是线程安全的，因此规定访问 UI 必须在主线程（即 UI 线程）中进行。ViewRootImpl 的<code>checkThread()</code>方法对 UI 操作进行验证，如果在后台线程中访问 UI，程序就会抛出异常。</p>
+        <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>Android 的 UI 控件不是线程安全的，因此规定访问 UI 必须在主线程（即 UI 线程）中进行。ViewRootImpl 的<code>checkThread()</code>方法对 UI 操作进行验证，如果在后台线程中访问 UI，程序就会抛出异常。</p>
 <p>但主线程中不适合进行耗时操作，因为这样会导致 ANR，所以耗时操作应在后台线程中进行。执行完成后，再使用 Handler 切换到主线程进行 UI 操作。</p>
 <p>为什么 UI 控件不设计成线程安全的呢？一是避免访问逻辑变复杂，二是避免效率低下。</p>
 <p>Handler 是 Android 消息机制的上层接口，通过它可以将一个任务切换到 Handler 所在的线程中执行。Handler 的运行需要 MessageQueue 和 Looper 支撑。MessageQueue 维护了一个 Message 链表，以队列的逻辑结构向 Handler 和 Looper 提供接口，Looper 中维护了一个 MessageQueue 类型的消息队列。Handler 将 Message 加入队列，Looper 以无限循环的方式查找队列中是否有需要处理的 Message。</p>
@@ -463,520 +462,80 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// frameworks/base/core/java/android/app/ActivityThread.java</span></div><div class="line"></div><div class="line"><span class="keyword">final</span> H mH = <span class="keyword">new</span> H();</div><div class="line"></div><div class="line"><span class="comment">// ...</span></div><div class="line"></div><div class="line"><span class="keyword">private</span> <span class="class"><span class="keyword">class</span> <span class="title">H</span> <span class="keyword">extends</span> <span class="title">Handler</span> </span>&#123;</div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> LAUNCH_ACTIVITY         = <span class="number">100</span>;</div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> PAUSE_ACTIVITY          = <span class="number">101</span>;</div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> PAUSE_ACTIVITY_FINISHING= <span class="number">102</span>;</div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> STOP_ACTIVITY_SHOW      = <span class="number">103</span>;</div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> STOP_ACTIVITY_HIDE      = <span class="number">104</span>;</div><div class="line"></div><div class="line">    <span class="comment">// ...</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">handleMessage</span><span class="params">(Message msg)</span> </span>&#123;</div><div class="line">        <span class="keyword">if</span> (DEBUG_MESSAGES) Slog.v(TAG, <span class="string">"&gt;&gt;&gt; handling: "</span> + codeToString(msg.what));</div><div class="line">        <span class="keyword">switch</span> (msg.what) &#123;</div><div class="line">            <span class="keyword">case</span> LAUNCH_ACTIVITY: &#123;</div><div class="line">                Trace.traceBegin(Trace.TRACE_TAG_ACTIVITY_MANAGER, <span class="string">"activityStart"</span>);</div><div class="line">                <span class="keyword">final</span> ActivityClientRecord r = (ActivityClientRecord) msg.obj;</div><div class="line"></div><div class="line">                r.packageInfo = getPackageInfoNoCheck(</div><div class="line">                        r.activityInfo.applicationInfo, r.compatInfo);</div><div class="line">                handleLaunchActivity(r, <span class="keyword">null</span>, <span class="string">"LAUNCH_ACTIVITY"</span>);</div><div class="line">                Trace.traceEnd(Trace.TRACE_TAG_ACTIVITY_MANAGER);</div><div class="line">            &#125; <span class="keyword">break</span>;</div><div class="line">            <span class="keyword">case</span> RELAUNCH_ACTIVITY: &#123;</div><div class="line">                Trace.traceBegin(Trace.TRACE_TAG_ACTIVITY_MANAGER, <span class="string">"activityRestart"</span>);</div><div class="line">                ActivityClientRecord r = (ActivityClientRecord)msg.obj;</div><div class="line">                handleRelaunchActivity(r);</div><div class="line">                Trace.traceEnd(Trace.TRACE_TAG_ACTIVITY_MANAGER);</div><div class="line">            &#125; <span class="keyword">break</span>;</div><div class="line"></div><div class="line">            <span class="comment">// ...</span></div><div class="line"></div><div class="line">        &#125;</div><div class="line"></div><div class="line">        <span class="comment">// ...</span></div><div class="line"></div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">// ...</span></div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <p>H 中定义了一组消息类型，包含四大组件的启动、停止等过程。</p>
 
-          
+      
+    </div>
+
+    <div>
+      
         
+
       
     </div>
 
     <div>
       
-    </div>
+        
 
-    <div>
       
     </div>
 
     <div>
+      
+        
+
       
     </div>
 
     <footer class="post-footer">
       
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="https://binac.io/2017/05/26/singleton-pattern/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Binac">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="https://avatars0.githubusercontent.com/u/7856168">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Binac">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2017/05/26/singleton-pattern/" itemprop="url">单例模式</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-05-26T23:07:31+08:00">
-                2017-05-26
-              </time>
-            
-
-            
-
-            
-          </span>
-
+        <div class="post-tags">
           
-
+            <a href="/tags/Android/" rel="tag"># Android</a>
           
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2017/05/26/singleton-pattern/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2017/05/26/singleton-pattern/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
+            <a href="/tags/多线程/" rel="tag"># 多线程</a>
           
-
-          
-          
-
-          
-
-          
-
-          
-
         </div>
-      </header>
-    
-
-    <div class="post-body" itemprop="articleBody">
-
-      
       
 
       
         
-          
-            <p>许多时候整个系统只需要拥有一个的全局对象，这样有利于我们协调系统整体的行为。单例模式限制只有一个实例存在。</p>
-<p>通常单例模式在 Java 语言中，有两种构建方式：</p>
-<ul>
-<li>懒汉方式，指全局的单例实例在第一次被使用时构建。不试图获取这个实例，就不会创建，从而实现了延迟加载，因此称为懒汉方式<ul>
-<li>优点：类加载快，可调用动态数据（例如 Android 中的 Context 对象）</li>
-<li>缺点：对象获取慢，多线程环境下需要考虑线程安全问题</li>
-</ul>
-</li>
-<li>饿汉方式，指全局的单例实例在类装载时构建。在装载类时就初始化这个实例，而不是获取时才创建，称为饿汉方式<ul>
-<li>优点：对象获取快，天生线程安全</li>
-<li>缺点：类加载慢，无法调用动态数据</li>
-</ul>
-</li>
-</ul>
-<h2 id="懒汉方式"><a href="#懒汉方式" class="headerlink" title="懒汉方式"></a>懒汉方式</h2><h3 id="适用于单线程的懒汉方式"><a href="#适用于单线程的懒汉方式" class="headerlink" title="适用于单线程的懒汉方式"></a>适用于单线程的懒汉方式</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span> </span>&#123;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Singleton INSTANCE;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span> </span>&#123;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">if</span> (INSTANCE == <span class="keyword">null</span>) &#123;</div><div class="line">            INSTANCE = <span class="keyword">new</span> Singleton();</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> INSTANCE;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>在同一虚拟机的单线程应用场合中，Singleton 的构造方法私有化，其唯一实例只能通过静态方法<code>getInstance()</code>来获取（不考虑反射机制）。</p>
-<ul>
-<li>优点：实现简单，效率高</li>
-<li>缺点：多线程环境下，这种方式是线程不安全的，因为可能有多个线程同时进入<code>if</code>代码块，从而多次创建实例</li>
-</ul>
-<h3 id="使用简单的锁机制保证线程安全"><a href="#使用简单的锁机制保证线程安全" class="headerlink" title="使用简单的锁机制保证线程安全"></a>使用简单的锁机制保证线程安全</h3><p>可使用<code>synchronized</code>关键字修饰<code>getInstance()</code>方法，这种方式锁定的是类对象：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span> </span>&#123;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Singleton INSTANCE;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span> </span>&#123;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">synchronized</span> Singleton <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">if</span> (INSTANCE == <span class="keyword">null</span>) &#123;</div><div class="line">            INSTANCE = <span class="keyword">new</span> Singleton();</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> INSTANCE;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>保证了同时只有一个线程能进入<code>getInstance()</code>代码块，从而保证线程安全。</p>
-<p>也可以专门为单例指定一个对象作为同步锁：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span> </span>&#123;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Object LOCK = <span class="keyword">new</span> Object();</div><div class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Singleton INSTANCE;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span> </span>&#123;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">synchronized</span> (LOCK) &#123;</div><div class="line">            <span class="keyword">if</span> (INSTANCE == <span class="keyword">null</span>) &#123;</div><div class="line">                INSTANCE = <span class="keyword">new</span> Singleton();</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> INSTANCE;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>利用<code>LOCK</code>对象锁，将<code>INSTANCE</code>的空指针判断及其实例化过程变为原子操作，保证只实例化一次，从而保证线程安全。</p>
-<ul>
-<li>优点：保证了线程安全</li>
-<li>缺点：每次调用<code>getInstance()</code>方法都会获取同步锁，影响效率</li>
-</ul>
-<h3 id="使用双重检查的锁机制保证线程安全"><a href="#使用双重检查的锁机制保证线程安全" class="headerlink" title="使用双重检查的锁机制保证线程安全"></a>使用双重检查的锁机制保证线程安全</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span> </span>&#123;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">volatile</span> Singleton INSTANCE;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span> </span>&#123;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">if</span> (INSTANCE == <span class="keyword">null</span>) &#123;</div><div class="line">            <span class="keyword">synchronized</span> (Singleton.class) &#123;</div><div class="line">                <span class="keyword">if</span> (INSTANCE == <span class="keyword">null</span>) &#123;</div><div class="line">                    INSTANCE = <span class="keyword">new</span> Singleton();</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> INSTANCE;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>这里的同步的是 Singleton 类对象锁，也可以专门指定一个对象作为同步锁。</p>
-<p><code>getInstance()</code>方法有两个空指针的检查，因此称为双重检查。</p>
-<ul>
-<li><p>在<code>INSTANCE</code>还没有初始化时，假设有多个线程同时通过了第一重检查，接下来的空指针判断和实例化过程是一个原子操作，只有第一个进入<code>synchronized</code>代码块的线程才能对<code>INSTANCE</code>进行初始化，其它线程均不会通过第二重检查</p>
-</li>
-<li><p>在<code>INSTANCE</code>初始化后，如果有线程再调用<code>getInstance()</code>方法，则不会通过第一重检查，直接返回<code>INSTANCE</code>实例</p>
-</li>
-</ul>
-<p>注意到代码中使用<code>volatile</code>关键字修饰<code>INSTANCE</code>对象，这是因为</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">INSTANCE = <span class="keyword">new</span> Singleton();</div></pre></td></tr></table></figure>
-<p>这一语句并非原子操作，事实上在 JVM 中它主要做了三件事：</p>
-<ol>
-<li>为<code>INSTANCE</code>分配内存</li>
-<li>调用 Singleton 构造方法进行初始化</li>
-<li>将<code>INSTANCE</code>指针指向对象</li>
-</ol>
-<p>如果不使用<code>volatile</code>修饰，JVM 的指令重排序优化会使 2 和 3 的顺序不固定，可能变为 1、3、2，这在单线程中当然是没有问题的。但在多线程环境下，当某个线程执行完 1、3，还未完成 2 时，<code>INSTANCE</code>已经不为<code>null</code>，其它线程调用<code>getInstance()</code>方法就不会通过第一重检查，而使用返回的不完全初始化的<code>INSTANCE</code>对象就可能出现错误。</p>
-<p><code>volatile</code>关键字的可见性特性禁止了指令重排序，使<code>INSTANCE</code>的实例化成为原子操作。但必须在 Java 5.0 后使用，因为之前的<code>volatile</code>关键字并不能保证禁止指令重排序。</p>
-<p>回过头再看简单的锁机制中，<code>INSTANCE</code>对象就不需要<code>volatile</code>修饰，因为<code>synchronized</code>就保证了可见性。</p>
-<ul>
-<li>优点：与简单的锁机制相比，双重检查的锁机制只有在<code>INSTANCE</code>尚未初始化时，才会竞争类对象锁，而不需要每次都获取，效率更高</li>
-<li>缺点：略显繁琐，实现起来需要谨慎</li>
-</ul>
-<h3 id="使用静态嵌套类保证线程安全"><a href="#使用静态嵌套类保证线程安全" class="headerlink" title="使用静态嵌套类保证线程安全"></a>使用静态嵌套类保证线程安全</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span> </span>&#123;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">SingletonHolder</span> </span>&#123;</div><div class="line">        <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Singleton INSTANCE = <span class="keyword">new</span> Singleton();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span> </span>&#123;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> SingletonHolder.INSTANCE;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>这种方法利用 JVM 本身机制保证了线程安全。首次调用<code>getInstance()</code>时，静态嵌套类 Singleton.SingletonHolder 才会加载，并初始化它的静态成员<code>INSTANCE</code>，由于在虚拟机中只会加载一次，因此是线程安全的。</p>
-<ul>
-<li>优点：实现简单，避免了同步锁带来的性能影响</li>
-<li>缺点：调用动态数据不够灵活（可使用<code>static</code>变量、配置文件等）</li>
-</ul>
-<h2 id="饿汉方式"><a href="#饿汉方式" class="headerlink" title="饿汉方式"></a>饿汉方式</h2><h3 id="简单的饿汉方式"><a href="#简单的饿汉方式" class="headerlink" title="简单的饿汉方式"></a>简单的饿汉方式</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span> </span>&#123;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Singleton INSTANCE = <span class="keyword">new</span> Singleton();</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span> </span>&#123;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> INSTANCE;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>在加载 Singleton 类时，<code>INSTANCE</code>就会被初始化，天生就是线程安全的。</p>
-<h3 id="使用枚举-Enum-实现饿汉方式"><a href="#使用枚举-Enum-实现饿汉方式" class="headerlink" title="使用枚举 Enum 实现饿汉方式"></a>使用枚举 Enum 实现饿汉方式</h3><p>在 Java 5.0 之后，还可以使用枚举实现单例模式：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="keyword">enum</span> Singleton &#123;</div><div class="line">    INSTANCE;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span> </span>&#123;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>利用 JVM 保证了仅有一个实例，因此天生也是线程安全的，而且实现简单，一般来说性能高于简单的饿汉方式。此外，Enum 无法使用反射机制破解。虽然很多人，包括 <em>Effective Java</em> 也推荐这种方式，但利用 Enum 实现单例模式很少见。</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>如何选择合适的方式实现单例模式？个人认为，先确定是否需要延迟加载（例如要用动态数据作为构造单例的参数），再看是否在多线程环境下，</p>
-<ul>
-<li>如果不需要延迟加载，使用两种饿汉方式即可</li>
-<li>如果需要延迟加载<ul>
-<li>如果是单线程环境，使用简单的懒汉方式即可</li>
-<li>如果是多线程，<ul>
-<li>如果高并发，或获取单例方法调用频繁，可使用双重检查的锁机制来实现</li>
-<li>否则简单的锁机制即可满足要求</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
       
 
       
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="https://binac.io/2017/05/21/create-java-project-with-android-studio/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Binac">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="https://avatars0.githubusercontent.com/u/7856168">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Binac">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2017/05/21/create-java-project-with-android-studio/" itemprop="url">使用 Android Studio 创建 Java 工程</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
             
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-05-21T22:44:42+08:00">
-                2017-05-21
-              </time>
+              <a href="/2017/05/26/singleton-pattern/" rel="next" title="单例模式">
+                <i class="fa fa-chevron-left"></i> 单例模式
+              </a>
             
+          </div>
 
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
             
-
-            
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2017/05/21/create-java-project-with-android-studio/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2017/05/21/create-java-project-with-android-studio/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
+          </div>
         </div>
-      </header>
-    
-
-    <div class="post-body" itemprop="articleBody">
-
-      
       
 
       
-        
-          
-            <p>参考：<a href="http://stackoverflow.com/questions/28957283/android-studio-create-java-project-with-no-android-dependencies" target="_blank" rel="external">Android Studio: create Java project with no Android dependencies</a></p>
-<ol>
-<li><p>安装、配置所需的 JDK 和源码（不建议在普通 Java 工程中使用 Android SDK 中的 JDK）</p>
-</li>
-<li><p>使用 Android Studio 创建一个 Android Application 工程</p>
-</li>
-<li><p>切换视图为 Project，编辑<code>settings.gradle</code>，删除以下内容：</p>
- <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">include &apos;:app&apos;</div></pre></td></tr></table></figure>
-</li>
-<li><p>同步工程，点击工具栏按钮 Sync Project with Gradle Files</p>
-</li>
-<li><p>删除工程根目录下的<code>app</code>目录</p>
-</li>
-<li><p>编辑<code>build.gradle</code>，将其内容替换为：</p>
- <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">apply plugin: &apos;java&apos;</div><div class="line"></div><div class="line">sourceCompatibility = 1.8</div><div class="line">version = &apos;1.0&apos;</div><div class="line"></div><div class="line">repositories &#123;</div><div class="line">    mavenCentral()</div><div class="line">&#125;</div><div class="line"></div><div class="line">dependencies &#123;</div><div class="line">    testCompile group: &apos;junit&apos;, name: &apos;junit&apos;, version: &apos;4.11&apos;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-</li>
-<li><p>同步工程，同步骤 4</p>
-</li>
-<li><p>建立 Java 源码的目录层级，例如<code>src/main/java</code>，在其中建立一个主类（Main class），如<code>com.example.foo.HelloWorld.java</code></p>
-</li>
-<li><p>打开 Run - Edit Configurations，添加 Application 配置，设置名称和主类（Main class）</p>
-</li>
-<li><p>打开 Edit - Project Structure，将<code>JDK location</code>设置为自己的 JDK 目录</p>
-</li>
-</ol>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
       
     </footer>
   </article>
 
 
-    
+
+    <div class="post-spread">
       
+        <!-- Go to www.addthis.com/dashboard to customize your tools -->
+<div class="addthis_inline_share_toolbox">
+  <script type = "text/javascript" src = "//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5919dbb5048f938b" async = "async" ></script>
+</div>
 
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="https://binac.io/2017/05/14/hello-world/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Binac">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="https://avatars0.githubusercontent.com/u/7856168">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Binac">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2017/05/14/hello-world/" itemprop="url">Hello World</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-05-14T17:26:17+08:00">
-                2017-05-14
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2017/05/14/hello-world/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2017/05/14/hello-world/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>Welcome to <a href="https://hexo.io/" target="_blank" rel="external">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="external">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="external">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="external">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo new <span class="string">"My New Post"</span></div></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="external">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo server</div></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="external">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo generate</div></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="external">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo deploy</div></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/deployment.html" target="_blank" rel="external">Deployment</a></p>
-
-          
-        
       
     </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-  </section>
-
-  
+  </div>
 
 
           </div>
@@ -984,6 +543,17 @@
 
 
           
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
 
         </div>
         
@@ -1003,8 +573,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview sidebar-panel sidebar-panel-active">
+      <section class="site-overview sidebar-panel">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
           <img class="site-author-image" itemprop="image"
                src="https://avatars0.githubusercontent.com/u/7856168"
@@ -1077,6 +656,22 @@
 
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#概述"><span class="nav-number">1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Android-消息机制分析"><span class="nav-number">2.</span> <span class="nav-text">Android 消息机制分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#ThreadLocal-工作原理"><span class="nav-number">2.1.</span> <span class="nav-text">ThreadLocal 工作原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MessageQueue-消息队列的工作原理"><span class="nav-number">2.2.</span> <span class="nav-text">MessageQueue 消息队列的工作原理</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Asynchronous-Message-异步消息"><span class="nav-number">2.2.1.</span> <span class="nav-text">Asynchronous Message 异步消息</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Sync-Barrier-同步障碍"><span class="nav-number">2.2.2.</span> <span class="nav-text">Sync Barrier 同步障碍</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#MessageQueue-的出队和入队"><span class="nav-number">2.2.3.</span> <span class="nav-text">MessageQueue 的出队和入队</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#MessageQueue-的退出"><span class="nav-number">2.2.4.</span> <span class="nav-text">MessageQueue 的退出</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Looper-的工作原理"><span class="nav-number">2.3.</span> <span class="nav-text">Looper 的工作原理</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Looper-的创建"><span class="nav-number">2.3.1.</span> <span class="nav-text">Looper 的创建</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Looper-loop-开启消息循环"><span class="nav-number">2.3.2.</span> <span class="nav-text">Looper.loop() 开启消息循环</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#退出消息循环"><span class="nav-number">2.3.3.</span> <span class="nav-text">退出消息循环</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Handler-的工作原理"><span class="nav-number">2.4.</span> <span class="nav-text">Handler 的工作原理</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Handler-的创建"><span class="nav-number">2.4.1.</span> <span class="nav-text">Handler 的创建</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#消息发送"><span class="nav-number">2.4.2.</span> <span class="nav-text">消息发送</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#消息处理"><span class="nav-number">2.4.3.</span> <span class="nav-text">消息处理</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#主线程的消息循环"><span class="nav-number">2.5.</span> <span class="nav-text">主线程的消息循环</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
@@ -1197,6 +792,10 @@
 
 
   
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.1"></script>
+
+
 
   
 
@@ -1214,6 +813,18 @@
       <script id="dsq-count-scr" src="https://binac.disqus.com/count.js" async></script>
     
 
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'https://binac.io/2017/06/02/message-handler-and-looper/';
+          this.page.identifier = '2017/06/02/message-handler-and-looper/';
+          this.page.title = 'Android 消息机制原理';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://binac.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
     
 
   

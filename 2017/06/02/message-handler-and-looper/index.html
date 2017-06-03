@@ -80,7 +80,7 @@
 <link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Android,多线程," />
+  <meta name="keywords" content="Android,Java,多线程," />
 
 
 
@@ -97,13 +97,13 @@
 
 
 <meta name="description" content="概述Android 的 UI 控件不是线程安全的，因此规定访问 UI 必须在主线程（即 UI 线程）中进行。ViewRootImpl 的checkThread()方法对 UI 操作进行验证，如果在后台线程中访问 UI，程序就会抛出异常。 但主线程中不适合进行耗时操作，因为这样会导致 ANR，所以耗时操作应在后台线程中进行。执行完成后，再使用 Handler 切换到主线程进行 UI 操作。 为什么">
-<meta name="keywords" content="Android,多线程">
+<meta name="keywords" content="Android,Java,多线程">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Android 消息机制原理">
 <meta property="og:url" content="https://binac.io/2017/06/02/message-handler-and-looper/index.html">
 <meta property="og:site_name" content="Binac">
 <meta property="og:description" content="概述Android 的 UI 控件不是线程安全的，因此规定访问 UI 必须在主线程（即 UI 线程）中进行。ViewRootImpl 的checkThread()方法对 UI 操作进行验证，如果在后台线程中访问 UI，程序就会抛出异常。 但主线程中不适合进行耗时操作，因为这样会导致 ANR，所以耗时操作应在后台线程中进行。执行完成后，再使用 Handler 切换到主线程进行 UI 操作。 为什么">
-<meta property="og:updated_time" content="2017-06-02T15:45:31.215Z">
+<meta property="og:updated_time" content="2017-06-03T16:55:48.606Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Android 消息机制原理">
 <meta name="twitter:description" content="概述Android 的 UI 控件不是线程安全的，因此规定访问 UI 必须在主线程（即 UI 线程）中进行。ViewRootImpl 的checkThread()方法对 UI 操作进行验证，如果在后台线程中访问 UI，程序就会抛出异常。 但主线程中不适合进行耗时操作，因为这样会导致 ANR，所以耗时操作应在后台线程中进行。执行完成后，再使用 Handler 切换到主线程进行 UI 操作。 为什么">
@@ -491,6 +491,8 @@
         <div class="post-tags">
           
             <a href="/tags/Android/" rel="tag"># Android</a>
+          
+            <a href="/tags/Java/" rel="tag"># Java</a>
           
             <a href="/tags/多线程/" rel="tag"># 多线程</a>
           

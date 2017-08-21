@@ -5,7 +5,8 @@ tags:
 - Android
 - Java
 ---
-参考：[Android Studio: create Java project with no Android dependencies](http://stackoverflow.com/questions/28957283/android-studio-create-java-project-with-no-android-dependencies)
+参考：
+<http://stackoverflow.com/questions/28957283/android-studio-create-java-project-with-no-android-dependencies/>
 
 1. 安装、配置所需的 JDK 和源码（不建议在普通 Java 工程中使用 Android SDK 中的 JDK）
 

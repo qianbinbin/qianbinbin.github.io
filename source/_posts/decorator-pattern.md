@@ -36,6 +36,9 @@ UML 类图如下（图片来自 <https://en.wikipedia.org/wiki/Decorator_pattern
 
 ## 实例
 
+本文涉及源码：
+<https://github.com/qianbinbin/DesignPattern/tree/master/src/main/java/io/binac/decorator/>
+
 ### 抽象组件 Component
 
 仍然以咖啡为例，先定义一个 Coffee 接口作为抽象组件 Component：

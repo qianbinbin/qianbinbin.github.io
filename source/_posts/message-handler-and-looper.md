@@ -6,6 +6,7 @@ tags:
 - Java
 - 多线程
 ---
+
 ## 概述
 
 Android 的 UI 控件不是线程安全的，因此规定访问 UI 必须在主线程（即 UI 线程）中进行。ViewRootImpl 的`checkThread()`方法对 UI 操作进行验证，如果在后台线程中访问 UI，程序就会抛出异常。
@@ -23,6 +24,8 @@ Looper 类中 ThreadLocal<Looper> 类型的静态变量`sThreadLocal`，用于�
 主线程，即 ActivityThread，其创建时就会初始化 Looper，因此主线程中默认可以使用 Handler。
 
 Handler 创建完毕后，可使用 post 开头的方法（以下简称 post 方法）发送一个 Runnable，也可使用 send 开头的方法（以下简称 send 方法）发送一个 Message，本质都是将一个 Message 加入 Handler 对应的 Looper 中的消息队列。post 方法本质上是将发送的 Runnable 指定为新建 Message 实例的`callback`属性，然后再将此 Message 加入队列。Looper 发现有需要处理的 Message，就会调用对应 Handler 的`dispatchMessage()`方法来处理。因此 Handler 中的业务逻辑就在 Handler 对应的 Looper 所在线程中执行。这也是后台线程能通过主线程中的 Handler 来更新 UI 的原因。
+
+<!-- more -->
 
 ## Android 消息机制分析
 

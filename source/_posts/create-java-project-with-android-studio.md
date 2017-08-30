@@ -5,6 +5,7 @@ tags:
 - Android
 - Java
 ---
+
 参考：
 <http://stackoverflow.com/questions/28957283/android-studio-create-java-project-with-no-android-dependencies/>
 
@@ -17,6 +18,8 @@ tags:
     ```
     include ':app'
     ```
+
+<!-- more -->
 
 4. 同步工程，点击工具栏按钮 Sync Project with Gradle Files
 

@@ -6,11 +6,14 @@ tags:
 - Java
 - JNI
 ---
+
 Android Java 核心库中是无法直接使用 android.util.Log 的，添加后编译不通过，因为 framework 中的 Java API 依赖于 Java 核心库。
 
 在 Android 7.0 之前，Java 核心库源码在`libcore/luni/`下，luni 代表 lang、util、net、io，是 Java 中最常见的包；Android 7.0 中，核心库在`libcore/ojluni/`下，oj 代表 OpenJDK。
 
 本文简单介绍在核心库中打印 Log 的几种方法。
+
+<!-- more -->
 
 ## 使用 System.out 和 System.err
 

@@ -166,15 +166,16 @@ public class SimpleSingleton {
 在 Java 5.0 之后，还可以使用枚举实现单例模式：
 
 ```java
-public enum Singleton {
+
+public enum EnumSingleton {
     INSTANCE;
 
-    private Singleton() {
+    private EnumSingleton() {
     }
 }
 ```
 
-利用 JVM 保证了仅有一个实例，因此天生也是线程安全的，而且实现简单，一般来说性能高于简单的饿汉方式。此外，Enum 无法使用反射机制破解。虽然很多人，包括 *Effective Java* 也推荐这种方式，但利用 Enum 实现单例模式很少见。
+利用 JVM 保证了仅有一个实例，因此天生也是线程安全的，而且实现简单，一般来说性能高于简单的饿汉方式。此外，Enum 无法使用反射机制破解。虽然很多人，包括*Effective Java*也推荐这种方式，但利用 Enum 实现单例模式很少见。
 
 ## 总结
 
@@ -184,5 +185,5 @@ public enum Singleton {
 - 如果需要延迟加载
     - 如果是单线程环境，使用简单的懒汉方式即可
     - 如果是多线程，
-        - 如果高并发，或获取单例方法调用频繁，可使用双重检查的锁机制来实现
+        - 如果对性能有要求，可使用双重检查的锁机制来实现
         - 否则简单的锁机制即可满足要求

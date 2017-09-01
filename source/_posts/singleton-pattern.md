@@ -190,3 +190,9 @@ public enum EnumSingleton {
     - 如果是多线程，
         - 如果对性能有要求，可使用双重检查的锁机制来实现
         - 否则简单的锁机制即可满足要求
+
+## 参考资料
+
+[Singleton pattern - Wikipedia](https://en.wikipedia.org/wiki/Singleton_pattern)
+[如何正确地写出单例模式 | Jark's Blog](http://wuchong.me/blog/2014/08/28/how-to-correctly-write-singleton-pattern/)
+[Java编程设计模式，第 1 部分: 单例模式](https://www.ibm.com/developerworks/cn/java/j-lo-Singleton/index.html)

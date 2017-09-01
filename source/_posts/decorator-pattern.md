@@ -32,7 +32,7 @@ System.out.println("Cost: " + getCost() + "; Ingredients: " + getIngredients());
 - Decorator：抽象装饰器，是实现 Component 的抽象类，也是所有装饰器的父类，并在其中维护了一个 Component 对象，Decorator 把 Component 对象的行为封装（装饰）起来
 - ConcreteDecorator：具体装饰器，继承 Decorator 类，根据需要添加一些特定的行为
 
-UML 类图如下（图片来自 <https://en.wikipedia.org/wiki/Decorator_pattern/>）：
+UML 类图如下（图片来自 <https://en.wikipedia.org/wiki/Decorator_pattern>）：
 
 ![](https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/Decorator_UML_class_diagram.svg/757px-Decorator_UML_class_diagram.svg.png)
 
@@ -156,16 +156,14 @@ public class WithSprinkles extends CoffeeDecorator {
 ### 测试
 
 ```java
-public class Main {
-    public static void main(String[] args) {
-        Coffee coffee = new Espresso();
-        System.out.println(coffee);
-        coffee = new WithMilk(coffee);
-        System.out.println(coffee);
-        coffee = new WithSprinkles(coffee);
-        System.out.println(coffee);
-    }
-}
+Coffee coffee = new Espresso();
+System.out.println(coffee);
+
+coffee = new WithMilk(coffee);
+System.out.println(coffee);
+
+coffee = new WithSprinkles(coffee);
+System.out.println(coffee);
 ```
 
 输出：
@@ -177,3 +175,7 @@ Cost: 31.0; Ingredients: espresso, milk, sprinkles
 ```
 
 显然，我们成功地在运行时动态扩展了对象的行为。
+
+## 参考资料
+
+[Decorator pattern - Wikipedia](https://en.wikipedia.org/wiki/Decorator_pattern)

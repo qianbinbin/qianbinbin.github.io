@@ -6,9 +6,6 @@ tags:
 - Java
 ---
 
-参考：
-<http://stackoverflow.com/questions/28957283/android-studio-create-java-project-with-no-android-dependencies/>
-
 1. 安装、配置所需的 JDK 和源码（不建议在普通 Java 工程中使用 Android SDK 中的 JDK）
 
 2. 使用 Android Studio 创建一个 Android Application 工程
@@ -49,3 +46,8 @@ tags:
 9. 打开 Run - Edit Configurations，添加 Application 配置，设置名称和主类（Main class）
 
 10. 打开 Edit - Project Structure，将`JDK location`设置为自己的 JDK 目录
+
+
+## 参考资料
+
+[Android Studio: create Java project with no Android dependencies - Stack Overflow](http://stackoverflow.com/questions/28957283/android-studio-create-java-project-with-no-android-dependencies)

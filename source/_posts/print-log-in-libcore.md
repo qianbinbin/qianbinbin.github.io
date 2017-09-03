@@ -19,7 +19,7 @@ Android Java 核心库中是无法直接使用 android.util.Log 的，添加后�
 
 这是很常见的方法，在 Android 中它被重定向到本地的 Log 系统，tag 分别为`System.out`和`System.err`。
 
-缺点在于，它不能自定义 tag，而且需要注意的是，这种方法是在 SystemServer 进程创建之后、启动之前进行重定向的，在这之前无法打印 Log。
+缺点在于，它不能自定义 tag，而且这种方法是在 SystemServer 进程创建之后、启动之前进行重定向的，在这之前无法打印 Log。
 
 ```java
 // frameworks/base/core/java/com/android/internal/os/RuntimeInit.java
@@ -347,10 +347,9 @@ jint JNI_OnLoad(JavaVM* vm, void*) { JNIEnv* env;
 
 同样我们可以把 android.util.Log 中的`getStackTraceString()`方法移植过来。
 
-需要注意的是，FastPrintWriter 也是 framework 中的，这里要替换为 Java 核心库中的 PrintWriter。
+需要注意的是，FastPrintWriter 也是 framework 中的，这里可以替换为 Java 核心库中的 PrintWriter。
 
 ```java
-
 /**
  * @hide
  */

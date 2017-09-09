@@ -39,7 +39,7 @@ UML 类图如下（图片来自 <https://en.wikipedia.org/wiki/Decorator_pattern
 ## 实例
 
 本文涉及源码：
-<https://github.com/qianbinbin/DesignPattern/tree/master/src/main/java/io/binac/decorator/>
+<https://github.com/qianbinbin/DesignPattern/tree/master/src/main/java/io/binac/decorator>
 
 ### 抽象组件 Component
 

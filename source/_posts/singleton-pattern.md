@@ -18,7 +18,7 @@ tags:
     - 缺点：类加载慢，无法调用动态数据
 
 本文涉及源码：
-<https://github.com/qianbinbin/DesignPattern/tree/master/src/main/java/io/binac/singleton/>
+<https://github.com/qianbinbin/DesignPattern/tree/master/src/main/java/io/binac/singleton>
 
 <!-- more -->
 

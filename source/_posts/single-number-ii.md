@@ -10,12 +10,10 @@ tags:
 LeetCode 的一道题，在一个 int 数组中，其余数值均出现了 3 次，只有一个数值出现了 1 次，求这个数：
 <https://leetcode.com/problems/single-number-ii/description/>
 
-```
-Given an array of integers, every element appears three times except for one, which appears exactly once. Find that single one.
-
-Note:
-Your algorithm should have a linear runtime complexity. Could you implement it without using extra memory?
-```
+> Given an array of integers, every element appears three times except for one, which appears exactly once. Find that single one.
+>
+> Note:
+> Your algorithm should have a linear runtime complexity. Could you implement it without using extra memory?
 
 要求时间复杂度为 $O(n)$，并挑战读者是否能在空间复杂度 $O(1)$ 的条件下解决。
 

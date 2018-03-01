@@ -10,22 +10,20 @@ tags:
 这是 LeetCode 上的一道题，求两个有序数组的中位数：
 <https://leetcode.com/problems/median-of-two-sorted-arrays/description/>
 
-```
-There are two sorted arrays nums1 and nums2 of size m and n respectively.
-
-Find the median of the two sorted arrays. The overall run time complexity should be O(log (m+n)).
-
-Example 1:
-nums1 = [1, 3]
-nums2 = [2]
-
-The median is 2.0
-Example 2:
-nums1 = [1, 2]
-nums2 = [3, 4]
-
-The median is (2 + 3)/2 = 2.5
-```
+> There are two sorted arrays nums1 and nums2 of size m and n respectively.
+>
+> Find the median of the two sorted arrays. The overall run time complexity should be O(log (m+n)).
+>
+> Example 1:
+> nums1 = [1, 3]
+> nums2 = [2]
+>
+> The median is 2.0
+> Example 2:
+> nums1 = [1, 2]
+> nums2 = [3, 4]
+>
+> The median is (2 + 3)/2 = 2.5
 
 这道题初看并不复杂，很容易想到时间复杂度为 $O(m+n)$ 的方法，但是要求的复杂度为 $O(\log(m+n))$，而且边缘情况很繁杂，所以难度为 hard。
 

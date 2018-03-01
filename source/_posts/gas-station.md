@@ -10,16 +10,14 @@ tags:
 加油站问题，LeetCode 链接：
 <https://leetcode.com/problems/gas-station/description/>
 
-```
-There are N gas stations along a circular route, where the amount of gas at station i is gas[i].
-
-You have a car with an unlimited gas tank and it costs cost[i] of gas to travel from station i to its next station (i+1). You begin the journey with an empty tank at one of the gas stations.
-
-Return the starting gas station's index if you can travel around the circuit once, otherwise return -1.
-
-Note:
-The solution is guaranteed to be unique.
-```
+> There are N gas stations along a circular route, where the amount of gas at station i is gas[i].
+>
+> You have a car with an unlimited gas tank and it costs cost[i] of gas to travel from station i to its next station (i+1). You begin the journey with an empty tank at one of the gas stations.
+>
+> Return the starting gas station's index if you can travel around the circuit once, otherwise return -1.
+>
+> Note:
+> The solution is guaranteed to be unique.
 
 这道题难度为 Medium，但如果对每个加油站进行模拟，则时间复杂度为 $O(n^2)$，OJ 判定超时，而 $O(n)$ 的方法并不容易。
 

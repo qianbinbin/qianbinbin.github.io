@@ -147,6 +147,32 @@ iterativePostorder(node)
         lastNodeVisited ← s.pop()
 ```
 
+## 双栈法
+
+如果使用两个栈，则后序遍历会简单很多。
+
+栈`s1`存储等待处理的子树的根结点，`s2`存储等待访问的结点。
+
+当处理一个子树时，将其根结点从`s1`中出栈，压入`s2`，此结点的左右子结点依次压入`s1`，这样就保证了先左后右的处理顺序。
+
+`s2`总是先存储根结点，它的进栈顺序和遍历结果是相反的，出栈顺序则相同，因此可以得到后序遍历序列。
+
+```py
+iterativePostorder(node)
+  s1 ← empty stack
+  s1.push(node)
+  s2 ← empty stack
+  while (not s1.isEmpty())
+    node ← s1.pop()
+    if (node.left ≠ null)
+      s1.push(node.left)
+    if (node.right ≠ null)
+      s1.push(node.right)
+    s2.push(node)
+  while (not s2.isEmpty())
+    visit(s2.pop())
+```
+
 # 参考资料
 
 [Tree traversal - Wikipedia](https://en.wikipedia.org/wiki/Tree_traversal)

@@ -47,7 +47,6 @@ tags:
 
 10. 打开 Edit - Project Structure，将`JDK location`设置为自己的 JDK 目录
 
-
-## 参考资料
+# 参考资料
 
 [Android Studio: create Java project with no Android dependencies - Stack Overflow](http://stackoverflow.com/questions/28957283/android-studio-create-java-project-with-no-android-dependencies)

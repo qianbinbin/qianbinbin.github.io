@@ -6,7 +6,7 @@ tags:
 - Binary Tree
 ---
 
-二叉树的递归遍历简洁明了，而非递归遍历则相对复杂，还容易忘。如果不用线索二叉树的话，一般要用栈来实现，即便都是用栈实现，实现思路也有差别，这给我们理解和记忆带来困扰。
+二叉树的递归遍历简洁明了，而非递归遍历则相对复杂，三种递归思路有很大区别，还容易忘。如果不用线索二叉树的话，一般要用栈来实现，即便都是用栈实现，实现思路也有差别，这给我们理解和记忆带来困扰。
 
 本文介绍利用栈来实现的二叉树非递归算法，主要目的是快速实现，而不是详细解释。
 
@@ -86,6 +86,24 @@ iterativeInorder(node)
 ```
 
 很多实现会做一些优化，用几个嵌套的`while`循环，其实不利于理解。
+
+如果把先序遍历写成和中序遍历风格一致的话：
+
+```py
+iterativePreorder(node)
+  if (node = null)
+    return
+  s ← empty stack
+  while (not s.isEmpty() or node ≠ null)
+    if (node ≠ null)
+      visit(node)
+      s.push(node)
+      node ← node.left
+    else
+      node ← s.pop().right
+```
+
+不同的是这时栈中保存的就是已经访问过的结点了。
 
 # 后序遍历
 

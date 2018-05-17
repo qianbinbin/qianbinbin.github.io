@@ -3,8 +3,10 @@ title: 批量构建二叉查找树时的一个常见错误
 date: 2018-04-03 20:52:42
 tags:
 - Algorithm
+- 算法
 - LeetCode
 - Binary Tree
+- 二叉树
 ---
 
 给定一个正整数 n，生成结点值为 1 ~ n 的所有二叉查找树：

@@ -3,8 +3,10 @@ title: Single Number II
 date: 2017-11-27 16:46:19
 tags:
 - Algorithm
+- 算法
 - LeetCode
 - C
+- C 语言
 ---
 
 LeetCode 的一道题，在一个 int 数组中，其余数值均出现了 3 次，只有一个数值出现了 1 次，求这个数：

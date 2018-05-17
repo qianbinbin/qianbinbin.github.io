@@ -3,6 +3,7 @@ title: Singleton Pattern 单例模式
 date: 2017-05-26 23:07:31
 tags:
 - Java
+- Design Pattern
 - 设计模式
 ---
 

@@ -3,9 +3,12 @@ title: Best Time to Buy and Sell Stock III
 date: 2018-05-04 22:25:48
 tags:
 - Algorithm
+- 算法
 - LeetCode
 - Dynamic Programming
+- 动态规划
 - C
+- C 语言
 ---
 
 股票买入卖出的最佳时间问题：

@@ -3,6 +3,7 @@ title: Decorator Pattern 装饰器模式
 date: 2017-06-22 23:35:42
 tags:
 - Java
+- Design Pattern
 - 设计模式
 ---
 

@@ -3,6 +3,7 @@ title: Factory Pattern 工厂模式
 date: 2017-09-09 11:54:23
 tags:
 - Java
+- Design Pattern
 - 设计模式
 ---
 工厂模式可分为 Simple Factory Pattern 简单工厂模式、Factory Method Pattern 工厂方法模式 和 Abstract Factory Pattern 抽象工厂模式。

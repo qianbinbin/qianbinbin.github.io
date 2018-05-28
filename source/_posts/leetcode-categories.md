@@ -10,9 +10,15 @@ tags:
 
 ## 数组
 
+[15. 3Sum](https://leetcode.com/problems/3sum/description/)
+[16. 3Sum Closest](https://leetcode.com/problems/3sum-closest/description/)
+[18. 4Sum](https://leetcode.com/problems/4sum/description/)
+
 ## 链表
 
 [2. Add Two Numbers](https://leetcode.com/problems/add-two-numbers/description/)
+[19. Remove Nth Node From End of List](https://leetcode.com/problems/remove-nth-node-from-end-of-list/description/)
+[21. Merge Two Sorted Lists](https://leetcode.com/problems/merge-two-sorted-lists/description/)
 
 <!-- more -->
 
@@ -20,8 +26,11 @@ tags:
 
 [6. ZigZag Conversion](https://leetcode.com/problems/zigzag-conversion/description/)
 [8. String to Integer (atoi)](https://leetcode.com/problems/string-to-integer-atoi/description/)
+[14. Longest Common Prefix](https://leetcode.com/problems/longest-common-prefix/description/)
 
 # 栈、队列
+
+[20. Valid Parentheses](https://leetcode.com/problems/valid-parentheses/description/)
 
 # 树
 
@@ -37,11 +46,16 @@ tags:
 
 # 深度优先搜索
 
+[17. Letter Combinations of a Phone Number](https://leetcode.com/problems/letter-combinations-of-a-phone-number/description/)
+[22. Generate Parentheses](https://leetcode.com/problems/generate-parentheses/description/)
+
 # 广度优先搜索
 
 # 分治
 
 # 贪心
+
+[11. Container With Most Water](https://leetcode.com/problems/container-with-most-water/description/)
 
 # 动态规划
 
@@ -52,5 +66,7 @@ tags:
 
 [7. Reverse Integer](https://leetcode.com/problems/reverse-integer/description/)
 [9. Palindrome Number](https://leetcode.com/problems/palindrome-number/description/)
+[12. Integer to Roman](https://leetcode.com/problems/integer-to-roman/description/)
+[13. Roman to Integer](https://leetcode.com/problems/roman-to-integer/description/)
 
 # 其他

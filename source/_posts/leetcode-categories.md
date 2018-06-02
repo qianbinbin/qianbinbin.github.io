@@ -13,12 +13,16 @@ tags:
 [15. 3Sum](https://leetcode.com/problems/3sum/description/)
 [16. 3Sum Closest](https://leetcode.com/problems/3sum-closest/description/)
 [18. 4Sum](https://leetcode.com/problems/4sum/description/)
+[26. Remove Duplicates from Sorted Array](https://leetcode.com/problems/remove-duplicates-from-sorted-array/description/)
+[27. Remove Element](https://leetcode.com/problems/remove-element/description/)
 
 ## 链表
 
 [2. Add Two Numbers](https://leetcode.com/problems/add-two-numbers/description/)
 [19. Remove Nth Node From End of List](https://leetcode.com/problems/remove-nth-node-from-end-of-list/description/)
 [21. Merge Two Sorted Lists](https://leetcode.com/problems/merge-two-sorted-lists/description/)
+[24. Swap Nodes in Pairs](https://leetcode.com/problems/swap-nodes-in-pairs/description/)
+[25. Reverse Nodes in k-Group](https://leetcode.com/problems/reverse-nodes-in-k-group/description/)
 
 <!-- more -->
 
@@ -27,6 +31,7 @@ tags:
 [6. ZigZag Conversion](https://leetcode.com/problems/zigzag-conversion/description/)
 [8. String to Integer (atoi)](https://leetcode.com/problems/string-to-integer-atoi/description/)
 [14. Longest Common Prefix](https://leetcode.com/problems/longest-common-prefix/description/)
+[28. Implement strStr()](https://leetcode.com/problems/implement-strstr/description/)
 
 # 栈、队列
 
@@ -41,6 +46,7 @@ tags:
 [1. Two Sum](https://leetcode.com/problems/two-sum/description/)
 [3. Longest Substring Without Repeating Characters](https://leetcode.com/problems/longest-substring-without-repeating-characters/description/)
 [4. Median of Two Sorted Arrays](https://leetcode.com/problems/median-of-two-sorted-arrays/description/)
+[30. Substring with Concatenation of All Words](https://leetcode.com/problems/substring-with-concatenation-of-all-words/description/)
 
 # 排序
 
@@ -52,6 +58,8 @@ tags:
 # 广度优先搜索
 
 # 分治
+
+[23. Merge k Sorted Lists](https://leetcode.com/problems/merge-k-sorted-lists/description/)
 
 # 贪心
 
@@ -68,5 +76,6 @@ tags:
 [9. Palindrome Number](https://leetcode.com/problems/palindrome-number/description/)
 [12. Integer to Roman](https://leetcode.com/problems/integer-to-roman/description/)
 [13. Roman to Integer](https://leetcode.com/problems/roman-to-integer/description/)
+[29. Divide Two Integers](https://leetcode.com/problems/divide-two-integers/description/)
 
 # 其他

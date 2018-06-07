@@ -15,6 +15,7 @@ tags:
 [18. 4Sum](https://leetcode.com/problems/4sum/description/)
 [26. Remove Duplicates from Sorted Array](https://leetcode.com/problems/remove-duplicates-from-sorted-array/description/)
 [27. Remove Element](https://leetcode.com/problems/remove-element/description/)
+[31. Next Permutation](https://leetcode.com/problems/next-permutation/description/)
 
 ## 链表
 
@@ -32,10 +33,12 @@ tags:
 [8. String to Integer (atoi)](https://leetcode.com/problems/string-to-integer-atoi/description/)
 [14. Longest Common Prefix](https://leetcode.com/problems/longest-common-prefix/description/)
 [28. Implement strStr()](https://leetcode.com/problems/implement-strstr/description/)
+[38. Count and Say](https://leetcode.com/problems/count-and-say/description/)
 
 # 栈、队列
 
 [20. Valid Parentheses](https://leetcode.com/problems/valid-parentheses/description/)
+[32. Longest Valid Parentheses](https://leetcode.com/problems/longest-valid-parentheses/description/)
 
 # 树
 
@@ -47,6 +50,10 @@ tags:
 [3. Longest Substring Without Repeating Characters](https://leetcode.com/problems/longest-substring-without-repeating-characters/description/)
 [4. Median of Two Sorted Arrays](https://leetcode.com/problems/median-of-two-sorted-arrays/description/)
 [30. Substring with Concatenation of All Words](https://leetcode.com/problems/substring-with-concatenation-of-all-words/description/)
+[33. Search in Rotated Sorted Array](https://leetcode.com/problems/search-in-rotated-sorted-array/description/)
+[34. Search for a Range](https://leetcode.com/problems/search-for-a-range/description/)
+[35. Search Insert Position](https://leetcode.com/problems/search-insert-position/description/)
+[36. Valid Sudoku](https://leetcode.com/problems/valid-sudoku/description/)
 
 # 排序
 
@@ -54,6 +61,9 @@ tags:
 
 [17. Letter Combinations of a Phone Number](https://leetcode.com/problems/letter-combinations-of-a-phone-number/description/)
 [22. Generate Parentheses](https://leetcode.com/problems/generate-parentheses/description/)
+[37. Sudoku Solver](https://leetcode.com/problems/sudoku-solver/description/)
+[39. Combination Sum](https://leetcode.com/problems/combination-sum/description/)
+[40. Combination Sum II](https://leetcode.com/problems/combination-sum-ii/description/)
 
 # 广度优先搜索
 

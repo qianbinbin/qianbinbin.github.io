@@ -54,6 +54,7 @@ tags:
 [34. Search for a Range](https://leetcode.com/problems/search-for-a-range/description/)
 [35. Search Insert Position](https://leetcode.com/problems/search-insert-position/description/)
 [36. Valid Sudoku](https://leetcode.com/problems/valid-sudoku/description/)
+[41. First Missing Positive](https://leetcode.com/problems/first-missing-positive/description/)
 
 # 排序
 

@@ -16,6 +16,7 @@ tags:
 [26. Remove Duplicates from Sorted Array](https://leetcode.com/problems/remove-duplicates-from-sorted-array/description/)
 [27. Remove Element](https://leetcode.com/problems/remove-element/description/)
 [31. Next Permutation](https://leetcode.com/problems/next-permutation/description/)
+[42. Trapping Rain Water](https://leetcode.com/problems/trapping-rain-water/description/)
 
 ## 链表
 
@@ -54,9 +55,10 @@ tags:
 [34. Search for a Range](https://leetcode.com/problems/search-for-a-range/description/)
 [35. Search Insert Position](https://leetcode.com/problems/search-insert-position/description/)
 [36. Valid Sudoku](https://leetcode.com/problems/valid-sudoku/description/)
-[41. First Missing Positive](https://leetcode.com/problems/first-missing-positive/description/)
 
 # 排序
+
+[41. First Missing Positive](https://leetcode.com/problems/first-missing-positive/description/)
 
 # 深度优先搜索
 
@@ -88,5 +90,6 @@ tags:
 [12. Integer to Roman](https://leetcode.com/problems/integer-to-roman/description/)
 [13. Roman to Integer](https://leetcode.com/problems/roman-to-integer/description/)
 [29. Divide Two Integers](https://leetcode.com/problems/divide-two-integers/description/)
+[43. Multiply Strings](https://leetcode.com/problems/multiply-strings/description/)
 
 # 其他

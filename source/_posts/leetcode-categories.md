@@ -17,6 +17,7 @@ tags:
 [27. Remove Element](https://leetcode.com/problems/remove-element/description/)
 [31. Next Permutation](https://leetcode.com/problems/next-permutation/description/)
 [42. Trapping Rain Water](https://leetcode.com/problems/trapping-rain-water/description/)
+[48. Rotate Image](https://leetcode.com/problems/rotate-image/description/)
 
 ## 链表
 
@@ -55,6 +56,7 @@ tags:
 [34. Search for a Range](https://leetcode.com/problems/search-for-a-range/description/)
 [35. Search Insert Position](https://leetcode.com/problems/search-insert-position/description/)
 [36. Valid Sudoku](https://leetcode.com/problems/valid-sudoku/description/)
+[49. Group Anagrams](https://leetcode.com/problems/group-anagrams/description/)
 
 # 排序
 
@@ -67,6 +69,8 @@ tags:
 [37. Sudoku Solver](https://leetcode.com/problems/sudoku-solver/description/)
 [39. Combination Sum](https://leetcode.com/problems/combination-sum/description/)
 [40. Combination Sum II](https://leetcode.com/problems/combination-sum-ii/description/)
+[46. Permutations](https://leetcode.com/problems/permutations/description/)
+[47. Permutations II](https://leetcode.com/problems/permutations-ii/description/)
 
 # 广度优先搜索
 
@@ -77,6 +81,8 @@ tags:
 # 贪心
 
 [11. Container With Most Water](https://leetcode.com/problems/container-with-most-water/description/)
+[44. Wildcard Matching](https://leetcode.com/problems/wildcard-matching/description/)
+[45. Jump Game II](https://leetcode.com/problems/jump-game-ii/description/)
 
 # 动态规划
 
@@ -91,5 +97,6 @@ tags:
 [13. Roman to Integer](https://leetcode.com/problems/roman-to-integer/description/)
 [29. Divide Two Integers](https://leetcode.com/problems/divide-two-integers/description/)
 [43. Multiply Strings](https://leetcode.com/problems/multiply-strings/description/)
+[50. Pow(x, n)](https://leetcode.com/problems/powx-n/description/)
 
 # 其他

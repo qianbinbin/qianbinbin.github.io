@@ -18,6 +18,9 @@ tags:
 [31. Next Permutation](https://leetcode.com/problems/next-permutation/description/)
 [42. Trapping Rain Water](https://leetcode.com/problems/trapping-rain-water/description/)
 [48. Rotate Image](https://leetcode.com/problems/rotate-image/description/)
+[54. Spiral Matrix](https://leetcode.com/problems/spiral-matrix/description/)
+[59. Spiral Matrix II](https://leetcode.com/problems/spiral-matrix-ii/description/)
+[60. Permutation Sequence](https://leetcode.com/problems/permutation-sequence/description/)
 
 ## 链表
 
@@ -36,6 +39,7 @@ tags:
 [14. Longest Common Prefix](https://leetcode.com/problems/longest-common-prefix/description/)
 [28. Implement strStr()](https://leetcode.com/problems/implement-strstr/description/)
 [38. Count and Say](https://leetcode.com/problems/count-and-say/description/)
+[58. Length of Last Word](https://leetcode.com/problems/length-of-last-word/description/)
 
 # 栈、队列
 
@@ -71,6 +75,8 @@ tags:
 [40. Combination Sum II](https://leetcode.com/problems/combination-sum-ii/description/)
 [46. Permutations](https://leetcode.com/problems/permutations/description/)
 [47. Permutations II](https://leetcode.com/problems/permutations-ii/description/)
+[51. N-Queens](https://leetcode.com/problems/n-queens/description/)
+[52. N-Queens II](https://leetcode.com/problems/n-queens-ii/description/)
 
 # 广度优先搜索
 
@@ -83,11 +89,13 @@ tags:
 [11. Container With Most Water](https://leetcode.com/problems/container-with-most-water/description/)
 [44. Wildcard Matching](https://leetcode.com/problems/wildcard-matching/description/)
 [45. Jump Game II](https://leetcode.com/problems/jump-game-ii/description/)
+[55. Jump Game](https://leetcode.com/problems/jump-game/description/)
 
 # 动态规划
 
 [5. Longest Palindromic Substring](https://leetcode.com/problems/longest-palindromic-substring/description/)
 [10. Regular Expression Matching](https://leetcode.com/problems/regular-expression-matching/description/)
+[53. Maximum Subarray](https://leetcode.com/problems/maximum-subarray/description/)
 
 # 数学
 
@@ -100,3 +108,6 @@ tags:
 [50. Pow(x, n)](https://leetcode.com/problems/powx-n/description/)
 
 # 其他
+
+[56. Merge Intervals](https://leetcode.com/problems/merge-intervals/description/)
+[57. Insert Interval](https://leetcode.com/problems/insert-interval/description/)

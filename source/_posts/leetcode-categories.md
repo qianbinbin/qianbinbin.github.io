@@ -29,6 +29,7 @@ tags:
 [21. Merge Two Sorted Lists](https://leetcode.com/problems/merge-two-sorted-lists/description/)
 [24. Swap Nodes in Pairs](https://leetcode.com/problems/swap-nodes-in-pairs/description/)
 [25. Reverse Nodes in k-Group](https://leetcode.com/problems/reverse-nodes-in-k-group/description/)
+[61. Rotate List](https://leetcode.com/problems/rotate-list/description/)
 
 <!-- more -->
 
@@ -40,6 +41,9 @@ tags:
 [28. Implement strStr()](https://leetcode.com/problems/implement-strstr/description/)
 [38. Count and Say](https://leetcode.com/problems/count-and-say/description/)
 [58. Length of Last Word](https://leetcode.com/problems/length-of-last-word/description/)
+[65. Valid Number](https://leetcode.com/problems/valid-number/description/)
+[67. Add Binary](https://leetcode.com/problems/add-binary/description/)
+[68. Text Justification](https://leetcode.com/problems/text-justification/description/)
 
 # 栈、队列
 
@@ -61,6 +65,7 @@ tags:
 [35. Search Insert Position](https://leetcode.com/problems/search-insert-position/description/)
 [36. Valid Sudoku](https://leetcode.com/problems/valid-sudoku/description/)
 [49. Group Anagrams](https://leetcode.com/problems/group-anagrams/description/)
+[69. Sqrt(x)](https://leetcode.com/problems/sqrtx/description/)
 
 # 排序
 
@@ -96,6 +101,10 @@ tags:
 [5. Longest Palindromic Substring](https://leetcode.com/problems/longest-palindromic-substring/description/)
 [10. Regular Expression Matching](https://leetcode.com/problems/regular-expression-matching/description/)
 [53. Maximum Subarray](https://leetcode.com/problems/maximum-subarray/description/)
+[62. Unique Paths](https://leetcode.com/problems/unique-paths/description/)
+[63. Unique Paths II](https://leetcode.com/problems/unique-paths-ii/description/)
+[64. Minimum Path Sum](https://leetcode.com/problems/minimum-path-sum/description/)
+[70. Climbing Stairs](https://leetcode.com/problems/climbing-stairs/description/)
 
 # 数学
 
@@ -106,6 +115,7 @@ tags:
 [29. Divide Two Integers](https://leetcode.com/problems/divide-two-integers/description/)
 [43. Multiply Strings](https://leetcode.com/problems/multiply-strings/description/)
 [50. Pow(x, n)](https://leetcode.com/problems/powx-n/description/)
+[66. Plus One](https://leetcode.com/problems/plus-one/description/)
 
 # 其他
 

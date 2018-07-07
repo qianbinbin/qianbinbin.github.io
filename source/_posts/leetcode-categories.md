@@ -21,6 +21,9 @@ tags:
 [54. Spiral Matrix](https://leetcode.com/problems/spiral-matrix/description/)
 [59. Spiral Matrix II](https://leetcode.com/problems/spiral-matrix-ii/description/)
 [60. Permutation Sequence](https://leetcode.com/problems/permutation-sequence/description/)
+[73. Set Matrix Zeroes](https://leetcode.com/problems/set-matrix-zeroes/description/)
+[75. Sort Colors](https://leetcode.com/problems/sort-colors/description/)
+[80. Remove Duplicates from Sorted Array II](https://leetcode.com/problems/remove-duplicates-from-sorted-array-ii/description/)
 
 ## 链表
 
@@ -49,6 +52,7 @@ tags:
 
 [20. Valid Parentheses](https://leetcode.com/problems/valid-parentheses/description/)
 [32. Longest Valid Parentheses](https://leetcode.com/problems/longest-valid-parentheses/description/)
+[71. Simplify Path](https://leetcode.com/problems/simplify-path/description/)
 
 # 树
 
@@ -66,6 +70,8 @@ tags:
 [36. Valid Sudoku](https://leetcode.com/problems/valid-sudoku/description/)
 [49. Group Anagrams](https://leetcode.com/problems/group-anagrams/description/)
 [69. Sqrt(x)](https://leetcode.com/problems/sqrtx/description/)
+[74. Search a 2D Matrix](https://leetcode.com/problems/search-a-2d-matrix/description/)
+[76. Minimum Window Substring](https://leetcode.com/problems/minimum-window-substring/description/)
 
 # 排序
 
@@ -82,6 +88,9 @@ tags:
 [47. Permutations II](https://leetcode.com/problems/permutations-ii/description/)
 [51. N-Queens](https://leetcode.com/problems/n-queens/description/)
 [52. N-Queens II](https://leetcode.com/problems/n-queens-ii/description/)
+[77. Combinations](https://leetcode.com/problems/combinations/description/)
+[78. Subsets](https://leetcode.com/problems/subsets/description/)
+[79. Word Search](https://leetcode.com/problems/word-search/description/)
 
 # 广度优先搜索
 
@@ -105,6 +114,7 @@ tags:
 [63. Unique Paths II](https://leetcode.com/problems/unique-paths-ii/description/)
 [64. Minimum Path Sum](https://leetcode.com/problems/minimum-path-sum/description/)
 [70. Climbing Stairs](https://leetcode.com/problems/climbing-stairs/description/)
+[72. Edit Distance](https://leetcode.com/problems/edit-distance/description/)
 
 # 数学
 

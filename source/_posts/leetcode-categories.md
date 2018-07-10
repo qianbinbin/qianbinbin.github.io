@@ -24,6 +24,7 @@ tags:
 [73. Set Matrix Zeroes](https://leetcode.com/problems/set-matrix-zeroes/description/)
 [75. Sort Colors](https://leetcode.com/problems/sort-colors/description/)
 [80. Remove Duplicates from Sorted Array II](https://leetcode.com/problems/remove-duplicates-from-sorted-array-ii/description/)
+[88. Merge Sorted Array](https://leetcode.com/problems/merge-sorted-array/description/)
 
 ## 链表
 
@@ -33,6 +34,9 @@ tags:
 [24. Swap Nodes in Pairs](https://leetcode.com/problems/swap-nodes-in-pairs/description/)
 [25. Reverse Nodes in k-Group](https://leetcode.com/problems/reverse-nodes-in-k-group/description/)
 [61. Rotate List](https://leetcode.com/problems/rotate-list/description/)
+[82. Remove Duplicates from Sorted List II](https://leetcode.com/problems/remove-duplicates-from-sorted-list-ii/description/)
+[83. Remove Duplicates from Sorted List](https://leetcode.com/problems/remove-duplicates-from-sorted-list/description/)
+[86. Partition List](https://leetcode.com/problems/partition-list/description/)
 
 <!-- more -->
 
@@ -53,6 +57,8 @@ tags:
 [20. Valid Parentheses](https://leetcode.com/problems/valid-parentheses/description/)
 [32. Longest Valid Parentheses](https://leetcode.com/problems/longest-valid-parentheses/description/)
 [71. Simplify Path](https://leetcode.com/problems/simplify-path/description/)
+[84. Largest Rectangle in Histogram](https://leetcode.com/problems/largest-rectangle-in-histogram/description/)
+[85. Maximal Rectangle](https://leetcode.com/problems/maximal-rectangle/description/)
 
 # 树
 
@@ -72,6 +78,7 @@ tags:
 [69. Sqrt(x)](https://leetcode.com/problems/sqrtx/description/)
 [74. Search a 2D Matrix](https://leetcode.com/problems/search-a-2d-matrix/description/)
 [76. Minimum Window Substring](https://leetcode.com/problems/minimum-window-substring/description/)
+[81. Search in Rotated Sorted Array II](https://leetcode.com/problems/search-in-rotated-sorted-array-ii/description/)
 
 # 排序
 
@@ -91,6 +98,7 @@ tags:
 [77. Combinations](https://leetcode.com/problems/combinations/description/)
 [78. Subsets](https://leetcode.com/problems/subsets/description/)
 [79. Word Search](https://leetcode.com/problems/word-search/description/)
+[90. Subsets II](https://leetcode.com/problems/subsets-ii/description/)
 
 # 广度优先搜索
 
@@ -115,6 +123,7 @@ tags:
 [64. Minimum Path Sum](https://leetcode.com/problems/minimum-path-sum/description/)
 [70. Climbing Stairs](https://leetcode.com/problems/climbing-stairs/description/)
 [72. Edit Distance](https://leetcode.com/problems/edit-distance/description/)
+[87. Scramble String](https://leetcode.com/problems/scramble-string/description/)
 
 # 数学
 
@@ -131,3 +140,4 @@ tags:
 
 [56. Merge Intervals](https://leetcode.com/problems/merge-intervals/description/)
 [57. Insert Interval](https://leetcode.com/problems/insert-interval/description/)
+[89. Gray Code](https://leetcode.com/problems/gray-code/description/)

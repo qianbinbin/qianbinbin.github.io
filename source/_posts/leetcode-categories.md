@@ -25,6 +25,8 @@ tags:
 [75. Sort Colors](https://leetcode.com/problems/sort-colors/description/)
 [80. Remove Duplicates from Sorted Array II](https://leetcode.com/problems/remove-duplicates-from-sorted-array-ii/description/)
 [88. Merge Sorted Array](https://leetcode.com/problems/merge-sorted-array/description/)
+[118. Pascal's Triangle](https://leetcode.com/problems/pascals-triangle/description/)
+[119. Pascal's Triangle II](https://leetcode.com/problems/pascals-triangle-ii/description/)
 
 ## 链表
 
@@ -79,6 +81,12 @@ tags:
 [108. Convert Sorted Array to Binary Search Tree](https://leetcode.com/problems/convert-sorted-array-to-binary-search-tree/description/)
 [109. Convert Sorted List to Binary Search Tree](https://leetcode.com/problems/convert-sorted-list-to-binary-search-tree/description/)
 [110. Balanced Binary Tree](https://leetcode.com/problems/balanced-binary-tree/description/)
+[111. Minimum Depth of Binary Tree](https://leetcode.com/problems/minimum-depth-of-binary-tree/description/)
+[112. Path Sum](https://leetcode.com/problems/path-sum/description/)
+[113. Path Sum II](https://leetcode.com/problems/path-sum-ii/description/)
+[114. Flatten Binary Tree to Linked List](https://leetcode.com/problems/flatten-binary-tree-to-linked-list/description/)
+[116. Populating Next Right Pointers in Each Node](https://leetcode.com/problems/populating-next-right-pointers-in-each-node/description/)
+[117. Populating Next Right Pointers in Each Node II](https://leetcode.com/problems/populating-next-right-pointers-in-each-node-ii/description/)
 
 # 图
 
@@ -145,6 +153,8 @@ tags:
 [87. Scramble String](https://leetcode.com/problems/scramble-string/description/)
 [91. Decode Ways](https://leetcode.com/problems/decode-ways/description/)
 [97. Interleaving String](https://leetcode.com/problems/interleaving-string/description/)
+[115. Distinct Subsequences](https://leetcode.com/problems/distinct-subsequences/description/)
+[120. Triangle](https://leetcode.com/problems/triangle/description/)
 
 # 数学
 

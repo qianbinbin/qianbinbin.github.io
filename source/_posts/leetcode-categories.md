@@ -54,6 +54,7 @@ tags:
 [65. Valid Number](https://leetcode.com/problems/valid-number/description/)
 [67. Add Binary](https://leetcode.com/problems/add-binary/description/)
 [68. Text Justification](https://leetcode.com/problems/text-justification/description/)
+[125. Valid Palindrome](https://leetcode.com/problems/valid-palindrome/description/)
 
 # 栈、队列
 
@@ -87,6 +88,8 @@ tags:
 [114. Flatten Binary Tree to Linked List](https://leetcode.com/problems/flatten-binary-tree-to-linked-list/description/)
 [116. Populating Next Right Pointers in Each Node](https://leetcode.com/problems/populating-next-right-pointers-in-each-node/description/)
 [117. Populating Next Right Pointers in Each Node II](https://leetcode.com/problems/populating-next-right-pointers-in-each-node-ii/description/)
+[124. Binary Tree Maximum Path Sum](https://leetcode.com/problems/binary-tree-maximum-path-sum/description/)
+[129. Sum Root to Leaf Numbers](https://leetcode.com/problems/sum-root-to-leaf-numbers/description/)
 
 # 图
 
@@ -105,6 +108,7 @@ tags:
 [74. Search a 2D Matrix](https://leetcode.com/problems/search-a-2d-matrix/description/)
 [76. Minimum Window Substring](https://leetcode.com/problems/minimum-window-substring/description/)
 [81. Search in Rotated Sorted Array II](https://leetcode.com/problems/search-in-rotated-sorted-array-ii/description/)
+[128. Longest Consecutive Sequence](https://leetcode.com/problems/longest-consecutive-sequence/description/)
 
 # 排序
 
@@ -126,8 +130,12 @@ tags:
 [79. Word Search](https://leetcode.com/problems/word-search/description/)
 [90. Subsets II](https://leetcode.com/problems/subsets-ii/description/)
 [93. Restore IP Addresses](https://leetcode.com/problems/restore-ip-addresses/description/)
+[130. Surrounded Regions](https://leetcode.com/problems/surrounded-regions/description/)
 
 # 广度优先搜索
+
+[126. Word Ladder II](https://leetcode.com/problems/word-ladder-ii/description/)
+[127. Word Ladder](https://leetcode.com/problems/word-ladder/description/)
 
 # 分治
 
@@ -139,6 +147,7 @@ tags:
 [44. Wildcard Matching](https://leetcode.com/problems/wildcard-matching/description/)
 [45. Jump Game II](https://leetcode.com/problems/jump-game-ii/description/)
 [55. Jump Game](https://leetcode.com/problems/jump-game/description/)
+[122. Best Time to Buy and Sell Stock II](https://leetcode.com/problems/best-time-to-buy-and-sell-stock-ii/description/)
 
 # 动态规划
 
@@ -155,6 +164,8 @@ tags:
 [97. Interleaving String](https://leetcode.com/problems/interleaving-string/description/)
 [115. Distinct Subsequences](https://leetcode.com/problems/distinct-subsequences/description/)
 [120. Triangle](https://leetcode.com/problems/triangle/description/)
+[121. Best Time to Buy and Sell Stock](https://leetcode.com/problems/best-time-to-buy-and-sell-stock/description/)
+[123. Best Time to Buy and Sell Stock III](https://leetcode.com/problems/best-time-to-buy-and-sell-stock-iii/description/)
 
 # 数学
 

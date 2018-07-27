@@ -40,6 +40,7 @@ tags:
 [83. Remove Duplicates from Sorted List](https://leetcode.com/problems/remove-duplicates-from-sorted-list/description/)
 [86. Partition List](https://leetcode.com/problems/partition-list/description/)
 [92. Reverse Linked List II](https://leetcode.com/problems/reverse-linked-list-ii/description/)
+[138. Copy List with Random Pointer](https://leetcode.com/problems/copy-list-with-random-pointer/description/)
 
 <!-- more -->
 
@@ -93,6 +94,8 @@ tags:
 
 # 图
 
+[133. Clone Graph](https://leetcode.com/problems/clone-graph/description/)
+
 # 查找
 
 [1. Two Sum](https://leetcode.com/problems/two-sum/description/)
@@ -131,6 +134,7 @@ tags:
 [90. Subsets II](https://leetcode.com/problems/subsets-ii/description/)
 [93. Restore IP Addresses](https://leetcode.com/problems/restore-ip-addresses/description/)
 [130. Surrounded Regions](https://leetcode.com/problems/surrounded-regions/description/)
+[131. Palindrome Partitioning](https://leetcode.com/problems/palindrome-partitioning/description/)
 
 # 广度优先搜索
 
@@ -148,6 +152,8 @@ tags:
 [45. Jump Game II](https://leetcode.com/problems/jump-game-ii/description/)
 [55. Jump Game](https://leetcode.com/problems/jump-game/description/)
 [122. Best Time to Buy and Sell Stock II](https://leetcode.com/problems/best-time-to-buy-and-sell-stock-ii/description/)
+[134. Gas Station](https://leetcode.com/problems/gas-station/description/)
+[135. Candy](https://leetcode.com/problems/candy/description/)
 
 # 动态规划
 
@@ -166,6 +172,9 @@ tags:
 [120. Triangle](https://leetcode.com/problems/triangle/description/)
 [121. Best Time to Buy and Sell Stock](https://leetcode.com/problems/best-time-to-buy-and-sell-stock/description/)
 [123. Best Time to Buy and Sell Stock III](https://leetcode.com/problems/best-time-to-buy-and-sell-stock-iii/description/)
+[132. Palindrome Partitioning II](https://leetcode.com/problems/palindrome-partitioning-ii/description/)
+[139. Word Break](https://leetcode.com/problems/word-break/description/)
+[140. Word Break II](https://leetcode.com/problems/word-break-ii/description/)
 
 # 数学
 
@@ -183,3 +192,5 @@ tags:
 [56. Merge Intervals](https://leetcode.com/problems/merge-intervals/description/)
 [57. Insert Interval](https://leetcode.com/problems/insert-interval/description/)
 [89. Gray Code](https://leetcode.com/problems/gray-code/description/)
+[136. Single Number](https://leetcode.com/problems/single-number/description/)
+[137. Single Number II](https://leetcode.com/problems/single-number-ii/description/)

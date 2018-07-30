@@ -28,6 +28,8 @@ tags:
 [118. Pascal's Triangle](https://leetcode.com/problems/pascals-triangle/description/)
 [119. Pascal's Triangle II](https://leetcode.com/problems/pascals-triangle-ii/description/)
 
+<!-- more -->
+
 ## 链表
 
 [2. Add Two Numbers](https://leetcode.com/problems/add-two-numbers/description/)
@@ -41,8 +43,9 @@ tags:
 [86. Partition List](https://leetcode.com/problems/partition-list/description/)
 [92. Reverse Linked List II](https://leetcode.com/problems/reverse-linked-list-ii/description/)
 [138. Copy List with Random Pointer](https://leetcode.com/problems/copy-list-with-random-pointer/description/)
-
-<!-- more -->
+[141. Linked List Cycle](https://leetcode.com/problems/linked-list-cycle/description/)
+[142. Linked List Cycle II](https://leetcode.com/problems/linked-list-cycle-ii/description/)
+[143. Reorder List](https://leetcode.com/problems/reorder-list/description/)
 
 # 字符串
 
@@ -64,6 +67,7 @@ tags:
 [71. Simplify Path](https://leetcode.com/problems/simplify-path/description/)
 [84. Largest Rectangle in Histogram](https://leetcode.com/problems/largest-rectangle-in-histogram/description/)
 [85. Maximal Rectangle](https://leetcode.com/problems/maximal-rectangle/description/)
+[150. Evaluate Reverse Polish Notation](https://leetcode.com/problems/evaluate-reverse-polish-notation/description/)
 
 # 树
 
@@ -91,6 +95,8 @@ tags:
 [117. Populating Next Right Pointers in Each Node II](https://leetcode.com/problems/populating-next-right-pointers-in-each-node-ii/description/)
 [124. Binary Tree Maximum Path Sum](https://leetcode.com/problems/binary-tree-maximum-path-sum/description/)
 [129. Sum Root to Leaf Numbers](https://leetcode.com/problems/sum-root-to-leaf-numbers/description/)
+[144. Binary Tree Preorder Traversal](https://leetcode.com/problems/binary-tree-preorder-traversal/description/)
+[145. Binary Tree Postorder Traversal](https://leetcode.com/problems/binary-tree-postorder-traversal/description/)
 
 # 图
 
@@ -112,10 +118,14 @@ tags:
 [76. Minimum Window Substring](https://leetcode.com/problems/minimum-window-substring/description/)
 [81. Search in Rotated Sorted Array II](https://leetcode.com/problems/search-in-rotated-sorted-array-ii/description/)
 [128. Longest Consecutive Sequence](https://leetcode.com/problems/longest-consecutive-sequence/description/)
+[146. LRU Cache](https://leetcode.com/problems/lru-cache/description/)
+[149. Max Points on a Line](https://leetcode.com/problems/max-points-on-a-line/description/)
 
 # 排序
 
 [41. First Missing Positive](https://leetcode.com/problems/first-missing-positive/description/)
+[147. Insertion Sort List](https://leetcode.com/problems/insertion-sort-list/description/)
+[148. Sort List](https://leetcode.com/problems/sort-list/description/)
 
 # 深度优先搜索
 

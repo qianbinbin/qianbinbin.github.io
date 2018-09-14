@@ -82,3 +82,6 @@ tags:
 
 
 11. Python 不支持数组，数组可初始化指定长度 list 实现
+
+
+12. Python 不支持`do {...} while {...}`语法

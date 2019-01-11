@@ -419,3 +419,148 @@ $$[x\_{w-1}, ..., x\_{w-1}, x\_{w-1}, x\_{w-2}, ..., x\_k]$$
 设 $x = qy + r$，其中 $0 \le r < y$，则 $\lfloor (x + y - 1) / y \rfloor = \lfloor (qy + r + y - 1) / y \rfloor = q + \lfloor (r + y - 1) / y \rfloor$。当 $x$ 能被 $y$ 整除时，$r = 0$，后面一项为 $0$，结果为 $q$，当不能整除时，$0 < r < y$，后面一项为 $1$，结果为 $q + 1$。综上得 $\lfloor (x + y - 1) / y \rfloor = \lceil y / x \rceil$。
 
 C 表达式 `x + (1 << k) - 1` 得到数值 $x + 2^k - 1$，再右移 $k$ 位，即除以 $2^k$，得 $\lceil x / 2^k \rceil$。
+
+
+# 2.4 浮点数
+
+## 2.4.2 IEEE 浮点表示
+
+IEEE 浮点标准用 $V = (-1)^s \times M \times 2^E$ 的形式来表示一个数。
+
+浮点数位表示划分为三个字段：
+
+- 一个单独的符号位 s 直接编码符号 $s$
+- $k$ 位阶码字段 exp = $e\_{k - 1}... e\_1 e\_0$ 编码阶码 $E$
+- $n$ 位小数字段 frac = $f\_{n - 1}... f\_1 f\_0$ 编码尾数 $M$
+
+单精度浮点格式中，s、exp、frac 字段分别为 1 位、k = 8 位和 n = 23 位，双精度浮点格式中分别为 1 位、k = 11 位 和 n = 52 位。
+
+根据 exp 的值，被编码的值可以分为三种情况。
+
+**情况 1:规格化的值**
+
+当 exp 的位模式既不全为 0 也不全为 1 时，浮点数为规格化的值。
+
+阶码的值为 $E = e - Bias$，其中 $e$ 为无符号数，位表示为 $e\_{k - 1}... e\_1 e\_0$，偏置值 $Bias = 2^{k - 1} - 1$（单精度是 127，双精度为 1023）。由此产生的指数取值范围，对于单精度为 -126 ~ +127，双精度为 -1022 ~ +1023。
+
+小数字段 frac 描述小数值 $f$，其二进制表示为 $0.f\_{n - 1}... f\_1 f\_0$，尾数值为 $M = 1 + f$。$M$ 可以看作二进制表示为 $1.f\_{n - 1}... f\_1 f\_0$ 的数字，其开头的 1 是隐含的，这样可以获得额外的一位精度。
+
+**情况 2:非规格化的值**
+
+当阶码全为 0 时，浮点数表示非规格化的值。
+
+此时阶码的值为 $E = 1 - Bias = 2 - 2^{k - 1}$，单精度即为 -126，双精度即为 -1022，与规格化值的最小阶码相同。尾数的值为 $M = f$，即不包含隐含位。这种设置可以让规格化值与规格化数值之间平滑过渡。
+
+功能 1：表示 0。规格化数中尾数总是 $M \ge 1$，无法表示 0，但是非规格化可以表示 0：
+
+- +0.0：所有位都为 0
+- -0.0：符号位为 1，其它位全为 0
+
+功能 2：表示非常接近 0 的数。非规格化数是均匀接近于 0 的（渐进式下溢，gradual underflow），而规格化数绝对值越小分布越稠密。
+
+**情况 3:特殊值**
+
+当阶码全为 1 时，浮点数为特殊值。
+
+当小数字段全为 0 时，值为无穷，且 $s = 0$ 时为 $+\infty$，$s = 1$ 时为 $-\infty$，可以表示溢出的结果。
+
+当小数字段不为 0 时，值为 NaN（Not a Number），例如 $\sqrt{-1}$ 或 $\infty - \infty$ 的结果。也可用来表示未初始化的数据。
+
+
+## 2.4.3 数字示例
+
+| 描述 | 位表示 | 值 |
+|------|--------|----|
+| 0 | 0 00000000 00000000000000000000000 | $0$ |
+| 最小非规格化数 | 0 00000000 00000000000000000000001 | $2^{-23} \cdot 2^{-126}$ |
+| ... | ... | ... |
+| 最大非规格化数 | 0 00000000 11111111111111111111111 | $(1 - 2^{-23}) \cdot 2^{-126}$ |
+| 最小规格化数 | 0 00000001 00000000000000000000000 | $2^{-126}$ |
+| ... | ... | ... |
+| 最大规格化数 | 0 11111110 11111111111111111111111 | $(2 - 2^{-23}) \cdot 2^{127}$ |
+| 无穷大 | 0 11111111 00000000000000000000000 | $\infty$ |
+
+
+C 语言中 `float.h` 中定义了一些浮点数的值。
+
+Java 中 `Float` 类定义了一些单精度浮点数的值：
+
+```java
+public final class Float extends Number implements Comparable<Float> {
+    /**
+     * A constant holding the positive infinity of type
+     * {@code float}. It is equal to the value returned by
+     * {@code Float.intBitsToFloat(0x7f800000)}.
+     */
+    public static final float POSITIVE_INFINITY = 1.0f / 0.0f;
+
+    /**
+     * A constant holding the negative infinity of type
+     * {@code float}. It is equal to the value returned by
+     * {@code Float.intBitsToFloat(0xff800000)}.
+     */
+    public static final float NEGATIVE_INFINITY = -1.0f / 0.0f;
+
+    /**
+     * A constant holding a Not-a-Number (NaN) value of type
+     * {@code float}.  It is equivalent to the value returned by
+     * {@code Float.intBitsToFloat(0x7fc00000)}.
+     */
+    public static final float NaN = 0.0f / 0.0f;
+
+    /**
+     * A constant holding the largest positive finite value of type
+     * {@code float}, (2-2<sup>-23</sup>)&middot;2<sup>127</sup>.
+     * It is equal to the hexadecimal floating-point literal
+     * {@code 0x1.fffffeP+127f} and also equal to
+     * {@code Float.intBitsToFloat(0x7f7fffff)}.
+     */
+    public static final float MAX_VALUE = 0x1.fffffeP+127f; // 3.4028235e+38f
+
+    /**
+     * A constant holding the smallest positive normal value of type
+     * {@code float}, 2<sup>-126</sup>.  It is equal to the
+     * hexadecimal floating-point literal {@code 0x1.0p-126f} and also
+     * equal to {@code Float.intBitsToFloat(0x00800000)}.
+     *
+     * @since 1.6
+     */
+    public static final float MIN_NORMAL = 0x1.0p-126f; // 1.17549435E-38f
+
+    /**
+     * A constant holding the smallest positive nonzero value of type
+     * {@code float}, 2<sup>-149</sup>. It is equal to the
+     * hexadecimal floating-point literal {@code 0x0.000002P-126f}
+     * and also equal to {@code Float.intBitsToFloat(0x1)}.
+     */
+    public static final float MIN_VALUE = 0x0.000002P-126f; // 1.4e-45f
+
+    // ...
+}
+```
+
+上面表格中的值，如果把浮点数的位表示解释为无符号整数，它们就是按升序排列的，就像它们表示的浮点数一样，以便使用整数排序函数进行排序。如果符号位为 1，就是降序排列的。之所以不直接用补码整数来解释，是因为 `-0.0` 的位表示用补码解释的话就是最小值，显然不合理。
+
+
+## 2.4.4 舍入
+
+IEEE 浮点数规定了四种舍入方式：
+
+1. Round-to-even 向偶数舍入（向最接近的值舍入）
+
+  是默认方式，将结果舍入为最接近的值，如果两个数一样接近时，则取最低有效数字为偶数的值。这样的好处是避免统计偏差。例如如果总是向上舍入，则平均值总是比实际高一些。
+
+2. Round-toward-zero 向零舍入
+
+3. Round-down 向下舍入
+
+4. Round-up 向上舍入
+
+
+## 2.4.5 浮点运算
+
+浮点加法是可交换的，但不可结合，例如 `(3.14 + 1e10) - 1e10` 的结果为 `0.0`，但 `3.14 + (1e10 - 1e10)` 的结果为 `3.14`，由于舍入而丢失了精度。编译器就无法利用结合性进行优化。
+
+浮点加法具有单调性：如果 $a \ge b$，那么对于任何 $a$、$b$ 和 $x$ 的值，除 $NaN$ 外，都有 $x + a \ge x + b$。而无符号或补码加法则不具有。
+
+浮点乘法也是可交换但不可结合的，例如 `(1e20 * 1e20) * 1e-20` 结果为 `inf`，`1e20 * (1e20 * 1e-20)` 结果为 `1e20`。浮点乘法在加法上不具备分配性，例如 `1e20 * (1e20 - 1e20)` 的结果为 `0.0`，`1e20 * 1e20 - 1e20 * 1e20` 结果为 `nan`。

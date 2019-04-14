@@ -75,7 +75,7 @@ $$A'=\overline{B} \, \overline{A} \, C + \overline{B} \, A \, \overline{C}
 在编码实现时，计算 A' 覆盖了原先的 A，再计算 B' 时就需要用 A' 计算：
 
 $$B'=\overline{B} \, C \, \overline{A'} + B \, \overline{C} \, \overline{A'}
-    =(B\oplus{C}) \, A'$$
+    =(B\oplus{C}) \, \overline{A'}$$
 
 用 C 语言编码为：
 
@@ -91,7 +91,7 @@ for (int i = 0; i < numsSize; ++i) {
 
 ## 复杂度
 
-时间复杂度为 $O(n)$，空间复杂度为 $O(1)$，只用了两个 int。
+时间复杂度为 $O(n)$，空间复杂度为 $O(1)$，只用了两个`int`。
 
 # 参考资料
 

@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="许多时候整个系统只需要拥有一个的全局对象，这样有利于我们协调系统整体的行为。单例模式限制只有一个实例存在。 通常单例模式有两种构建方式：  懒汉方式，全局的单例实例在第一次被使用时创建，不试图获取这个实例就不会创建，从而实现了延迟加载  优点：类加载快，可调用动态数据（例如 Android 中的 Context 对象）  缺点：对象获取慢，多线程环境下需要考虑线程安全问题    饿汉方式，全局的单">
+<meta property="og:type" content="article">
+<meta property="og:title" content="单例模式 Singleton Pattern">
+<meta property="og:url" content="https://binac.io/2017/05/26/singleton-pattern/index.html">
+<meta property="og:site_name" content="Binac">
+<meta property="og:description" content="许多时候整个系统只需要拥有一个的全局对象，这样有利于我们协调系统整体的行为。单例模式限制只有一个实例存在。 通常单例模式有两种构建方式：  懒汉方式，全局的单例实例在第一次被使用时创建，不试图获取这个实例就不会创建，从而实现了延迟加载  优点：类加载快，可调用动态数据（例如 Android 中的 Context 对象）  缺点：对象获取慢，多线程环境下需要考虑线程安全问题    饿汉方式，全局的单">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2017-05-26T15:07:31.000Z">
+<meta property="article:modified_time" content="2020-01-21T09:13:12.738Z">
+<meta property="article:author" content="Binac">
+<meta property="article:tag" content="Java">
+<meta property="article:tag" content="设计模式">
+<meta name="twitter:card" content="summary">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>单例模式 Singleton Pattern</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+      
+<link rel="stylesheet" href="/css/rtl.css">
+
+    
+    <!-- rss -->
+    
+    
+<meta name="generator" content="Hexo 4.2.0"><style>.mjpage .MJX-monospace {
+  font-family: monospace;
+}
+
+.mjpage .MJX-sans-serif {
+  font-family: sans-serif;
+}
+
+.mjpage {
+  display: inline;
+  font-style: normal;
+  font-weight: normal;
+  line-height: normal;
+  font-size: 100%;
+  font-size-adjust: none;
+  text-indent: 0;
+  text-align: left;
+  text-transform: none;
+  letter-spacing: normal;
+  word-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+  float: none;
+  direction: ltr;
+  max-width: none;
+  max-height: none;
+  min-width: 0;
+  min-height: 0;
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.mjpage * {
+  transition: none;
+  -webkit-transition: none;
+  -moz-transition: none;
+  -ms-transition: none;
+  -o-transition: none;
+}
+
+.mjx-svg-href {
+  fill: blue;
+  stroke: blue;
+}
+
+.MathJax_SVG_LineBox {
+  display: table !important;
+}
+
+.MathJax_SVG_LineBox span {
+  display: table-cell !important;
+  width: 10000em !important;
+  min-width: 0;
+  max-width: none;
+  padding: 0;
+  border: 0;
+  margin: 0;
+}
+
+.mjpage__block {
+  text-align: center;
+  margin: 1em 0em;
+  position: relative;
+  display: block !important;
+  text-indent: 0;
+  max-width: none;
+  max-height: none;
+  min-width: 0;
+  min-height: 0;
+  width: 100%;
+}
+</style><style>.mjpage .MJX-monospace {
+  font-family: monospace;
+}
+
+.mjpage .MJX-sans-serif {
+  font-family: sans-serif;
+}
+
+.mjpage {
+  display: inline;
+  font-style: normal;
+  font-weight: normal;
+  line-height: normal;
+  font-size: 100%;
+  font-size-adjust: none;
+  text-indent: 0;
+  text-align: left;
+  text-transform: none;
+  letter-spacing: normal;
+  word-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+  float: none;
+  direction: ltr;
+  max-width: none;
+  max-height: none;
+  min-width: 0;
+  min-height: 0;
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.mjpage * {
+  transition: none;
+  -webkit-transition: none;
+  -moz-transition: none;
+  -ms-transition: none;
+  -o-transition: none;
+}
+
+.mjx-svg-href {
+  fill: blue;
+  stroke: blue;
+}
+
+.MathJax_SVG_LineBox {
+  display: table !important;
+}
+
+.MathJax_SVG_LineBox span {
+  display: table-cell !important;
+  width: 10000em !important;
+  min-width: 0;
+  max-width: none;
+  padding: 0;
+  border: 0;
+  margin: 0;
+}
+
+.mjpage__block {
+  text-align: center;
+  margin: 1em 0em;
+  position: relative;
+  display: block !important;
+  text-indent: 0;
+  max-width: none;
+  max-height: none;
+  min-width: 0;
+  min-height: 0;
+  width: 100%;
+}
+</style></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/tags/">标签</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/2017/06/02/message-handler-and-looper/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=https://binac.io/2017/05/26/singleton-pattern/" target="_blank" rel="noopener"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=https://binac.io/2017/05/26/singleton-pattern/&text=单例模式 Singleton Pattern" target="_blank" rel="noopener"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=https://binac.io/2017/05/26/singleton-pattern/&title=单例模式 Singleton Pattern" target="_blank" rel="noopener"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=https://binac.io/2017/05/26/singleton-pattern/&is_video=false&description=单例模式 Singleton Pattern" target="_blank" rel="noopener"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=单例模式 Singleton Pattern&body=Check out this article: https://binac.io/2017/05/26/singleton-pattern/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=https://binac.io/2017/05/26/singleton-pattern/&title=单例模式 Singleton Pattern" target="_blank" rel="noopener"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=https://binac.io/2017/05/26/singleton-pattern/&title=单例模式 Singleton Pattern" target="_blank" rel="noopener"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=https://binac.io/2017/05/26/singleton-pattern/&title=单例模式 Singleton Pattern" target="_blank" rel="noopener"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=https://binac.io/2017/05/26/singleton-pattern/&title=单例模式 Singleton Pattern" target="_blank" rel="noopener"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=https://binac.io/2017/05/26/singleton-pattern/&name=单例模式 Singleton Pattern&description=&lt;p&gt;许多时候整个系统只需要拥有一个的全局对象，这样有利于我们协调系统整体的行为。单例模式限制只有一个实例存在。&lt;/p&gt;
+&lt;p&gt;通常单例模式有两种构建方式：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;懒汉方式，全局的单例实例在第一次被使用时创建，不试图获取这个实例就不会创建，从而实现了延迟加载&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;优点：类加载快，可调用动态数据（例如 Android 中的 &lt;code&gt;Context&lt;/code&gt; 对象）&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;缺点：对象获取慢，多线程环境下需要考虑线程安全问题&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;饿汉方式，全局的单例实例在类装载时构建，在装载类时就初始化这个实例，而不是获取时才创建&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;优点：对象获取快，天生线程安全&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;缺点：类加载慢，无法调用动态数据&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;本文涉及源码：&lt;br&gt;&lt;a href=&#34;https://github.com/qianbinbin/DesignPattern/tree/master/src/main/java/io/binac/singleton&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;https://github.com/qianbinbin/DesignPattern/tree/master/src/main/java/io/binac/singleton&lt;/a&gt;&lt;/p&gt;"><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=https://binac.io/2017/05/26/singleton-pattern/&t=单例模式 Singleton Pattern" target="_blank" rel="noopener"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#懒汉方式"><span class="toc-number">1.</span> <span class="toc-text">懒汉方式</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#适用于单线程的懒汉方式"><span class="toc-number">1.1.</span> <span class="toc-text">适用于单线程的懒汉方式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#使用简单的锁机制保证线程安全"><span class="toc-number">1.2.</span> <span class="toc-text">使用简单的锁机制保证线程安全</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#使用双重检查的锁机制保证线程安全"><span class="toc-number">1.3.</span> <span class="toc-text">使用双重检查的锁机制保证线程安全</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#使用静态嵌套类保证线程安全"><span class="toc-number">1.4.</span> <span class="toc-text">使用静态嵌套类保证线程安全</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#饿汉方式"><span class="toc-number">2.</span> <span class="toc-text">饿汉方式</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#简单的饿汉方式"><span class="toc-number">2.1.</span> <span class="toc-text">简单的饿汉方式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#使用枚举实现饿汉方式"><span class="toc-number">2.2.</span> <span class="toc-text">使用枚举实现饿汉方式</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#总结"><span class="toc-number">3.</span> <span class="toc-text">总结</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#参考资料"><span class="toc-number">4.</span> <span class="toc-text">参考资料</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        单例模式 Singleton Pattern
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Binac</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2017-05-26T15:07:31.000Z" itemprop="datePublished">2017-05-26</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/Java/" rel="tag">Java</a>, <a class="tag-link" href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" rel="tag">设计模式</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <p>许多时候整个系统只需要拥有一个的全局对象，这样有利于我们协调系统整体的行为。单例模式限制只有一个实例存在。</p>
+<p>通常单例模式有两种构建方式：</p>
+<ul>
+<li><p>懒汉方式，全局的单例实例在第一次被使用时创建，不试图获取这个实例就不会创建，从而实现了延迟加载</p>
+<ul>
+<li><p>优点：类加载快，可调用动态数据（例如 Android 中的 <code>Context</code> 对象）</p>
+</li>
+<li><p>缺点：对象获取慢，多线程环境下需要考虑线程安全问题</p>
+</li>
+</ul>
+</li>
+<li><p>饿汉方式，全局的单例实例在类装载时构建，在装载类时就初始化这个实例，而不是获取时才创建</p>
+<ul>
+<li><p>优点：对象获取快，天生线程安全</p>
+</li>
+<li><p>缺点：类加载慢，无法调用动态数据</p>
+</li>
+</ul>
+</li>
+</ul>
+<p>本文涉及源码：<br><a href="https://github.com/qianbinbin/DesignPattern/tree/master/src/main/java/io/binac/singleton" target="_blank" rel="noopener">https://github.com/qianbinbin/DesignPattern/tree/master/src/main/java/io/binac/singleton</a></p>
+<a id="more"></a>
+
+<h1 id="懒汉方式"><a href="#懒汉方式" class="headerlink" title="懒汉方式"></a>懒汉方式</h1><h2 id="适用于单线程的懒汉方式"><a href="#适用于单线程的懒汉方式" class="headerlink" title="适用于单线程的懒汉方式"></a>适用于单线程的懒汉方式</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SimpleLazySingleton</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> SimpleLazySingleton sInstance;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">SimpleLazySingleton</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> SimpleLazySingleton <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (sInstance == <span class="keyword">null</span>) &#123;</span><br><span class="line">            sInstance = <span class="keyword">new</span> SimpleLazySingleton();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> sInstance;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在同一虚拟机的单线程应用场合中，<code>SimpleLazySingleton</code> 的构造方法私有化，其唯一实例只能通过静态方法 <code>getInstance</code> 来获取（不考虑反射机制）。</p>
+<ul>
+<li><p>优点：实现简单，效率高</p>
+</li>
+<li><p>缺点：多线程环境下，可能有多个线程同时进入 <code>if</code> 代码块，从而多次创建实例</p>
+</li>
+</ul>
+<h2 id="使用简单的锁机制保证线程安全"><a href="#使用简单的锁机制保证线程安全" class="headerlink" title="使用简单的锁机制保证线程安全"></a>使用简单的锁机制保证线程安全</h2><p>可使用 <code>synchronized</code> 关键字修饰 <code>getInstance</code> 方法，这种方式锁定的是类对象：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SyncedSingleton</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> SyncedSingleton sInstance;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">SyncedSingleton</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">synchronized</span> SyncedSingleton <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (sInstance == <span class="keyword">null</span>) &#123;</span><br><span class="line">            sInstance = <span class="keyword">new</span> SyncedSingleton();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> sInstance;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>保证了同时只有一个线程能进入 <code>getInstance</code> 代码块，从而保证线程安全。</p>
+<ul>
+<li><p>优点：保证了线程安全</p>
+</li>
+<li><p>缺点：每次调用 <code>getInstance</code> 方法都会获取同步锁，影响效率</p>
+</li>
+</ul>
+<h2 id="使用双重检查的锁机制保证线程安全"><a href="#使用双重检查的锁机制保证线程安全" class="headerlink" title="使用双重检查的锁机制保证线程安全"></a>使用双重检查的锁机制保证线程安全</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">volatile</span> Singleton sInstance;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (sInstance == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">synchronized</span> (Singleton<span class="class">.<span class="keyword">class</span>) </span>&#123;</span><br><span class="line">                <span class="keyword">if</span> (sInstance == <span class="keyword">null</span>) &#123;</span><br><span class="line">                    sInstance = <span class="keyword">new</span> Singleton();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> sInstance;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里的同步的是 <code>Singleton</code> 类对象锁，也可以专门指定一个对象作为同步锁。</p>
+<p><code>getInstance</code> 方法有两个空指针的检查，因此称为双重检查。</p>
+<ul>
+<li><p>在 <code>sInstance</code> 没有初始化时，假设有多个线程同时通过了第一重检查，只有第一个进入 <code>synchronized</code> 代码块的线程才能对 <code>sInstance</code> 进行初始化，其它线程均不会通过第二重检查</p>
+</li>
+<li><p>在 <code>sInstance</code> 初始化后，调用 <code>getInstance</code> 方法不会通过第一重检查，直接返回 <code>sInstance</code> 实例</p>
+</li>
+</ul>
+<p>注意到代码中使用 <code>volatile</code> 关键字修饰 <code>sInstance</code> 对象，这是因为</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sInstance = <span class="keyword">new</span> Singleton();</span><br></pre></td></tr></table></figure>
+
+<p>这一语句并非原子操作，事实上在 JVM 中它主要做了三件事：</p>
+<ol>
+<li><p>为 <code>sInstance</code> 分配内存</p>
+</li>
+<li><p>调用 <code>Singleton</code> 构造方法进行初始化</p>
+</li>
+<li><p>将 <code>sInstance</code> 指针指向对象</p>
+</li>
+</ol>
+<p>如果不使用 <code>volatile</code> 修饰，JVM 的指令重排序优化会使 2 和 3 的顺序不固定。</p>
+<p>在多线程环境下，当某个线程执行完 1、3，还未完成 2 时，<code>sInstance</code> 已经不为 <code>null</code>，其它线程调用 <code>getInstance</code> 方法就不会通过第一重检查，获取到的是尚未完全初始化的 <code>sInstance</code> 对象。</p>
+<p>而 <code>volatile</code> 关键字的可见性禁止了指令重排序，使 <code>sInstance</code> 的实例化成为原子操作。需要注意的是，Java 5 之前的 <code>volatile</code> 并不能保证禁止指令重排序。</p>
+<ul>
+<li><p>优点：与简单的锁机制相比，双重检查的锁机制只有在 <code>sInstance</code> 尚未初始化时，才会竞争类对象锁，效率更高</p>
+</li>
+<li><p>缺点：实现略显繁琐</p>
+</li>
+</ul>
+<h2 id="使用静态嵌套类保证线程安全"><a href="#使用静态嵌套类保证线程安全" class="headerlink" title="使用静态嵌套类保证线程安全"></a>使用静态嵌套类保证线程安全</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">NestedHolderSingleton</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">StaticSingletonHolder</span> </span>&#123;</span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> NestedHolderSingleton sInstance = <span class="keyword">new</span> NestedHolderSingleton();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">NestedHolderSingleton</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> NestedHolderSingleton <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> StaticSingletonHolder.sInstance;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这种方法利用 JVM 本身机制保证了线程安全。首次调用 <code>getInstance</code> 时，静态嵌套类 <code>StaticSingletonHolder</code> 才会加载，并初始化它的静态成员 <code>sInstance</code>，类在虚拟机中只会加载一次，因此是线程安全的。</p>
+<ul>
+<li><p>优点：实现简单，比锁机制实现性能高</p>
+</li>
+<li><p>缺点：调用动态数据不够灵活</p>
+</li>
+</ul>
+<h1 id="饿汉方式"><a href="#饿汉方式" class="headerlink" title="饿汉方式"></a>饿汉方式</h1><h2 id="简单的饿汉方式"><a href="#简单的饿汉方式" class="headerlink" title="简单的饿汉方式"></a>简单的饿汉方式</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SimpleSingleton</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> SimpleSingleton sInstance = <span class="keyword">new</span> SimpleSingleton();</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">SimpleSingleton</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> SimpleSingleton <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> sInstance;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在加载 <code>SimpleSingleton</code> 类时，<code>sInstance</code> 就会被初始化，天生就是线程安全的。</p>
+<h2 id="使用枚举实现饿汉方式"><a href="#使用枚举实现饿汉方式" class="headerlink" title="使用枚举实现饿汉方式"></a>使用枚举实现饿汉方式</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">enum</span> EnumSingleton &#123;</span><br><span class="line">    INSTANCE;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">EnumSingleton</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>利用 JVM 保证了仅有一个实例，保证了线程安全，而且实现简单，一般来说性能高于简单的饿汉方式。此外，枚举无法使用反射机制破解。虽然很多人，包括 <em>Effective Java</em> 也推荐这种方式，但利用枚举实现单例模式很少见。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>如何选择合适的方式实现单例模式？个人认为，先确定是否需要延迟加载（例如要用动态数据作为构造单例的参数），再看是否在多线程环境下，</p>
+<ul>
+<li><p>如果不需要延迟加载，使用饿汉方式即可</p>
+</li>
+<li><p>如果需要延迟加载</p>
+<ul>
+<li><p>如果是单线程环境，使用简单的懒汉方式即可</p>
+</li>
+<li><p>如果是多线程，</p>
+<ul>
+<li><p>如果对性能有要求，可使用双重检查的锁机制来实现</p>
+</li>
+<li><p>否则简单的锁机制即可满足要求</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><p><a href="https://en.wikipedia.org/wiki/Singleton_pattern" target="_blank" rel="noopener">Singleton pattern - Wikipedia</a></p>
+<p><a href="http://wuchong.me/blog/2014/08/28/how-to-correctly-write-singleton-pattern/" target="_blank" rel="noopener">如何正确地写出单例模式 | Jark’s Blog</a></p>
+<p><a href="https://www.ibm.com/developerworks/cn/java/j-lo-Singleton/index.html" target="_blank" rel="noopener">Java编程设计模式，第 1 部分: 单例模式</a></p>
+
+  </div>
+</article>
+
+    <div class="blog-post-comments">
+        <div id="disqus_thread">
+            <noscript>加载评论需要在浏览器启用 JavaScript 脚本支持。</noscript>
+        </div>
+    </div>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/tags/">标签</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#懒汉方式"><span class="toc-number">1.</span> <span class="toc-text">懒汉方式</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#适用于单线程的懒汉方式"><span class="toc-number">1.1.</span> <span class="toc-text">适用于单线程的懒汉方式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#使用简单的锁机制保证线程安全"><span class="toc-number">1.2.</span> <span class="toc-text">使用简单的锁机制保证线程安全</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#使用双重检查的锁机制保证线程安全"><span class="toc-number">1.3.</span> <span class="toc-text">使用双重检查的锁机制保证线程安全</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#使用静态嵌套类保证线程安全"><span class="toc-number">1.4.</span> <span class="toc-text">使用静态嵌套类保证线程安全</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#饿汉方式"><span class="toc-number">2.</span> <span class="toc-text">饿汉方式</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#简单的饿汉方式"><span class="toc-number">2.1.</span> <span class="toc-text">简单的饿汉方式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#使用枚举实现饿汉方式"><span class="toc-number">2.2.</span> <span class="toc-text">使用枚举实现饿汉方式</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#总结"><span class="toc-number">3.</span> <span class="toc-text">总结</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#参考资料"><span class="toc-number">4.</span> <span class="toc-text">参考资料</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=https://binac.io/2017/05/26/singleton-pattern/" target="_blank" rel="noopener"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=https://binac.io/2017/05/26/singleton-pattern/&text=单例模式 Singleton Pattern" target="_blank" rel="noopener"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=https://binac.io/2017/05/26/singleton-pattern/&title=单例模式 Singleton Pattern" target="_blank" rel="noopener"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=https://binac.io/2017/05/26/singleton-pattern/&is_video=false&description=单例模式 Singleton Pattern" target="_blank" rel="noopener"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=单例模式 Singleton Pattern&body=Check out this article: https://binac.io/2017/05/26/singleton-pattern/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=https://binac.io/2017/05/26/singleton-pattern/&title=单例模式 Singleton Pattern" target="_blank" rel="noopener"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=https://binac.io/2017/05/26/singleton-pattern/&title=单例模式 Singleton Pattern" target="_blank" rel="noopener"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=https://binac.io/2017/05/26/singleton-pattern/&title=单例模式 Singleton Pattern" target="_blank" rel="noopener"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=https://binac.io/2017/05/26/singleton-pattern/&title=单例模式 Singleton Pattern" target="_blank" rel="noopener"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=https://binac.io/2017/05/26/singleton-pattern/&name=单例模式 Singleton Pattern&description=&lt;p&gt;许多时候整个系统只需要拥有一个的全局对象，这样有利于我们协调系统整体的行为。单例模式限制只有一个实例存在。&lt;/p&gt;
+&lt;p&gt;通常单例模式有两种构建方式：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;懒汉方式，全局的单例实例在第一次被使用时创建，不试图获取这个实例就不会创建，从而实现了延迟加载&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;优点：类加载快，可调用动态数据（例如 Android 中的 &lt;code&gt;Context&lt;/code&gt; 对象）&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;缺点：对象获取慢，多线程环境下需要考虑线程安全问题&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;饿汉方式，全局的单例实例在类装载时构建，在装载类时就初始化这个实例，而不是获取时才创建&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;优点：对象获取快，天生线程安全&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;缺点：类加载慢，无法调用动态数据&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;本文涉及源码：&lt;br&gt;&lt;a href=&#34;https://github.com/qianbinbin/DesignPattern/tree/master/src/main/java/io/binac/singleton&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;https://github.com/qianbinbin/DesignPattern/tree/master/src/main/java/io/binac/singleton&lt;/a&gt;&lt;/p&gt;"><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=https://binac.io/2017/05/26/singleton-pattern/&t=单例模式 Singleton Pattern" target="_blank" rel="noopener"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2020 Binac
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/tags/">标签</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+
+    <!-- jquery -->
+
+<script src="/lib/jquery/jquery.min.js"></script>
+
+
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+
+<!-- clipboard -->
+
+  
+<script src="/lib/clipboard/clipboard.min.js"></script>
+
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+    <script type="text/javascript">
+        var disqus_shortname = 'binac';
+
+        (function(){
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        }());
+    </script>
+
+
+</body>
+</html>

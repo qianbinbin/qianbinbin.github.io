@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="Android 有种特殊的 App 叫老化测试工具，一般包括若干次重启、存储读写、音频播放、视频播放等流程，是一个预装在手机的 APK，出厂时会去掉。 测试做老化测试挂机 24 小时后，手机概率性出现问题，现象主要包括** Home 键和 Recent 键不能用、无法下拉快捷设置和通知栏、锁屏失效、开发者模式无法打开**等。复现概率很低，每台重启 50 次，10 台中出现 0 ~ 3 台。诡异的是">
+<meta property="og:type" content="article">
+<meta property="og:title" content="分析和解决手机重启若干次后，虚拟按键、状态栏等失效的问题">
+<meta property="og:url" content="https://binac.io/2017/09/19/virtual-key-statusbar-lockscreen-disabled/index.html">
+<meta property="og:site_name" content="Binac">
+<meta property="og:description" content="Android 有种特殊的 App 叫老化测试工具，一般包括若干次重启、存储读写、音频播放、视频播放等流程，是一个预装在手机的 APK，出厂时会去掉。 测试做老化测试挂机 24 小时后，手机概率性出现问题，现象主要包括** Home 键和 Recent 键不能用、无法下拉快捷设置和通知栏、锁屏失效、开发者模式无法打开**等。复现概率很低，每台重启 50 次，10 台中出现 0 ~ 3 台。诡异的是">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2017-09-19T05:28:20.000Z">
+<meta property="article:modified_time" content="2020-01-22T13:13:50.796Z">
+<meta property="article:author" content="Binac">
+<meta property="article:tag" content="Android">
+<meta name="twitter:card" content="summary">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>分析和解决手机重启若干次后，虚拟按键、状态栏等失效的问题</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+      
+<link rel="stylesheet" href="/css/rtl.css">
+
+    
+    <!-- rss -->
+    
+    
+<meta name="generator" content="Hexo 4.2.0"><style>.mjpage .MJX-monospace {
+  font-family: monospace;
+}
+
+.mjpage .MJX-sans-serif {
+  font-family: sans-serif;
+}
+
+.mjpage {
+  display: inline;
+  font-style: normal;
+  font-weight: normal;
+  line-height: normal;
+  font-size: 100%;
+  font-size-adjust: none;
+  text-indent: 0;
+  text-align: left;
+  text-transform: none;
+  letter-spacing: normal;
+  word-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+  float: none;
+  direction: ltr;
+  max-width: none;
+  max-height: none;
+  min-width: 0;
+  min-height: 0;
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.mjpage * {
+  transition: none;
+  -webkit-transition: none;
+  -moz-transition: none;
+  -ms-transition: none;
+  -o-transition: none;
+}
+
+.mjx-svg-href {
+  fill: blue;
+  stroke: blue;
+}
+
+.MathJax_SVG_LineBox {
+  display: table !important;
+}
+
+.MathJax_SVG_LineBox span {
+  display: table-cell !important;
+  width: 10000em !important;
+  min-width: 0;
+  max-width: none;
+  padding: 0;
+  border: 0;
+  margin: 0;
+}
+
+.mjpage__block {
+  text-align: center;
+  margin: 1em 0em;
+  position: relative;
+  display: block !important;
+  text-indent: 0;
+  max-width: none;
+  max-height: none;
+  min-width: 0;
+  min-height: 0;
+  width: 100%;
+}
+</style><style>.mjpage .MJX-monospace {
+  font-family: monospace;
+}
+
+.mjpage .MJX-sans-serif {
+  font-family: sans-serif;
+}
+
+.mjpage {
+  display: inline;
+  font-style: normal;
+  font-weight: normal;
+  line-height: normal;
+  font-size: 100%;
+  font-size-adjust: none;
+  text-indent: 0;
+  text-align: left;
+  text-transform: none;
+  letter-spacing: normal;
+  word-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+  float: none;
+  direction: ltr;
+  max-width: none;
+  max-height: none;
+  min-width: 0;
+  min-height: 0;
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.mjpage * {
+  transition: none;
+  -webkit-transition: none;
+  -moz-transition: none;
+  -ms-transition: none;
+  -o-transition: none;
+}
+
+.mjx-svg-href {
+  fill: blue;
+  stroke: blue;
+}
+
+.MathJax_SVG_LineBox {
+  display: table !important;
+}
+
+.MathJax_SVG_LineBox span {
+  display: table-cell !important;
+  width: 10000em !important;
+  min-width: 0;
+  max-width: none;
+  padding: 0;
+  border: 0;
+  margin: 0;
+}
+
+.mjpage__block {
+  text-align: center;
+  margin: 1em 0em;
+  position: relative;
+  display: block !important;
+  text-indent: 0;
+  max-width: none;
+  max-height: none;
+  min-width: 0;
+  min-height: 0;
+  width: 100%;
+}
+</style></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/tags/">标签</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/2017/10/14/gas-station/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/2017/09/09/factory-pattern/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=https://binac.io/2017/09/19/virtual-key-statusbar-lockscreen-disabled/" target="_blank" rel="noopener"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=https://binac.io/2017/09/19/virtual-key-statusbar-lockscreen-disabled/&text=分析和解决手机重启若干次后，虚拟按键、状态栏等失效的问题" target="_blank" rel="noopener"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=https://binac.io/2017/09/19/virtual-key-statusbar-lockscreen-disabled/&title=分析和解决手机重启若干次后，虚拟按键、状态栏等失效的问题" target="_blank" rel="noopener"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=https://binac.io/2017/09/19/virtual-key-statusbar-lockscreen-disabled/&is_video=false&description=分析和解决手机重启若干次后，虚拟按键、状态栏等失效的问题" target="_blank" rel="noopener"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=分析和解决手机重启若干次后，虚拟按键、状态栏等失效的问题&body=Check out this article: https://binac.io/2017/09/19/virtual-key-statusbar-lockscreen-disabled/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=https://binac.io/2017/09/19/virtual-key-statusbar-lockscreen-disabled/&title=分析和解决手机重启若干次后，虚拟按键、状态栏等失效的问题" target="_blank" rel="noopener"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=https://binac.io/2017/09/19/virtual-key-statusbar-lockscreen-disabled/&title=分析和解决手机重启若干次后，虚拟按键、状态栏等失效的问题" target="_blank" rel="noopener"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=https://binac.io/2017/09/19/virtual-key-statusbar-lockscreen-disabled/&title=分析和解决手机重启若干次后，虚拟按键、状态栏等失效的问题" target="_blank" rel="noopener"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=https://binac.io/2017/09/19/virtual-key-statusbar-lockscreen-disabled/&title=分析和解决手机重启若干次后，虚拟按键、状态栏等失效的问题" target="_blank" rel="noopener"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=https://binac.io/2017/09/19/virtual-key-statusbar-lockscreen-disabled/&name=分析和解决手机重启若干次后，虚拟按键、状态栏等失效的问题&description=&lt;p&gt;Android 有种特殊的 App 叫老化测试工具，一般包括若干次重启、存储读写、音频播放、视频播放等流程，是一个预装在手机的 APK，出厂时会去掉。&lt;/p&gt;
+&lt;p&gt;测试做老化测试挂机 24 小时后，手机概率性出现问题，现象主要包括** Home 键和 Recent 键不能用、无法下拉快捷设置和通知栏、锁屏失效、开发者模式无法打开**等。复现概率很低，每台重启 50 次，10 台中出现 0 ~ 3 台。诡异的是，我这边也会每天挂机，但一台都没有复现。&lt;/p&gt;
+&lt;p&gt;这个问题严重、紧急且困难。对于用户来说，出现问题后，重启手机是不能解决的，只能恢复出厂设置。而且出现问题的都是测试使用的 user 正式版本，几天才会出一个新版本，而我们工程师使用的 userdebug 版本从未复现，这也给 debug 造成了麻烦。&lt;/p&gt;"><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=https://binac.io/2017/09/19/virtual-key-statusbar-lockscreen-disabled/&t=分析和解决手机重启若干次后，虚拟按键、状态栏等失效的问题" target="_blank" rel="noopener"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#分析过程"><span class="toc-number">1.</span> <span class="toc-text">分析过程</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#开机向导"><span class="toc-number">1.1.</span> <span class="toc-text">开机向导</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#老化测试"><span class="toc-number">1.2.</span> <span class="toc-text">老化测试</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#初步规避方案"><span class="toc-number">1.3.</span> <span class="toc-text">初步规避方案</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#SettingsProvider"><span class="toc-number">1.4.</span> <span class="toc-text">SettingsProvider</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#AtomicFile"><span class="toc-number">1.4.1.</span> <span class="toc-text">AtomicFile</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#XML-文件的读写"><span class="toc-number">1.4.2.</span> <span class="toc-text">XML 文件的读写</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#内置的第三方-App"><span class="toc-number">1.5.</span> <span class="toc-text">内置的第三方 App</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#尾声"><span class="toc-number">2.</span> <span class="toc-text">尾声</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        分析和解决手机重启若干次后，虚拟按键、状态栏等失效的问题
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Binac</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2017-09-19T05:28:20.000Z" itemprop="datePublished">2017-09-19</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/Android/" rel="tag">Android</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <p>Android 有种特殊的 App 叫老化测试工具，一般包括若干次重启、存储读写、音频播放、视频播放等流程，是一个预装在手机的 APK，出厂时会去掉。</p>
+<p>测试做老化测试挂机 24 小时后，手机概率性出现问题，现象主要包括** Home 键和 Recent 键不能用、无法下拉快捷设置和通知栏、锁屏失效、开发者模式无法打开**等。复现概率很低，每台重启 50 次，10 台中出现 0 ~ 3 台。诡异的是，我这边也会每天挂机，但一台都没有复现。</p>
+<p>这个问题严重、紧急且困难。对于用户来说，出现问题后，重启手机是不能解决的，只能恢复出厂设置。而且出现问题的都是测试使用的 user 正式版本，几天才会出一个新版本，而我们工程师使用的 userdebug 版本从未复现，这也给 debug 造成了麻烦。</p>
+<a id="more"></a>
+
+<h1 id="分析过程"><a href="#分析过程" class="headerlink" title="分析过程"></a>分析过程</h1><h2 id="开机向导"><a href="#开机向导" class="headerlink" title="开机向导"></a>开机向导</h2><p>手机出现的这些症状，经历过 Android 5.0 ROM 开发的人可能似曾相识。如果手机预装了 Google 开机向导 SetupWizard.apk，那么你一定会记得首次开机必须登录 Google 账户的脑残设定。虽然这一做法无可厚非，但由于众所周知的原因，天朝无法访问 Google 服务器，所以作为 ROM 开发人员，如果没有能稳定爬梯的 Wi-Fi，就不得不八仙过海各显神通了。</p>
+<p>我的做法简单粗暴，刷好 userdebug 或者 eng 版本，首次开机直接<code>adb shell</code>进去删除 SetupWizard.apk，手机就直接跳过了开机向导进入 Launcher。实际上开机向导和 Launcher 本质上一样，都为默认 Activity 添加了<code>android.intent.category.HOME</code>的 filter，只不过开机向导具有更高的优先级。</p>
+<p>但这一做法是有问题的，其症状和这次问题的现象完全一样。原因是开机向导完成时，会写入两个重要的属性：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Settings.Global.putInt(getContentResolver(), Settings.Global.DEVICE_PROVISIONED, <span class="number">1</span>);</span><br><span class="line">Settings.Secure.putInt(getContentResolver(), Settings.Secure.USER_SETUP_COMPLETE, <span class="number">1</span>);</span><br></pre></td></tr></table></figure>
+
+<p>这两个属性表示手机已经设置完成，设备处于可用状态了。如果没有写入，那么手机很多功能都不能正常工作。在没有内置 SetupWizard.apk 的 AOSP 中，这个任务由源码树下<code>packages/apps/Provision/</code>来完成。如果内置了 SetupWizard.apk，则 Provision.apk 会被覆盖。</p>
+<p>我对问题机测试了两个属性：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ adb shell settings get global device_provisioned</span><br><span class="line">0</span><br><span class="line">$ adb shell settings get secure user_setup_complete</span><br><span class="line">0</span><br></pre></td></tr></table></figure>
+
+<p>果然属性是不对的。再将正确的值 put 进去，手机就正常了。</p>
+<p>考虑到 Google 的开机向导完成后，我们还会显示一个定制界面，这个界面走完后 SetupWizard.apk 才会写入这两个属性。所以我首先怀疑开机向导有问题，尤其是定制部分，并推断这个 bug 不是跑老化后出现的，一定是第一次开机就有问题了，只不过测试当时没有注意。我特意叮嘱测试，刷机后第一次开机就要确认是不是就有问题。</p>
+<p>就在我们打算去掉定制界面、进行压力测试以验证我的想法时，我被迅速打脸。20 台机器又复现了 4 台，并且测试确认第一次开机是正常的。这就非常尴尬。</p>
+<h2 id="老化测试"><a href="#老化测试" class="headerlink" title="老化测试"></a>老化测试</h2><p>既然开机向导没有问题，比较有可能的就是老化测试了，它包括很多步骤，其中最令人注意的就是重启 50 次。</p>
+<p>之前提到问题的原因是属性值不正确，从 log 中看，此时 Keyguard 会打印错误 log：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">KeyguardViewMediator: doKeyguard: not showing because device isn&#39;t provisioned and the sim is not locked or missing</span><br></pre></td></tr></table></figure>
+
+<p>查看 log 发现，第一次复现的 3 台机器中，有两台是第一次重启后就报了这个错误，剩下一台是 50 次重启跑完后报了这个错误。手机出错时间肯定在 log 报错之前，于是我转向怀疑是 50 次重启过程中出了问题。</p>
+<p>但是重启测试的核心代码非常简单，没有什么特别的地方：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);</span><br><span class="line"><span class="keyword">if</span> (pm != <span class="keyword">null</span>) &#123;</span><br><span class="line">    pm.reboot(<span class="string">""</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>从 log 中分析关机和开机流程，也没发现可疑的地方。</p>
+<h2 id="初步规避方案"><a href="#初步规避方案" class="headerlink" title="初步规避方案"></a>初步规避方案</h2><p>与龙哥讨论后，开始尝试规避方案，即在开机进入 Launcher 时判断这两个属性是否正确，如果不正确则重新写入。但老大否决了这个方案，原因是这个问题非常严重，应该找出问题的根源，这个根源可能会同时引起其它问题，而不仅仅是两个属性值。时间非常紧迫，看来 deadline 之前是解决不了了，但事实证明老大的想法是明智的。</p>
+<p>与此同时我也在可疑的地方添加了 log，打印包名和调用栈信息，看到底是什么程序修改了这两个属性。Android 提供给第三方读写这两个属性的接口在<code>frameworks/base/core/java/android/provider/Settings.java</code>中，最终数据的存取是在 SettingsProvider 模块中。</p>
+<p>但 Settings.java 中添加的 log 并没有什么卵用。</p>
+<p>之前为了方便 debug，龙哥建议我用 QFIL 给问题机半擦烧写了一个 userdebug 的 bootimage（只是不时会有点问题）。另一同事发现这两个属性最终保存在<code>/data/system/users/0/</code>下的 XML 文件中，他将<code>settings_global.xml</code>导出，发现写入属性的值为默认，包名为<code>android</code>：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">setting</span> <span class="attr">id</span>=<span class="string">"19"</span> <span class="attr">name</span>=<span class="string">"device_provisioned"</span> <span class="attr">value</span>=<span class="string">"0"</span> <span class="attr">package</span>=<span class="string">"android"</span> /&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>另一个属性也是类似，但保存在<code>settings_secure.xml</code>文件中。</p>
+<p>这说明这两个错误属性值应该是由 framework 来写的，十有八九就是 SettingsProvider 本身。这意味着可能是我们的源码中出现了系统级别的错误，而不是什么开机向导或者第三方应用导致的。</p>
+<p>初步规避方案宣告失败。</p>
+<h2 id="SettingsProvider"><a href="#SettingsProvider" class="headerlink" title="SettingsProvider"></a>SettingsProvider</h2><p>同事把导出的 XML 文件与正常的文件做了对比，发现错误的 XML 文件总是把其它属性也写成系统默认值。也就是说，很可能是原来正常的文件丢失了，系统重新生成了一份。</p>
+<p>我分析源码发现，Settings.java 通过 binder 机制调用 SettingsProvider 模块来完成数据的存取，最终是在 SettingsState.java 中读写 XML 文件的。</p>
+<p>SettingsState 中维护了一个 mStatePersistFile 对象，这是一个 File 类型对象，指代当前的 XML 文件。事实上用于存取数据的 XML 文件一共有三个，每个都对应一个 SettingsState 对象：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;data&#x2F;system&#x2F;users&#x2F;0&#x2F;settings_system.xml</span><br><span class="line">&#x2F;data&#x2F;system&#x2F;users&#x2F;0&#x2F;settings_secure.xml</span><br><span class="line">&#x2F;data&#x2F;system&#x2F;users&#x2F;0&#x2F;settings_global.xml</span><br></pre></td></tr></table></figure>
+
+<p>原本这些数据保存在数据库中，从 Android 6.0 开始会迁移到 XML 文件，默认情况下还会在迁移后删除数据库文件<code>settings.db</code>。</p>
+<p>在分析 XML 文件如何读写之前，需要先了解一下 AtomicFile。</p>
+<h3 id="AtomicFile"><a href="#AtomicFile" class="headerlink" title="AtomicFile"></a>AtomicFile</h3><p>AtomicFile 让文件的写入变为原子操作，然而阅读源码可以发现，它并不是线程安全的。</p>
+<p>它的原理非常简单，就是在写入文件时为原文件创建一个扩展名为<code>.bak</code>的备份文件。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// frameworks/base/core/java/android/util/AtomicFile.java</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AtomicFile</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> File mBaseName;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> File mBackupName;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Create a new AtomicFile for a file located at the given File path.</span></span><br><span class="line"><span class="comment">     * The secondary backup file will be the same file path with ".bak" appended.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">AtomicFile</span><span class="params">(File baseName)</span> </span>&#123;</span><br><span class="line">        mBaseName = baseName;</span><br><span class="line">        mBackupName = <span class="keyword">new</span> File(baseName.getPath() + <span class="string">".bak"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Start a new write operation on the file.  This returns a FileOutputStream</span></span><br><span class="line"><span class="comment">     * to which you can write the new file data.  The existing file is replaced</span></span><br><span class="line"><span class="comment">     * with the new data.  You &lt;em&gt;must not&lt;/em&gt; directly close the given</span></span><br><span class="line"><span class="comment">     * FileOutputStream; instead call either &#123;<span class="doctag">@link</span> #finishWrite(FileOutputStream)&#125;</span></span><br><span class="line"><span class="comment">     * or &#123;<span class="doctag">@link</span> #failWrite(FileOutputStream)&#125;.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * &lt;p&gt;Note that if another thread is currently performing</span></span><br><span class="line"><span class="comment">     * a write, this will simply replace whatever that thread is writing</span></span><br><span class="line"><span class="comment">     * with the new file being written by this thread, and when the other</span></span><br><span class="line"><span class="comment">     * thread finishes the write the new write operation will no longer be</span></span><br><span class="line"><span class="comment">     * safe (or will be lost).  You must do your own threading protection for</span></span><br><span class="line"><span class="comment">     * access to AtomicFile.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> FileOutputStream <span class="title">startWrite</span><span class="params">()</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        <span class="comment">// Rename the current file so it may be used as a backup during the next read</span></span><br><span class="line">        <span class="keyword">if</span> (mBaseName.exists()) &#123;</span><br><span class="line">            <span class="keyword">if</span> (!mBackupName.exists()) &#123;</span><br><span class="line">                <span class="keyword">if</span> (!mBaseName.renameTo(mBackupName)) &#123;</span><br><span class="line">                    Log.w(<span class="string">"AtomicFile"</span>, <span class="string">"Couldn't rename file "</span> + mBaseName</span><br><span class="line">                            + <span class="string">" to backup file "</span> + mBackupName);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                mBaseName.delete();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        FileOutputStream str = <span class="keyword">null</span>;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            str = <span class="keyword">new</span> FileOutputStream(mBaseName);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (FileNotFoundException e) &#123;</span><br><span class="line">            File parent = mBaseName.getParentFile();</span><br><span class="line">            <span class="keyword">if</span> (!parent.mkdirs()) &#123;</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> IOException(<span class="string">"Couldn't create directory "</span> + mBaseName);</span><br><span class="line">            &#125;</span><br><span class="line">            FileUtils.setPermissions(</span><br><span class="line">                parent.getPath(),</span><br><span class="line">                FileUtils.S_IRWXU|FileUtils.S_IRWXG|FileUtils.S_IXOTH,</span><br><span class="line">                -<span class="number">1</span>, -<span class="number">1</span>);</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                str = <span class="keyword">new</span> FileOutputStream(mBaseName);</span><br><span class="line">            &#125; <span class="keyword">catch</span> (FileNotFoundException e2) &#123;</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> IOException(<span class="string">"Couldn't create "</span> + mBaseName);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> str;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Call when you have successfully finished writing to the stream</span></span><br><span class="line"><span class="comment">     * returned by &#123;<span class="doctag">@link</span> #startWrite()&#125;.  This will close, sync, and</span></span><br><span class="line"><span class="comment">     * commit the new data.  The next attempt to read the atomic file</span></span><br><span class="line"><span class="comment">     * will return the new file stream.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">finishWrite</span><span class="params">(FileOutputStream str)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (str != <span class="keyword">null</span>) &#123;</span><br><span class="line">            FileUtils.sync(str);</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                str.close();</span><br><span class="line">                mBackupName.delete();</span><br><span class="line">            &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">                Log.w(<span class="string">"AtomicFile"</span>, <span class="string">"finishWrite: Got exception:"</span>, e);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Call when you have failed for some reason at writing to the stream</span></span><br><span class="line"><span class="comment">     * returned by &#123;<span class="doctag">@link</span> #startWrite()&#125;.  This will close the current</span></span><br><span class="line"><span class="comment">     * write stream, and roll back to the previous state of the file.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">failWrite</span><span class="params">(FileOutputStream str)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (str != <span class="keyword">null</span>) &#123;</span><br><span class="line">            FileUtils.sync(str);</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                str.close();</span><br><span class="line">                mBaseName.delete();</span><br><span class="line">                mBackupName.renameTo(mBaseName);</span><br><span class="line">            &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">                Log.w(<span class="string">"AtomicFile"</span>, <span class="string">"failWrite: Got exception:"</span>, e);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Open the atomic file for reading.  If there previously was an</span></span><br><span class="line"><span class="comment">     * incomplete write, this will roll back to the last good data before</span></span><br><span class="line"><span class="comment">     * opening for read.  You should call close() on the FileInputStream when</span></span><br><span class="line"><span class="comment">     * you are done reading from it.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * &lt;p&gt;Note that if another thread is currently performing</span></span><br><span class="line"><span class="comment">     * a write, this will incorrectly consider it to be in the state of a bad</span></span><br><span class="line"><span class="comment">     * write and roll back, causing the new data currently being written to</span></span><br><span class="line"><span class="comment">     * be dropped.  You must do your own threading protection for access to</span></span><br><span class="line"><span class="comment">     * AtomicFile.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> FileInputStream <span class="title">openRead</span><span class="params">()</span> <span class="keyword">throws</span> FileNotFoundException </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (mBackupName.exists()) &#123;</span><br><span class="line">            mBaseName.delete();</span><br><span class="line">            mBackupName.renameTo(mBaseName);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> FileInputStream(mBaseName);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>openRead()</code>方法用于读取文件，返回原文件的 FileInputStream。如果发现备份文件存在，则说明当前有写入操作未完成，直接把备份文件恢复为原文件，这样原文件中总是干净的数据。</p>
+<p><code>startWrite()</code>方法用于写入文件，返回原文件的 FileOutputStream。如果原文件存在，但备份文件不存在，则将创建一个备份。如果原文件存在且备份文件也存在，说明当前有写入操作未完成，直接把原文件删除。这样备份文件中总是干净的数据。当写入成功后，应调用<code>finishWrite()</code>来删除备份文件；当写入失败时，应调用<code>failWrite()</code>来将备份文件恢复为原文件。</p>
+<p>线程安全问题由调用方考虑。</p>
+<h3 id="XML-文件的读写"><a href="#XML-文件的读写" class="headerlink" title="XML 文件的读写"></a>XML 文件的读写</h3><p>XML 文件的读取是在 SettingsState.java 的<code>readStateSyncLocked()</code>中：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// frameworks/base/packages/SettingsProvider/src/com/android/providers/settings/SettingsState.java</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">readStateSyncLocked</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    FileInputStream in;</span><br><span class="line">    <span class="keyword">if</span> (!mStatePersistFile.exists()) &#123;</span><br><span class="line">        Slog.i(LOG_TAG, <span class="string">"No settings state "</span> + mStatePersistFile);</span><br><span class="line">        addHistoricalOperationLocked(HISTORICAL_OPERATION_INITIALIZE, <span class="keyword">null</span>);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        in = <span class="keyword">new</span> AtomicFile(mStatePersistFile).openRead();</span><br><span class="line">    &#125; <span class="keyword">catch</span> (FileNotFoundException fnfe) &#123;</span><br><span class="line">        String message = <span class="string">"No settings state "</span> + mStatePersistFile;</span><br><span class="line">        Slog.wtf(LOG_TAG, message);</span><br><span class="line">        Slog.i(LOG_TAG, message);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        XmlPullParser parser = Xml.newPullParser();</span><br><span class="line">        parser.setInput(in, StandardCharsets.UTF_8.name());</span><br><span class="line">        parseStateLocked(parser);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (XmlPullParserException | IOException e) &#123;</span><br><span class="line">        String message = <span class="string">"Failed parsing settings file: "</span> + mStatePersistFile;</span><br><span class="line">        Slog.wtf(LOG_TAG, message);</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(message , e);</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        IoUtils.closeQuietly(in);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>XML 文件的写入是在<code>doWriteState()</code>中：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">doWriteState</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (DEBUG_PERSISTENCE) &#123;</span><br><span class="line">        Slog.i(LOG_TAG, <span class="string">"[PERSIST START]"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    AtomicFile destination = <span class="keyword">new</span> AtomicFile(mStatePersistFile);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">int</span> version;</span><br><span class="line">    <span class="keyword">final</span> ArrayMap&lt;String, Setting&gt; settings;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">synchronized</span> (mLock) &#123;</span><br><span class="line">        version = mVersion;</span><br><span class="line">        settings = <span class="keyword">new</span> ArrayMap&lt;&gt;(mSettings);</span><br><span class="line">        mDirty = <span class="keyword">false</span>;</span><br><span class="line">        mWriteScheduled = <span class="keyword">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    FileOutputStream out = <span class="keyword">null</span>;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        out = destination.startWrite();</span><br><span class="line"></span><br><span class="line">        XmlSerializer serializer = Xml.newSerializer();</span><br><span class="line">        serializer.setOutput(out, StandardCharsets.UTF_8.name());</span><br><span class="line">        serializer.setFeature(<span class="string">"http://xmlpull.org/v1/doc/features.html#indent-output"</span>, <span class="keyword">true</span>);</span><br><span class="line">        serializer.startDocument(<span class="keyword">null</span>, <span class="keyword">true</span>);</span><br><span class="line">        serializer.startTag(<span class="keyword">null</span>, TAG_SETTINGS);</span><br><span class="line">        serializer.attribute(<span class="keyword">null</span>, ATTR_VERSION, String.valueOf(version));</span><br><span class="line"></span><br><span class="line">        <span class="keyword">final</span> <span class="keyword">int</span> settingCount = settings.size();</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; settingCount; i++) &#123;</span><br><span class="line">            Setting setting = settings.valueAt(i);</span><br><span class="line"></span><br><span class="line">            writeSingleSetting(mVersion, serializer, setting.getId(), setting.getName(),</span><br><span class="line">                    setting.getValue(), setting.getPackageName());</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (DEBUG_PERSISTENCE) &#123;</span><br><span class="line">                Slog.i(LOG_TAG, <span class="string">"[PERSISTED]"</span> + setting.getName() + <span class="string">"="</span> + setting.getValue());</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        serializer.endTag(<span class="keyword">null</span>, TAG_SETTINGS);</span><br><span class="line">        serializer.endDocument();</span><br><span class="line">        destination.finishWrite(out);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">synchronized</span> (mLock) &#123;</span><br><span class="line">            addHistoricalOperationLocked(HISTORICAL_OPERATION_PERSIST, <span class="keyword">null</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (DEBUG_PERSISTENCE) &#123;</span><br><span class="line">            Slog.i(LOG_TAG, <span class="string">"[PERSIST END]"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Throwable t) &#123;</span><br><span class="line">        Slog.wtf(LOG_TAG, <span class="string">"Failed to write settings, restoring backup"</span>, t);</span><br><span class="line">        destination.failWrite(out);</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        IoUtils.closeQuietly(out);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>逻辑很简单，似乎没什么特别的。</p>
+<p>我在<code>doWriteState()</code>中添加了 log。几天后测试复现问题，分析 log 发现，出错时确实走到了这里，并且写入的属性为默认值，包名为<code>android</code>，这与 XML 文件中是一致的。但是为什么 SettingsProvider 会写入默认值，仍然不清楚。这种问题只能反复添加 log、等复现、分析 log，转眼又是好几天。</p>
+<p>AtomicFile 实际上是 Java 中 File 类的一个封装，最终仍然是通过 File 类读写 XML 文件的，于是我又在 File 类中的读写删除等方法中添加 log，打印调用栈信息，至于如何添加的又是另一个故事了：<a href="https://binac.io/2017/08/30/print-log-in-libcore/">在 Android Java 核心库 libcore 中打印 Log | Binac</a></p>
+<p>分析 log 发现确实是在 AtomicFile 中读写删的，其他地方对这些 XML 文件没有任何操作。</p>
+<p>问题迟迟不能解决，引起了小 boss 的注意。小 boss 拉我们开了一个小会，由于怀疑是 50 次重启过程中出了问题，他让我们在重启之前和开机时分别打印<code>/data/system/users/0/</code>下的文件。说起来几句话，实际上实现起来并不简单，完全是吃力不讨好的活——这种活当然由我来干了。</p>
+<p>因为关机和开机不是一瞬间的事，而是有很复杂的流程，在哪里打印 log，这是需要认真考虑的。我先在调用<code>PowerManager#reboot()</code>方法前和开机启动 SettingsProvider 时打印log，发现了奇怪的现象：问题出现时，前一次关机时是没有问题的，文件没有丢失，而开机后却丢失了，并且只剩下备份文件！</p>
+<p>这说明：问题出现的时刻，要么是在调用<code>PowerManager#reboot()</code>关机之后，要么是在开机流程走到 ProviderService 之前。</p>
+<p>终于有了一线生机，然而事情并不那么简单，开关机流程太复杂，一一排查的话，不知要排查到什么时候。</p>
+<p>我接着分析：</p>
+<ol>
+<li><p>理论上讲，Android 只有 SettingsProvider 会去直接读写这些文件，其他地方哪怕是 framework 也要通过它来进行</p>
+</li>
+<li><p>Google 不会傻到在其他模块去读写，因此第三方 App 的嫌疑更大</p>
+</li>
+<li><p>ProviderService 是在 System Server 中启动的，这算是开机流程相当早的时候了，而此时第三方 App 根本就没有启动</p>
+</li>
+<li><p>与负责工模的龙哥确认，工模是不会读写这些文件的，公司内部的内置 App 也不会去读写</p>
+</li>
+</ol>
+<p>于是，我将目光转向</p>
+<ol>
+<li><p>内置的第三方 App，并且</p>
+</li>
+<li><p>在关机的时候，有系统设置读写操作</p>
+</li>
+</ol>
+<h2 id="内置的第三方-App"><a href="#内置的第三方-App" class="headerlink" title="内置的第三方 App"></a>内置的第三方 App</h2><p>除 AOSP 自带和公司内置 App 外，还有一些客户提供或第三方外包公司开发的 App，这些 App 我们都没有源码。</p>
+<p>一种方法就是把可疑的 App 列出，逐个去掉其中一个，然后跑测试。但这几乎不可行，不仅是因为以上都是推测，即使知道确实是第三方 App 搞的鬼，排查下来也要数周时间。</p>
+<p>就在这时，真是柳暗花明又一村，我对比了几次问题出现的前一次关机的 log，发现有两三次有同一个第三方 App 疑似读写系统设置。但是为什么其他 log 中没有呢？</p>
+<p>我调查了这个 App，它和手机保修有关，是一个印度外包公司做的。接着我又发现了诡异的现象……</p>
+<p>开机，它都会自启；手动 kill 掉，一段时间后也会自启！这个可疑的 App，不仅不停地读写系统设置，而且开机自启，有着杀不死的进程保活机制！</p>
+<p>我请教了龙哥，得到的回复是，即使是 T 卡 log，也会在调用<code>PowerManager#reboot()</code>不久后自动关闭，因此不是其他 log 中没有，而是根本打印不出来！</p>
+<p>是的，这个时候连 T 卡 log 都关闭了，而这个 App 居然还活着！怪不得我们发现不了问题所在，打印不出有效的 log，怎么定位问题？</p>
+<p>接下来的分析就顺理成章了：</p>
+<ol>
+<li><p>手机关机，关机流程，第三方 App、系统 App、特权 App、T 卡 log 等陆续关闭</p>
+</li>
+<li><p>这个第三方 App 做了进程保活，只有它不会被关闭，而且一直在读写系统设置</p>
+</li>
+<li><p>在某次写入系统设置时，AtomicFile 调用<code>startWrite()</code>方法，将原 XML 文件重命名为备份文件</p>
+</li>
+<li><p>恰好在这时，Android 系统关闭，而尚未调用<code>finishWrite()</code>方法写入，也无法调用<code>failWrite()</code>方法恢复，原 XML 文件丢失，只剩下备份文件</p>
+</li>
+<li><p>手机开机，调用 SettingsProvider 的<code>readStateSyncLocked()</code>方法，发现文件不存在，就重新创建了 XML 文件，且使用系统默认配置</p>
+</li>
+<li><p>至此，原 XML 文件彻底丢失，所有系统设置恢复默认，手机虚拟按键、状态栏等全部失效。</p>
+</li>
+</ol>
+<p>那么为什么 userdebug 版本从未复现呢？我的推测是，userdebug 关机流程和 user 版本存在区别，userdebug 版本的关机 log 明显更多，流程也更长，在关机流程走完之前，这个 App 读写系统设置已经完成了。</p>
+<p>我将此 App 从编译配置中去掉，又连续跑了几天测试都没有再复现问题。看来根因确实在这个奇葩的 App。</p>
+<p>规避方案就很简单了，在<code>readStateSyncLocked()</code>方法中，如果发现原文件不存在，但备份文件存在，就把备份文件恢复为原文件，这样系统设置又恢复了。不过还是要让印度外包公司修复，彻底修复才是王道。</p>
+<h1 id="尾声"><a href="#尾声" class="headerlink" title="尾声"></a>尾声</h1><p>说到这我不得不吐槽印度人真是奇葩，我们把问题的前因后果都详细分析给印度外包公司，通知三哥赶紧确认是否有进程保活并一直读写系统配置，再三催促，人家根本不回答问题，然后突然更新了 APK，问我们——现在你们还能复现吗？</p>
+<p>如果是我同事我可能当场就骂过去了，你他妈的不确认我们的问题，连修改了什么都不告诉我们，然后就让我们用新的 APK 复现？你知道我们花了多少人力多少时间在这个破问题上吗？你们有一点责任心吗？</p>
+<p>至于道歉？呵呵，不存在的。</p>
+<p>这个故事告诉我们，以后遇到阿三，一定要多留个心眼。</p>
+<p>当然，为了防止阿三再次脑抽，我还是将规避方案加上去了。</p>
+
+  </div>
+</article>
+
+    <div class="blog-post-comments">
+        <div id="disqus_thread">
+            <noscript>加载评论需要在浏览器启用 JavaScript 脚本支持。</noscript>
+        </div>
+    </div>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/tags/">标签</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#分析过程"><span class="toc-number">1.</span> <span class="toc-text">分析过程</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#开机向导"><span class="toc-number">1.1.</span> <span class="toc-text">开机向导</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#老化测试"><span class="toc-number">1.2.</span> <span class="toc-text">老化测试</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#初步规避方案"><span class="toc-number">1.3.</span> <span class="toc-text">初步规避方案</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#SettingsProvider"><span class="toc-number">1.4.</span> <span class="toc-text">SettingsProvider</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#AtomicFile"><span class="toc-number">1.4.1.</span> <span class="toc-text">AtomicFile</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#XML-文件的读写"><span class="toc-number">1.4.2.</span> <span class="toc-text">XML 文件的读写</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#内置的第三方-App"><span class="toc-number">1.5.</span> <span class="toc-text">内置的第三方 App</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#尾声"><span class="toc-number">2.</span> <span class="toc-text">尾声</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=https://binac.io/2017/09/19/virtual-key-statusbar-lockscreen-disabled/" target="_blank" rel="noopener"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=https://binac.io/2017/09/19/virtual-key-statusbar-lockscreen-disabled/&text=分析和解决手机重启若干次后，虚拟按键、状态栏等失效的问题" target="_blank" rel="noopener"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=https://binac.io/2017/09/19/virtual-key-statusbar-lockscreen-disabled/&title=分析和解决手机重启若干次后，虚拟按键、状态栏等失效的问题" target="_blank" rel="noopener"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=https://binac.io/2017/09/19/virtual-key-statusbar-lockscreen-disabled/&is_video=false&description=分析和解决手机重启若干次后，虚拟按键、状态栏等失效的问题" target="_blank" rel="noopener"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=分析和解决手机重启若干次后，虚拟按键、状态栏等失效的问题&body=Check out this article: https://binac.io/2017/09/19/virtual-key-statusbar-lockscreen-disabled/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=https://binac.io/2017/09/19/virtual-key-statusbar-lockscreen-disabled/&title=分析和解决手机重启若干次后，虚拟按键、状态栏等失效的问题" target="_blank" rel="noopener"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=https://binac.io/2017/09/19/virtual-key-statusbar-lockscreen-disabled/&title=分析和解决手机重启若干次后，虚拟按键、状态栏等失效的问题" target="_blank" rel="noopener"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=https://binac.io/2017/09/19/virtual-key-statusbar-lockscreen-disabled/&title=分析和解决手机重启若干次后，虚拟按键、状态栏等失效的问题" target="_blank" rel="noopener"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=https://binac.io/2017/09/19/virtual-key-statusbar-lockscreen-disabled/&title=分析和解决手机重启若干次后，虚拟按键、状态栏等失效的问题" target="_blank" rel="noopener"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=https://binac.io/2017/09/19/virtual-key-statusbar-lockscreen-disabled/&name=分析和解决手机重启若干次后，虚拟按键、状态栏等失效的问题&description=&lt;p&gt;Android 有种特殊的 App 叫老化测试工具，一般包括若干次重启、存储读写、音频播放、视频播放等流程，是一个预装在手机的 APK，出厂时会去掉。&lt;/p&gt;
+&lt;p&gt;测试做老化测试挂机 24 小时后，手机概率性出现问题，现象主要包括** Home 键和 Recent 键不能用、无法下拉快捷设置和通知栏、锁屏失效、开发者模式无法打开**等。复现概率很低，每台重启 50 次，10 台中出现 0 ~ 3 台。诡异的是，我这边也会每天挂机，但一台都没有复现。&lt;/p&gt;
+&lt;p&gt;这个问题严重、紧急且困难。对于用户来说，出现问题后，重启手机是不能解决的，只能恢复出厂设置。而且出现问题的都是测试使用的 user 正式版本，几天才会出一个新版本，而我们工程师使用的 userdebug 版本从未复现，这也给 debug 造成了麻烦。&lt;/p&gt;"><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=https://binac.io/2017/09/19/virtual-key-statusbar-lockscreen-disabled/&t=分析和解决手机重启若干次后，虚拟按键、状态栏等失效的问题" target="_blank" rel="noopener"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2020 Binac
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/tags/">标签</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+
+    <!-- jquery -->
+
+<script src="/lib/jquery/jquery.min.js"></script>
+
+
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+
+<!-- clipboard -->
+
+  
+<script src="/lib/clipboard/clipboard.min.js"></script>
+
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+    <script type="text/javascript">
+        var disqus_shortname = 'binac';
+
+        (function(){
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        }());
+    </script>
+
+
+</body>
+</html>

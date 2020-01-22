@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="https:&#x2F;&#x2F;leetcode.com&#x2F;problems&#x2F;perfect-squares&#x2F;  Given a positive integer n, find the least number of perfect square numbers (for example, 1, 4, 9, 16, …) which sum to n. Example 1: Input: n &#x3D; 12Output">
+<meta property="og:type" content="article">
+<meta property="og:title" content="将正整数表示为若干平方数之和 Perfect Squares">
+<meta property="og:url" content="https://binac.io/2019/05/08/perfect-squares/index.html">
+<meta property="og:site_name" content="Binac">
+<meta property="og:description" content="https:&#x2F;&#x2F;leetcode.com&#x2F;problems&#x2F;perfect-squares&#x2F;  Given a positive integer n, find the least number of perfect square numbers (for example, 1, 4, 9, 16, …) which sum to n. Example 1: Input: n &#x3D; 12Output">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://leetcode.com/uploads/files/1467720855285-xcoqwin.png">
+<meta property="article:published_time" content="2019-05-08T14:23:01.000Z">
+<meta property="article:modified_time" content="2020-01-22T12:59:15.630Z">
+<meta property="article:author" content="Binac">
+<meta property="article:tag" content="LeetCode">
+<meta property="article:tag" content="算法">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://leetcode.com/uploads/files/1467720855285-xcoqwin.png">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>将正整数表示为若干平方数之和 Perfect Squares</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+      
+<link rel="stylesheet" href="/css/rtl.css">
+
+    
+    <!-- rss -->
+    
+    
+<meta name="generator" content="Hexo 4.2.0"><style>.mjpage .MJX-monospace {
+  font-family: monospace;
+}
+
+.mjpage .MJX-sans-serif {
+  font-family: sans-serif;
+}
+
+.mjpage {
+  display: inline;
+  font-style: normal;
+  font-weight: normal;
+  line-height: normal;
+  font-size: 100%;
+  font-size-adjust: none;
+  text-indent: 0;
+  text-align: left;
+  text-transform: none;
+  letter-spacing: normal;
+  word-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+  float: none;
+  direction: ltr;
+  max-width: none;
+  max-height: none;
+  min-width: 0;
+  min-height: 0;
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.mjpage * {
+  transition: none;
+  -webkit-transition: none;
+  -moz-transition: none;
+  -ms-transition: none;
+  -o-transition: none;
+}
+
+.mjx-svg-href {
+  fill: blue;
+  stroke: blue;
+}
+
+.MathJax_SVG_LineBox {
+  display: table !important;
+}
+
+.MathJax_SVG_LineBox span {
+  display: table-cell !important;
+  width: 10000em !important;
+  min-width: 0;
+  max-width: none;
+  padding: 0;
+  border: 0;
+  margin: 0;
+}
+
+.mjpage__block {
+  text-align: center;
+  margin: 1em 0em;
+  position: relative;
+  display: block !important;
+  text-indent: 0;
+  max-width: none;
+  max-height: none;
+  min-width: 0;
+  min-height: 0;
+  width: 100%;
+}
+</style><style>.mjpage .MJX-monospace {
+  font-family: monospace;
+}
+
+.mjpage .MJX-sans-serif {
+  font-family: sans-serif;
+}
+
+.mjpage {
+  display: inline;
+  font-style: normal;
+  font-weight: normal;
+  line-height: normal;
+  font-size: 100%;
+  font-size-adjust: none;
+  text-indent: 0;
+  text-align: left;
+  text-transform: none;
+  letter-spacing: normal;
+  word-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+  float: none;
+  direction: ltr;
+  max-width: none;
+  max-height: none;
+  min-width: 0;
+  min-height: 0;
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.mjpage * {
+  transition: none;
+  -webkit-transition: none;
+  -moz-transition: none;
+  -ms-transition: none;
+  -o-transition: none;
+}
+
+.mjx-svg-href {
+  fill: blue;
+  stroke: blue;
+}
+
+.MathJax_SVG_LineBox {
+  display: table !important;
+}
+
+.MathJax_SVG_LineBox span {
+  display: table-cell !important;
+  width: 10000em !important;
+  min-width: 0;
+  max-width: none;
+  padding: 0;
+  border: 0;
+  margin: 0;
+}
+
+.mjpage__block {
+  text-align: center;
+  margin: 1em 0em;
+  position: relative;
+  display: block !important;
+  text-indent: 0;
+  max-width: none;
+  max-height: none;
+  min-width: 0;
+  min-height: 0;
+  width: 100%;
+}
+</style></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/tags/">标签</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/2019/09/03/cross-compile-frp-for-ios-on-macos/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/2019/04/17/java-collections-framework/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=https://binac.io/2019/05/08/perfect-squares/" target="_blank" rel="noopener"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=https://binac.io/2019/05/08/perfect-squares/&text=将正整数表示为若干平方数之和 Perfect Squares" target="_blank" rel="noopener"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=https://binac.io/2019/05/08/perfect-squares/&title=将正整数表示为若干平方数之和 Perfect Squares" target="_blank" rel="noopener"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=https://binac.io/2019/05/08/perfect-squares/&is_video=false&description=将正整数表示为若干平方数之和 Perfect Squares" target="_blank" rel="noopener"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=将正整数表示为若干平方数之和 Perfect Squares&body=Check out this article: https://binac.io/2019/05/08/perfect-squares/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=https://binac.io/2019/05/08/perfect-squares/&title=将正整数表示为若干平方数之和 Perfect Squares" target="_blank" rel="noopener"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=https://binac.io/2019/05/08/perfect-squares/&title=将正整数表示为若干平方数之和 Perfect Squares" target="_blank" rel="noopener"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=https://binac.io/2019/05/08/perfect-squares/&title=将正整数表示为若干平方数之和 Perfect Squares" target="_blank" rel="noopener"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=https://binac.io/2019/05/08/perfect-squares/&title=将正整数表示为若干平方数之和 Perfect Squares" target="_blank" rel="noopener"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=https://binac.io/2019/05/08/perfect-squares/&name=将正整数表示为若干平方数之和 Perfect Squares&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=https://binac.io/2019/05/08/perfect-squares/&t=将正整数表示为若干平方数之和 Perfect Squares" target="_blank" rel="noopener"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#动态规划"><span class="toc-number">1.</span> <span class="toc-text">动态规划</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#宽度优先搜索"><span class="toc-number">2.</span> <span class="toc-text">宽度优先搜索</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#筛法"><span class="toc-number">3.</span> <span class="toc-text">筛法</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#四平方和定理"><span class="toc-number">4.</span> <span class="toc-text">四平方和定理</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#实现源码"><span class="toc-number">5.</span> <span class="toc-text">实现源码</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#参考资料"><span class="toc-number">6.</span> <span class="toc-text">参考资料</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        将正整数表示为若干平方数之和 Perfect Squares
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Binac</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2019-05-08T14:23:01.000Z" itemprop="datePublished">2019-05-08</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/LeetCode/" rel="tag">LeetCode</a>, <a class="tag-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <p><a href="https://leetcode.com/problems/perfect-squares/" target="_blank" rel="noopener">https://leetcode.com/problems/perfect-squares/</a></p>
+<blockquote>
+<p>Given a positive integer n, find the least number of perfect square numbers (for example, 1, 4, 9, 16, …) which sum to n.</p>
+<p>Example 1:</p>
+<p>Input: n = 12<br>Output: 3<br>Explanation: 12 = 4 + 4 + 4.</p>
+<p>Example 2:</p>
+<p>Input: n = 13<br>Output: 2<br>Explanation: 13 = 4 + 9.</p>
+</blockquote>
+<h1 id="动态规划"><a href="#动态规划" class="headerlink" title="动态规划"></a>动态规划</h1><p><span class="mjpage mjpage__block"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="55.056ex" height="3.343ex" style="vertical-align: -1.171ex;" viewBox="0 -934.9 23704.7 1439.2" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-1-Title">
+<title id="MathJax-SVG-1-Title"> f(i) = \min\{f(i - s)\} + 1, 其中 s 为平方数且 1 \le s \le i</title>
+<defs aria-hidden="true">
+<path stroke-width="1" id="E1-MJMATHI-66" d="M118 -162Q120 -162 124 -164T135 -167T147 -168Q160 -168 171 -155T187 -126Q197 -99 221 27T267 267T289 382V385H242Q195 385 192 387Q188 390 188 397L195 425Q197 430 203 430T250 431Q298 431 298 432Q298 434 307 482T319 540Q356 705 465 705Q502 703 526 683T550 630Q550 594 529 578T487 561Q443 561 443 603Q443 622 454 636T478 657L487 662Q471 668 457 668Q445 668 434 658T419 630Q412 601 403 552T387 469T380 433Q380 431 435 431Q480 431 487 430T498 424Q499 420 496 407T491 391Q489 386 482 386T428 385H372L349 263Q301 15 282 -47Q255 -132 212 -173Q175 -205 139 -205Q107 -205 81 -186T55 -132Q55 -95 76 -78T118 -61Q162 -61 162 -103Q162 -122 151 -136T127 -157L118 -162Z"></path>
+<path stroke-width="1" id="E1-MJMAIN-28" d="M94 250Q94 319 104 381T127 488T164 576T202 643T244 695T277 729T302 750H315H319Q333 750 333 741Q333 738 316 720T275 667T226 581T184 443T167 250T184 58T225 -81T274 -167T316 -220T333 -241Q333 -250 318 -250H315H302L274 -226Q180 -141 137 -14T94 250Z"></path>
+<path stroke-width="1" id="E1-MJMATHI-69" d="M184 600Q184 624 203 642T247 661Q265 661 277 649T290 619Q290 596 270 577T226 557Q211 557 198 567T184 600ZM21 287Q21 295 30 318T54 369T98 420T158 442Q197 442 223 419T250 357Q250 340 236 301T196 196T154 83Q149 61 149 51Q149 26 166 26Q175 26 185 29T208 43T235 78T260 137Q263 149 265 151T282 153Q302 153 302 143Q302 135 293 112T268 61T223 11T161 -11Q129 -11 102 10T74 74Q74 91 79 106T122 220Q160 321 166 341T173 380Q173 404 156 404H154Q124 404 99 371T61 287Q60 286 59 284T58 281T56 279T53 278T49 278T41 278H27Q21 284 21 287Z"></path>
+<path stroke-width="1" id="E1-MJMAIN-29" d="M60 749L64 750Q69 750 74 750H86L114 726Q208 641 251 514T294 250Q294 182 284 119T261 12T224 -76T186 -143T145 -194T113 -227T90 -246Q87 -249 86 -250H74Q66 -250 63 -250T58 -247T55 -238Q56 -237 66 -225Q221 -64 221 250T66 725Q56 737 55 738Q55 746 60 749Z"></path>
+<path stroke-width="1" id="E1-MJMAIN-3D" d="M56 347Q56 360 70 367H707Q722 359 722 347Q722 336 708 328L390 327H72Q56 332 56 347ZM56 153Q56 168 72 173H708Q722 163 722 153Q722 140 707 133H70Q56 140 56 153Z"></path>
+<path stroke-width="1" id="E1-MJMAIN-6D" d="M41 46H55Q94 46 102 60V68Q102 77 102 91T102 122T103 161T103 203Q103 234 103 269T102 328V351Q99 370 88 376T43 385H25V408Q25 431 27 431L37 432Q47 433 65 434T102 436Q119 437 138 438T167 441T178 442H181V402Q181 364 182 364T187 369T199 384T218 402T247 421T285 437Q305 442 336 442Q351 442 364 440T387 434T406 426T421 417T432 406T441 395T448 384T452 374T455 366L457 361L460 365Q463 369 466 373T475 384T488 397T503 410T523 422T546 432T572 439T603 442Q729 442 740 329Q741 322 741 190V104Q741 66 743 59T754 49Q775 46 803 46H819V0H811L788 1Q764 2 737 2T699 3Q596 3 587 0H579V46H595Q656 46 656 62Q657 64 657 200Q656 335 655 343Q649 371 635 385T611 402T585 404Q540 404 506 370Q479 343 472 315T464 232V168V108Q464 78 465 68T468 55T477 49Q498 46 526 46H542V0H534L510 1Q487 2 460 2T422 3Q319 3 310 0H302V46H318Q379 46 379 62Q380 64 380 200Q379 335 378 343Q372 371 358 385T334 402T308 404Q263 404 229 370Q202 343 195 315T187 232V168V108Q187 78 188 68T191 55T200 49Q221 46 249 46H265V0H257L234 1Q210 2 183 2T145 3Q42 3 33 0H25V46H41Z"></path>
+<path stroke-width="1" id="E1-MJMAIN-69" d="M69 609Q69 637 87 653T131 669Q154 667 171 652T188 609Q188 579 171 564T129 549Q104 549 87 564T69 609ZM247 0Q232 3 143 3Q132 3 106 3T56 1L34 0H26V46H42Q70 46 91 49Q100 53 102 60T104 102V205V293Q104 345 102 359T88 378Q74 385 41 385H30V408Q30 431 32 431L42 432Q52 433 70 434T106 436Q123 437 142 438T171 441T182 442H185V62Q190 52 197 50T232 46H255V0H247Z"></path>
+<path stroke-width="1" id="E1-MJMAIN-6E" d="M41 46H55Q94 46 102 60V68Q102 77 102 91T102 122T103 161T103 203Q103 234 103 269T102 328V351Q99 370 88 376T43 385H25V408Q25 431 27 431L37 432Q47 433 65 434T102 436Q119 437 138 438T167 441T178 442H181V402Q181 364 182 364T187 369T199 384T218 402T247 421T285 437Q305 442 336 442Q450 438 463 329Q464 322 464 190V104Q464 66 466 59T477 49Q498 46 526 46H542V0H534L510 1Q487 2 460 2T422 3Q319 3 310 0H302V46H318Q379 46 379 62Q380 64 380 200Q379 335 378 343Q372 371 358 385T334 402T308 404Q263 404 229 370Q202 343 195 315T187 232V168V108Q187 78 188 68T191 55T200 49Q221 46 249 46H265V0H257L234 1Q210 2 183 2T145 3Q42 3 33 0H25V46H41Z"></path>
+<path stroke-width="1" id="E1-MJMAIN-7B" d="M434 -231Q434 -244 428 -250H410Q281 -250 230 -184Q225 -177 222 -172T217 -161T213 -148T211 -133T210 -111T209 -84T209 -47T209 0Q209 21 209 53Q208 142 204 153Q203 154 203 155Q189 191 153 211T82 231Q71 231 68 234T65 250T68 266T82 269Q116 269 152 289T203 345Q208 356 208 377T209 529V579Q209 634 215 656T244 698Q270 724 324 740Q361 748 377 749Q379 749 390 749T408 750H428Q434 744 434 732Q434 719 431 716Q429 713 415 713Q362 710 332 689T296 647Q291 634 291 499V417Q291 370 288 353T271 314Q240 271 184 255L170 250L184 245Q202 239 220 230T262 196T290 137Q291 131 291 1Q291 -134 296 -147Q306 -174 339 -192T415 -213Q429 -213 431 -216Q434 -219 434 -231Z"></path>
+<path stroke-width="1" id="E1-MJMAIN-2212" d="M84 237T84 250T98 270H679Q694 262 694 250T679 230H98Q84 237 84 250Z"></path>
+<path stroke-width="1" id="E1-MJMATHI-73" d="M131 289Q131 321 147 354T203 415T300 442Q362 442 390 415T419 355Q419 323 402 308T364 292Q351 292 340 300T328 326Q328 342 337 354T354 372T367 378Q368 378 368 379Q368 382 361 388T336 399T297 405Q249 405 227 379T204 326Q204 301 223 291T278 274T330 259Q396 230 396 163Q396 135 385 107T352 51T289 7T195 -10Q118 -10 86 19T53 87Q53 126 74 143T118 160Q133 160 146 151T160 120Q160 94 142 76T111 58Q109 57 108 57T107 55Q108 52 115 47T146 34T201 27Q237 27 263 38T301 66T318 97T323 122Q323 150 302 164T254 181T195 196T148 231Q131 256 131 289Z"></path>
+<path stroke-width="1" id="E1-MJMAIN-7D" d="M65 731Q65 745 68 747T88 750Q171 750 216 725T279 670Q288 649 289 635T291 501Q292 362 293 357Q306 312 345 291T417 269Q428 269 431 266T434 250T431 234T417 231Q380 231 345 210T298 157Q293 143 292 121T291 -28V-79Q291 -134 285 -156T256 -198Q202 -250 89 -250Q71 -250 68 -247T65 -230Q65 -224 65 -223T66 -218T69 -214T77 -213Q91 -213 108 -210T146 -200T183 -177T207 -139Q208 -134 209 3L210 139Q223 196 280 230Q315 247 330 250Q305 257 280 270Q225 304 212 352L210 362L209 498Q208 635 207 640Q195 680 154 696T77 713Q68 713 67 716T65 731Z"></path>
+<path stroke-width="1" id="E1-MJMAIN-2B" d="M56 237T56 250T70 270H369V420L370 570Q380 583 389 583Q402 583 409 568V270H707Q722 262 722 250T707 230H409V-68Q401 -82 391 -82H389H387Q375 -82 369 -68V230H70Q56 237 56 250Z"></path>
+<path stroke-width="1" id="E1-MJMAIN-31" d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"></path>
+<path stroke-width="1" id="E1-MJMAIN-2C" d="M78 35T78 60T94 103T137 121Q165 121 187 96T210 8Q210 -27 201 -60T180 -117T154 -158T130 -185T117 -194Q113 -194 104 -185T95 -172Q95 -168 106 -156T131 -126T157 -76T173 -3V9L172 8Q170 7 167 6T161 3T152 1T140 0Q113 0 96 17Z"></path>
+<path stroke-width="1" id="E1-MJMAIN-2264" d="M674 636Q682 636 688 630T694 615T687 601Q686 600 417 472L151 346L399 228Q687 92 691 87Q694 81 694 76Q694 58 676 56H670L382 192Q92 329 90 331Q83 336 83 348Q84 359 96 365Q104 369 382 500T665 634Q669 636 674 636ZM84 -118Q84 -108 99 -98H678Q694 -104 694 -118Q694 -130 679 -138H98Q84 -131 84 -118Z"></path>
+</defs>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#E1-MJMATHI-66" x="0" y="0"></use>
+ <use xlink:href="#E1-MJMAIN-28" x="550" y="0"></use>
+ <use xlink:href="#E1-MJMATHI-69" x="940" y="0"></use>
+ <use xlink:href="#E1-MJMAIN-29" x="1285" y="0"></use>
+ <use xlink:href="#E1-MJMAIN-3D" x="1952" y="0"></use>
+<g transform="translate(3009,0)">
+ <use xlink:href="#E1-MJMAIN-6D"></use>
+ <use xlink:href="#E1-MJMAIN-69" x="833" y="0"></use>
+ <use xlink:href="#E1-MJMAIN-6E" x="1112" y="0"></use>
+</g>
+ <use xlink:href="#E1-MJMAIN-7B" x="4677" y="0"></use>
+ <use xlink:href="#E1-MJMATHI-66" x="5178" y="0"></use>
+ <use xlink:href="#E1-MJMAIN-28" x="5728" y="0"></use>
+ <use xlink:href="#E1-MJMATHI-69" x="6118" y="0"></use>
+ <use xlink:href="#E1-MJMAIN-2212" x="6685" y="0"></use>
+ <use xlink:href="#E1-MJMATHI-73" x="7686" y="0"></use>
+ <use xlink:href="#E1-MJMAIN-29" x="8156" y="0"></use>
+ <use xlink:href="#E1-MJMAIN-7D" x="8545" y="0"></use>
+ <use xlink:href="#E1-MJMAIN-2B" x="9268" y="0"></use>
+ <use xlink:href="#E1-MJMAIN-31" x="10268" y="0"></use>
+ <use xlink:href="#E1-MJMAIN-2C" x="10769" y="0"></use>
+<g transform="translate(11214,0)">
+<text font-family="monospace" stroke="none" transform="scale(71.759) matrix(1 0 0 -1 0 0)">其</text>
+</g>
+<g transform="translate(12362,0)">
+<text font-family="monospace" stroke="none" transform="scale(71.759) matrix(1 0 0 -1 0 0)">中</text>
+</g>
+ <use xlink:href="#E1-MJMATHI-73" x="13510" y="0"></use>
+<g transform="translate(13980,0)">
+<text font-family="monospace" stroke="none" transform="scale(71.759) matrix(1 0 0 -1 0 0)">为</text>
+</g>
+<g transform="translate(15128,0)">
+<text font-family="monospace" stroke="none" transform="scale(71.759) matrix(1 0 0 -1 0 0)">平</text>
+</g>
+<g transform="translate(16276,0)">
+<text font-family="monospace" stroke="none" transform="scale(71.759) matrix(1 0 0 -1 0 0)">方</text>
+</g>
+<g transform="translate(17424,0)">
+<text font-family="monospace" stroke="none" transform="scale(71.759) matrix(1 0 0 -1 0 0)">数</text>
+</g>
+<g transform="translate(18572,0)">
+<text font-family="monospace" stroke="none" transform="scale(71.759) matrix(1 0 0 -1 0 0)">且</text>
+</g>
+ <use xlink:href="#E1-MJMAIN-31" x="19721" y="0"></use>
+ <use xlink:href="#E1-MJMAIN-2264" x="20499" y="0"></use>
+ <use xlink:href="#E1-MJMATHI-73" x="21555" y="0"></use>
+ <use xlink:href="#E1-MJMAIN-2264" x="22302" y="0"></use>
+ <use xlink:href="#E1-MJMATHI-69" x="23359" y="0"></use>
+</g>
+</svg></span></p>
+<figure class="highlight cpp"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> {</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">  <span class="function"><span class="keyword">int</span> <span class="title">numSquares</span><span class="params">(<span class="keyword">int</span> n)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">  <span class="keyword">static</span> <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; &amp;getNums();</span><br><span class="line">  <span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">int</span> Max = <span class="built_in">std</span>::numeric_limits&lt;<span class="keyword">int</span>&gt;::max();</span><br><span class="line">};</span><br><span class="line"></span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; &amp;Solution::getNums() {</span><br><span class="line">  <span class="keyword">static</span> <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; Nums{<span class="number">0</span>};</span><br><span class="line">  <span class="keyword">return</span> Nums;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> Solution::numSquares(<span class="keyword">int</span> n) {</span><br><span class="line">  assert(n &gt; <span class="number">0</span>);</span><br><span class="line">  <span class="keyword">auto</span> &amp;Nums = getNums();</span><br><span class="line">  <span class="keyword">if</span> (Nums.size() &gt; n)</span><br><span class="line">    <span class="keyword">return</span> Nums[n];</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">int</span> N, I, Diff, Num; (N = Nums.size()) &lt;= n;) {</span><br><span class="line">    <span class="keyword">for</span> (I = <span class="number">1</span>, Num = Max; (Diff = N - I * I) &gt;= <span class="number">0</span>; ++I)</span><br><span class="line">      Num = <span class="built_in">std</span>::min(Num, Nums[Diff] + <span class="number">1</span>);</span><br><span class="line">    Nums.push_back(Num);</span><br><span class="line">  }</span><br><span class="line">  <span class="keyword">return</span> Nums[n];</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<h1 id="宽度优先搜索"><a href="#宽度优先搜索" class="headerlink" title="宽度优先搜索"></a>宽度优先搜索</h1><p><img src="https://leetcode.com/uploads/files/1467720855285-xcoqwin.png" alt=""></p>
+<p>图片来自 <a href="https://leetcode.com/problems/perfect-squares/discuss/71475/Short-Python-solution-using-BFS" target="_blank" rel="noopener">Short Python solution using BFS - LeetCode Discuss</a></p>
+<figure class="highlight cpp"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> Solution::numSquares(<span class="keyword">int</span> n) {</span><br><span class="line">  assert(n &gt; <span class="number">0</span>);</span><br><span class="line">  <span class="built_in">std</span>::<span class="built_in">unordered_set</span>&lt;<span class="keyword">int</span>&gt; Set({n}), Tmp;</span><br><span class="line">  <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; Squares;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">int</span> I = <span class="number">1</span>, S; (S = I * I) &lt;= n; ++I)</span><br><span class="line">    Squares.push_back(S);</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">int</span> Level = <span class="number">1</span>; !Set.empty(); ++Level) {</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;N : Set) {</span><br><span class="line">      <span class="keyword">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;S : Squares) {</span><br><span class="line">        <span class="keyword">if</span> (N == S)</span><br><span class="line">          <span class="keyword">return</span> Level;</span><br><span class="line">        <span class="keyword">if</span> (N &lt; S)</span><br><span class="line">          <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">          Tmp.insert(N - S);</span><br><span class="line">      }</span><br><span class="line">    }</span><br><span class="line">    Set.clear();</span><br><span class="line">    <span class="built_in">std</span>::swap(Set, Tmp);</span><br><span class="line">  }</span><br><span class="line">  <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<h1 id="筛法"><a href="#筛法" class="headerlink" title="筛法"></a>筛法</h1><p>灵感来源于<a href="/2019/01/03/prime-sieve-and-goldbach-s-conjecture/" title="埃拉托斯特尼筛法">埃拉托斯特尼筛法</a>。Discuss 区翻了一下，好像没人提到过。</p>
+<figure class="highlight plain"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">1 2 3 4 5 6 7 8 9 10 11 12 13    // numbers</span><br><span class="line">1     1         1                // squares</span><br><span class="line">  2     2     2   2        2     // sums of 2 squares</span><br><span class="line">    3     3     3    3  3        // sums of 3 squares</span><br><span class="line">            4                    // sums of 4 squares</span><br></pre></td></tr></tbody></table></figure>
+
+<p>先找出所有平方数，再依次筛选出 2 个、3 个、…、k 个平方数的和。实际上 k 是不会超过 4 的，下一节会提到。</p>
+<figure class="highlight cpp"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> Solution::numSquares(<span class="keyword">int</span> n) {</span><br><span class="line">  assert(n &gt; <span class="number">0</span>);</span><br><span class="line">  <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; Nums(n + <span class="number">1</span>);</span><br><span class="line">  <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; Squares;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">int</span> I = <span class="number">1</span>, Square; (Square = I * I) &lt;= n; ++I) {</span><br><span class="line">    Nums[Square] = <span class="number">1</span>;</span><br><span class="line">    Squares.push_back(Square);</span><br><span class="line">  }</span><br><span class="line">  <span class="keyword">if</span> (Nums[n] != <span class="number">0</span>)</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">  <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; Pre = Squares, Cur;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">int</span> K = <span class="number">2</span>, Sum;; ++K) {</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;Square : Squares) {</span><br><span class="line">      <span class="keyword">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;I : Pre) {</span><br><span class="line">        <span class="keyword">if</span> ((Sum = Square + I) &gt; n || Nums[Sum] != <span class="number">0</span>)</span><br><span class="line">          <span class="keyword">continue</span>;</span><br><span class="line">        Nums[Sum] = K;</span><br><span class="line">        Cur.push_back(Sum);</span><br><span class="line">        <span class="keyword">if</span> (Sum == n)</span><br><span class="line">          <span class="keyword">return</span> K;</span><br><span class="line">      }</span><br><span class="line">    }</span><br><span class="line">    <span class="built_in">std</span>::swap(Pre, Cur);</span><br><span class="line">    Cur.clear();</span><br><span class="line">  }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<h1 id="四平方和定理"><a href="#四平方和定理" class="headerlink" title="四平方和定理"></a>四平方和定理</h1><p>数学武器可以说是降维打击了。这里用到：</p>
+<ul>
+<li><p><a href="https://en.wikipedia.org/wiki/Lagrange%27s_four-square_theorem" target="_blank" rel="noopener">四平方和定理</a>：任何自然数都可以表示为 4 个平方数之和</p>
+</li>
+<li><p><a href="https://en.wikipedia.org/wiki/Legendre%27s_three-square_theorem" target="_blank" rel="noopener">三平方和定理</a>：对自然数 n ，当且仅当 n 无法表示为 <span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="14.73ex" height="2.843ex" style="vertical-align: -0.838ex;" viewBox="0 -863.1 6341.9 1223.9" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-2-Title">
+<title id="MathJax-SVG-2-Title">n = 4^a(8b + 7)</title>
+<defs aria-hidden="true">
+<path stroke-width="1" id="E2-MJMATHI-6E" d="M21 287Q22 293 24 303T36 341T56 388T89 425T135 442Q171 442 195 424T225 390T231 369Q231 367 232 367L243 378Q304 442 382 442Q436 442 469 415T503 336T465 179T427 52Q427 26 444 26Q450 26 453 27Q482 32 505 65T540 145Q542 153 560 153Q580 153 580 145Q580 144 576 130Q568 101 554 73T508 17T439 -10Q392 -10 371 17T350 73Q350 92 386 193T423 345Q423 404 379 404H374Q288 404 229 303L222 291L189 157Q156 26 151 16Q138 -11 108 -11Q95 -11 87 -5T76 7T74 17Q74 30 112 180T152 343Q153 348 153 366Q153 405 129 405Q91 405 66 305Q60 285 60 284Q58 278 41 278H27Q21 284 21 287Z"></path>
+<path stroke-width="1" id="E2-MJMAIN-3D" d="M56 347Q56 360 70 367H707Q722 359 722 347Q722 336 708 328L390 327H72Q56 332 56 347ZM56 153Q56 168 72 173H708Q722 163 722 153Q722 140 707 133H70Q56 140 56 153Z"></path>
+<path stroke-width="1" id="E2-MJMAIN-34" d="M462 0Q444 3 333 3Q217 3 199 0H190V46H221Q241 46 248 46T265 48T279 53T286 61Q287 63 287 115V165H28V211L179 442Q332 674 334 675Q336 677 355 677H373L379 671V211H471V165H379V114Q379 73 379 66T385 54Q393 47 442 46H471V0H462ZM293 211V545L74 212L183 211H293Z"></path>
+<path stroke-width="1" id="E2-MJMATHI-61" d="M33 157Q33 258 109 349T280 441Q331 441 370 392Q386 422 416 422Q429 422 439 414T449 394Q449 381 412 234T374 68Q374 43 381 35T402 26Q411 27 422 35Q443 55 463 131Q469 151 473 152Q475 153 483 153H487Q506 153 506 144Q506 138 501 117T481 63T449 13Q436 0 417 -8Q409 -10 393 -10Q359 -10 336 5T306 36L300 51Q299 52 296 50Q294 48 292 46Q233 -10 172 -10Q117 -10 75 30T33 157ZM351 328Q351 334 346 350T323 385T277 405Q242 405 210 374T160 293Q131 214 119 129Q119 126 119 118T118 106Q118 61 136 44T179 26Q217 26 254 59T298 110Q300 114 325 217T351 328Z"></path>
+<path stroke-width="1" id="E2-MJMAIN-28" d="M94 250Q94 319 104 381T127 488T164 576T202 643T244 695T277 729T302 750H315H319Q333 750 333 741Q333 738 316 720T275 667T226 581T184 443T167 250T184 58T225 -81T274 -167T316 -220T333 -241Q333 -250 318 -250H315H302L274 -226Q180 -141 137 -14T94 250Z"></path>
+<path stroke-width="1" id="E2-MJMAIN-38" d="M70 417T70 494T124 618T248 666Q319 666 374 624T429 515Q429 485 418 459T392 417T361 389T335 371T324 363L338 354Q352 344 366 334T382 323Q457 264 457 174Q457 95 399 37T249 -22Q159 -22 101 29T43 155Q43 263 172 335L154 348Q133 361 127 368Q70 417 70 494ZM286 386L292 390Q298 394 301 396T311 403T323 413T334 425T345 438T355 454T364 471T369 491T371 513Q371 556 342 586T275 624Q268 625 242 625Q201 625 165 599T128 534Q128 511 141 492T167 463T217 431Q224 426 228 424L286 386ZM250 21Q308 21 350 55T392 137Q392 154 387 169T375 194T353 216T330 234T301 253T274 270Q260 279 244 289T218 306L210 311Q204 311 181 294T133 239T107 157Q107 98 150 60T250 21Z"></path>
+<path stroke-width="1" id="E2-MJMATHI-62" d="M73 647Q73 657 77 670T89 683Q90 683 161 688T234 694Q246 694 246 685T212 542Q204 508 195 472T180 418L176 399Q176 396 182 402Q231 442 283 442Q345 442 383 396T422 280Q422 169 343 79T173 -11Q123 -11 82 27T40 150V159Q40 180 48 217T97 414Q147 611 147 623T109 637Q104 637 101 637H96Q86 637 83 637T76 640T73 647ZM336 325V331Q336 405 275 405Q258 405 240 397T207 376T181 352T163 330L157 322L136 236Q114 150 114 114Q114 66 138 42Q154 26 178 26Q211 26 245 58Q270 81 285 114T318 219Q336 291 336 325Z"></path>
+<path stroke-width="1" id="E2-MJMAIN-2B" d="M56 237T56 250T70 270H369V420L370 570Q380 583 389 583Q402 583 409 568V270H707Q722 262 722 250T707 230H409V-68Q401 -82 391 -82H389H387Q375 -82 369 -68V230H70Q56 237 56 250Z"></path>
+<path stroke-width="1" id="E2-MJMAIN-37" d="M55 458Q56 460 72 567L88 674Q88 676 108 676H128V672Q128 662 143 655T195 646T364 644H485V605L417 512Q408 500 387 472T360 435T339 403T319 367T305 330T292 284T284 230T278 162T275 80Q275 66 275 52T274 28V19Q270 2 255 -10T221 -22Q210 -22 200 -19T179 0T168 40Q168 198 265 368Q285 400 349 489L395 552H302Q128 552 119 546Q113 543 108 522T98 479L95 458V455H55V458Z"></path>
+<path stroke-width="1" id="E2-MJMAIN-29" d="M60 749L64 750Q69 750 74 750H86L114 726Q208 641 251 514T294 250Q294 182 284 119T261 12T224 -76T186 -143T145 -194T113 -227T90 -246Q87 -249 86 -250H74Q66 -250 63 -250T58 -247T55 -238Q56 -237 66 -225Q221 -64 221 250T66 725Q56 737 55 738Q55 746 60 749Z"></path>
+</defs>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#E2-MJMATHI-6E" x="0" y="0"></use>
+ <use xlink:href="#E2-MJMAIN-3D" x="878" y="0"></use>
+<g transform="translate(1934,0)">
+ <use xlink:href="#E2-MJMAIN-34" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#E2-MJMATHI-61" x="707" y="572"></use>
+</g>
+ <use xlink:href="#E2-MJMAIN-28" x="2909" y="0"></use>
+ <use xlink:href="#E2-MJMAIN-38" x="3298" y="0"></use>
+ <use xlink:href="#E2-MJMATHI-62" x="3799" y="0"></use>
+ <use xlink:href="#E2-MJMAIN-2B" x="4451" y="0"></use>
+ <use xlink:href="#E2-MJMAIN-37" x="5451" y="0"></use>
+ <use xlink:href="#E2-MJMAIN-29" x="5952" y="0"></use>
+</g>
+</svg></span>，其中 a、b 为整数，n 可以表示为 3 个平方数之和</p>
+</li>
+</ul>
+<p>由此可以推出：</p>
+<ul>
+<li><p>如果自然数 n 是 4 的倍数，<span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="1.822ex" height="3.176ex" style="vertical-align: -1.171ex;" viewBox="0 -863.1 784.6 1367.4" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-3-Title">
+<title id="MathJax-SVG-3-Title">\frac{n}{4}</title>
+<defs aria-hidden="true">
+<path stroke-width="1" id="E3-MJMATHI-6E" d="M21 287Q22 293 24 303T36 341T56 388T89 425T135 442Q171 442 195 424T225 390T231 369Q231 367 232 367L243 378Q304 442 382 442Q436 442 469 415T503 336T465 179T427 52Q427 26 444 26Q450 26 453 27Q482 32 505 65T540 145Q542 153 560 153Q580 153 580 145Q580 144 576 130Q568 101 554 73T508 17T439 -10Q392 -10 371 17T350 73Q350 92 386 193T423 345Q423 404 379 404H374Q288 404 229 303L222 291L189 157Q156 26 151 16Q138 -11 108 -11Q95 -11 87 -5T76 7T74 17Q74 30 112 180T152 343Q153 348 153 366Q153 405 129 405Q91 405 66 305Q60 285 60 284Q58 278 41 278H27Q21 284 21 287Z"></path>
+<path stroke-width="1" id="E3-MJMAIN-34" d="M462 0Q444 3 333 3Q217 3 199 0H190V46H221Q241 46 248 46T265 48T279 53T286 61Q287 63 287 115V165H28V211L179 442Q332 674 334 675Q336 677 355 677H373L379 671V211H471V165H379V114Q379 73 379 66T385 54Q393 47 442 46H471V0H462ZM293 211V545L74 212L183 211H293Z"></path>
+</defs>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+<g transform="translate(120,0)">
+<rect stroke="none" width="544" height="60" x="0" y="220"></rect>
+ <use transform="scale(0.707)" xlink:href="#E3-MJMATHI-6E" x="84" y="640"></use>
+ <use transform="scale(0.707)" xlink:href="#E3-MJMAIN-34" x="134" y="-600"></use>
+</g>
+</g>
+</svg></span> 的结果与其相同</p>
+</li>
+<li><p>当且仅当自然数 n 可以表示为 <span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="14.73ex" height="2.843ex" style="vertical-align: -0.838ex;" viewBox="0 -863.1 6341.9 1223.9" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-4-Title">
+<title id="MathJax-SVG-4-Title">n = 4^a(8b + 7)</title>
+<defs aria-hidden="true">
+<path stroke-width="1" id="E4-MJMATHI-6E" d="M21 287Q22 293 24 303T36 341T56 388T89 425T135 442Q171 442 195 424T225 390T231 369Q231 367 232 367L243 378Q304 442 382 442Q436 442 469 415T503 336T465 179T427 52Q427 26 444 26Q450 26 453 27Q482 32 505 65T540 145Q542 153 560 153Q580 153 580 145Q580 144 576 130Q568 101 554 73T508 17T439 -10Q392 -10 371 17T350 73Q350 92 386 193T423 345Q423 404 379 404H374Q288 404 229 303L222 291L189 157Q156 26 151 16Q138 -11 108 -11Q95 -11 87 -5T76 7T74 17Q74 30 112 180T152 343Q153 348 153 366Q153 405 129 405Q91 405 66 305Q60 285 60 284Q58 278 41 278H27Q21 284 21 287Z"></path>
+<path stroke-width="1" id="E4-MJMAIN-3D" d="M56 347Q56 360 70 367H707Q722 359 722 347Q722 336 708 328L390 327H72Q56 332 56 347ZM56 153Q56 168 72 173H708Q722 163 722 153Q722 140 707 133H70Q56 140 56 153Z"></path>
+<path stroke-width="1" id="E4-MJMAIN-34" d="M462 0Q444 3 333 3Q217 3 199 0H190V46H221Q241 46 248 46T265 48T279 53T286 61Q287 63 287 115V165H28V211L179 442Q332 674 334 675Q336 677 355 677H373L379 671V211H471V165H379V114Q379 73 379 66T385 54Q393 47 442 46H471V0H462ZM293 211V545L74 212L183 211H293Z"></path>
+<path stroke-width="1" id="E4-MJMATHI-61" d="M33 157Q33 258 109 349T280 441Q331 441 370 392Q386 422 416 422Q429 422 439 414T449 394Q449 381 412 234T374 68Q374 43 381 35T402 26Q411 27 422 35Q443 55 463 131Q469 151 473 152Q475 153 483 153H487Q506 153 506 144Q506 138 501 117T481 63T449 13Q436 0 417 -8Q409 -10 393 -10Q359 -10 336 5T306 36L300 51Q299 52 296 50Q294 48 292 46Q233 -10 172 -10Q117 -10 75 30T33 157ZM351 328Q351 334 346 350T323 385T277 405Q242 405 210 374T160 293Q131 214 119 129Q119 126 119 118T118 106Q118 61 136 44T179 26Q217 26 254 59T298 110Q300 114 325 217T351 328Z"></path>
+<path stroke-width="1" id="E4-MJMAIN-28" d="M94 250Q94 319 104 381T127 488T164 576T202 643T244 695T277 729T302 750H315H319Q333 750 333 741Q333 738 316 720T275 667T226 581T184 443T167 250T184 58T225 -81T274 -167T316 -220T333 -241Q333 -250 318 -250H315H302L274 -226Q180 -141 137 -14T94 250Z"></path>
+<path stroke-width="1" id="E4-MJMAIN-38" d="M70 417T70 494T124 618T248 666Q319 666 374 624T429 515Q429 485 418 459T392 417T361 389T335 371T324 363L338 354Q352 344 366 334T382 323Q457 264 457 174Q457 95 399 37T249 -22Q159 -22 101 29T43 155Q43 263 172 335L154 348Q133 361 127 368Q70 417 70 494ZM286 386L292 390Q298 394 301 396T311 403T323 413T334 425T345 438T355 454T364 471T369 491T371 513Q371 556 342 586T275 624Q268 625 242 625Q201 625 165 599T128 534Q128 511 141 492T167 463T217 431Q224 426 228 424L286 386ZM250 21Q308 21 350 55T392 137Q392 154 387 169T375 194T353 216T330 234T301 253T274 270Q260 279 244 289T218 306L210 311Q204 311 181 294T133 239T107 157Q107 98 150 60T250 21Z"></path>
+<path stroke-width="1" id="E4-MJMATHI-62" d="M73 647Q73 657 77 670T89 683Q90 683 161 688T234 694Q246 694 246 685T212 542Q204 508 195 472T180 418L176 399Q176 396 182 402Q231 442 283 442Q345 442 383 396T422 280Q422 169 343 79T173 -11Q123 -11 82 27T40 150V159Q40 180 48 217T97 414Q147 611 147 623T109 637Q104 637 101 637H96Q86 637 83 637T76 640T73 647ZM336 325V331Q336 405 275 405Q258 405 240 397T207 376T181 352T163 330L157 322L136 236Q114 150 114 114Q114 66 138 42Q154 26 178 26Q211 26 245 58Q270 81 285 114T318 219Q336 291 336 325Z"></path>
+<path stroke-width="1" id="E4-MJMAIN-2B" d="M56 237T56 250T70 270H369V420L370 570Q380 583 389 583Q402 583 409 568V270H707Q722 262 722 250T707 230H409V-68Q401 -82 391 -82H389H387Q375 -82 369 -68V230H70Q56 237 56 250Z"></path>
+<path stroke-width="1" id="E4-MJMAIN-37" d="M55 458Q56 460 72 567L88 674Q88 676 108 676H128V672Q128 662 143 655T195 646T364 644H485V605L417 512Q408 500 387 472T360 435T339 403T319 367T305 330T292 284T284 230T278 162T275 80Q275 66 275 52T274 28V19Q270 2 255 -10T221 -22Q210 -22 200 -19T179 0T168 40Q168 198 265 368Q285 400 349 489L395 552H302Q128 552 119 546Q113 543 108 522T98 479L95 458V455H55V458Z"></path>
+<path stroke-width="1" id="E4-MJMAIN-29" d="M60 749L64 750Q69 750 74 750H86L114 726Q208 641 251 514T294 250Q294 182 284 119T261 12T224 -76T186 -143T145 -194T113 -227T90 -246Q87 -249 86 -250H74Q66 -250 63 -250T58 -247T55 -238Q56 -237 66 -225Q221 -64 221 250T66 725Q56 737 55 738Q55 746 60 749Z"></path>
+</defs>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#E4-MJMATHI-6E" x="0" y="0"></use>
+ <use xlink:href="#E4-MJMAIN-3D" x="878" y="0"></use>
+<g transform="translate(1934,0)">
+ <use xlink:href="#E4-MJMAIN-34" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#E4-MJMATHI-61" x="707" y="572"></use>
+</g>
+ <use xlink:href="#E4-MJMAIN-28" x="2909" y="0"></use>
+ <use xlink:href="#E4-MJMAIN-38" x="3298" y="0"></use>
+ <use xlink:href="#E4-MJMATHI-62" x="3799" y="0"></use>
+ <use xlink:href="#E4-MJMAIN-2B" x="4451" y="0"></use>
+ <use xlink:href="#E4-MJMAIN-37" x="5451" y="0"></use>
+ <use xlink:href="#E4-MJMAIN-29" x="5952" y="0"></use>
+</g>
+</svg></span> 时（a、b 为整数），n 只能表示为 4 个平方数之和</p>
+</li>
+</ul>
+<p>接下来只需判断 n 是否为 1 或 2 个平方数之和即可，如果不是则只能表示为 3 个平方数之和。</p>
+<figure class="highlight cpp"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> Solution::numSquares(<span class="keyword">int</span> n) {</span><br><span class="line">  assert(n &gt; <span class="number">0</span>);</span><br><span class="line">  <span class="keyword">while</span> (n % <span class="number">4</span> == <span class="number">0</span>)</span><br><span class="line">    n /= <span class="number">4</span>;</span><br><span class="line">  <span class="keyword">if</span> (n % <span class="number">8</span> == <span class="number">7</span>)</span><br><span class="line">    <span class="keyword">return</span> <span class="number">4</span>;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">int</span> I = <span class="number">0</span>, S, SE = n / <span class="number">2</span>, J; (S = I * I) &lt;= SE; ++I) {</span><br><span class="line">    J = <span class="keyword">static_cast</span>&lt;<span class="keyword">int</span>&gt;(<span class="built_in">sqrt</span>(n - S));</span><br><span class="line">    <span class="keyword">if</span> (S + J * J == n)</span><br><span class="line">      <span class="keyword">return</span> (I != <span class="number">0</span>) + (J != <span class="number">0</span>);</span><br><span class="line">  }</span><br><span class="line">  <span class="keyword">return</span> <span class="number">3</span>;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<p>时间复杂度 <span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="9.758ex" height="2.843ex" style="vertical-align: -0.838ex;" viewBox="0 -863.1 4201.5 1223.9" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-5-Title">
+<title id="MathJax-SVG-5-Title">O(\log(n))</title>
+<defs aria-hidden="true">
+<path stroke-width="1" id="E5-MJMATHI-4F" d="M740 435Q740 320 676 213T511 42T304 -22Q207 -22 138 35T51 201Q50 209 50 244Q50 346 98 438T227 601Q351 704 476 704Q514 704 524 703Q621 689 680 617T740 435ZM637 476Q637 565 591 615T476 665Q396 665 322 605Q242 542 200 428T157 216Q157 126 200 73T314 19Q404 19 485 98T608 313Q637 408 637 476Z"></path>
+<path stroke-width="1" id="E5-MJMAIN-28" d="M94 250Q94 319 104 381T127 488T164 576T202 643T244 695T277 729T302 750H315H319Q333 750 333 741Q333 738 316 720T275 667T226 581T184 443T167 250T184 58T225 -81T274 -167T316 -220T333 -241Q333 -250 318 -250H315H302L274 -226Q180 -141 137 -14T94 250Z"></path>
+<path stroke-width="1" id="E5-MJMAIN-6C" d="M42 46H56Q95 46 103 60V68Q103 77 103 91T103 124T104 167T104 217T104 272T104 329Q104 366 104 407T104 482T104 542T103 586T103 603Q100 622 89 628T44 637H26V660Q26 683 28 683L38 684Q48 685 67 686T104 688Q121 689 141 690T171 693T182 694H185V379Q185 62 186 60Q190 52 198 49Q219 46 247 46H263V0H255L232 1Q209 2 183 2T145 3T107 3T57 1L34 0H26V46H42Z"></path>
+<path stroke-width="1" id="E5-MJMAIN-6F" d="M28 214Q28 309 93 378T250 448Q340 448 405 380T471 215Q471 120 407 55T250 -10Q153 -10 91 57T28 214ZM250 30Q372 30 372 193V225V250Q372 272 371 288T364 326T348 362T317 390T268 410Q263 411 252 411Q222 411 195 399Q152 377 139 338T126 246V226Q126 130 145 91Q177 30 250 30Z"></path>
+<path stroke-width="1" id="E5-MJMAIN-67" d="M329 409Q373 453 429 453Q459 453 472 434T485 396Q485 382 476 371T449 360Q416 360 412 390Q410 404 415 411Q415 412 416 414V415Q388 412 363 393Q355 388 355 386Q355 385 359 381T368 369T379 351T388 325T392 292Q392 230 343 187T222 143Q172 143 123 171Q112 153 112 133Q112 98 138 81Q147 75 155 75T227 73Q311 72 335 67Q396 58 431 26Q470 -13 470 -72Q470 -139 392 -175Q332 -206 250 -206Q167 -206 107 -175Q29 -140 29 -75Q29 -39 50 -15T92 18L103 24Q67 55 67 108Q67 155 96 193Q52 237 52 292Q52 355 102 398T223 442Q274 442 318 416L329 409ZM299 343Q294 371 273 387T221 404Q192 404 171 388T145 343Q142 326 142 292Q142 248 149 227T179 192Q196 182 222 182Q244 182 260 189T283 207T294 227T299 242Q302 258 302 292T299 343ZM403 -75Q403 -50 389 -34T348 -11T299 -2T245 0H218Q151 0 138 -6Q118 -15 107 -34T95 -74Q95 -84 101 -97T122 -127T170 -155T250 -167Q319 -167 361 -139T403 -75Z"></path>
+<path stroke-width="1" id="E5-MJMATHI-6E" d="M21 287Q22 293 24 303T36 341T56 388T89 425T135 442Q171 442 195 424T225 390T231 369Q231 367 232 367L243 378Q304 442 382 442Q436 442 469 415T503 336T465 179T427 52Q427 26 444 26Q450 26 453 27Q482 32 505 65T540 145Q542 153 560 153Q580 153 580 145Q580 144 576 130Q568 101 554 73T508 17T439 -10Q392 -10 371 17T350 73Q350 92 386 193T423 345Q423 404 379 404H374Q288 404 229 303L222 291L189 157Q156 26 151 16Q138 -11 108 -11Q95 -11 87 -5T76 7T74 17Q74 30 112 180T152 343Q153 348 153 366Q153 405 129 405Q91 405 66 305Q60 285 60 284Q58 278 41 278H27Q21 284 21 287Z"></path>
+<path stroke-width="1" id="E5-MJMAIN-29" d="M60 749L64 750Q69 750 74 750H86L114 726Q208 641 251 514T294 250Q294 182 284 119T261 12T224 -76T186 -143T145 -194T113 -227T90 -246Q87 -249 86 -250H74Q66 -250 63 -250T58 -247T55 -238Q56 -237 66 -225Q221 -64 221 250T66 725Q56 737 55 738Q55 746 60 749Z"></path>
+</defs>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#E5-MJMATHI-4F" x="0" y="0"></use>
+ <use xlink:href="#E5-MJMAIN-28" x="763" y="0"></use>
+<g transform="translate(1153,0)">
+ <use xlink:href="#E5-MJMAIN-6C"></use>
+ <use xlink:href="#E5-MJMAIN-6F" x="278" y="0"></use>
+ <use xlink:href="#E5-MJMAIN-67" x="779" y="0"></use>
+</g>
+ <use xlink:href="#E5-MJMAIN-28" x="2432" y="0"></use>
+ <use xlink:href="#E5-MJMATHI-6E" x="2822" y="0"></use>
+ <use xlink:href="#E5-MJMAIN-29" x="3422" y="0"></use>
+ <use xlink:href="#E5-MJMAIN-29" x="3812" y="0"></use>
+</g>
+</svg></span>，空间复杂度 <span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="4.745ex" height="2.843ex" style="vertical-align: -0.838ex;" viewBox="0 -863.1 2043 1223.9" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-6-Title">
+<title id="MathJax-SVG-6-Title">O(1)</title>
+<defs aria-hidden="true">
+<path stroke-width="1" id="E6-MJMATHI-4F" d="M740 435Q740 320 676 213T511 42T304 -22Q207 -22 138 35T51 201Q50 209 50 244Q50 346 98 438T227 601Q351 704 476 704Q514 704 524 703Q621 689 680 617T740 435ZM637 476Q637 565 591 615T476 665Q396 665 322 605Q242 542 200 428T157 216Q157 126 200 73T314 19Q404 19 485 98T608 313Q637 408 637 476Z"></path>
+<path stroke-width="1" id="E6-MJMAIN-28" d="M94 250Q94 319 104 381T127 488T164 576T202 643T244 695T277 729T302 750H315H319Q333 750 333 741Q333 738 316 720T275 667T226 581T184 443T167 250T184 58T225 -81T274 -167T316 -220T333 -241Q333 -250 318 -250H315H302L274 -226Q180 -141 137 -14T94 250Z"></path>
+<path stroke-width="1" id="E6-MJMAIN-31" d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"></path>
+<path stroke-width="1" id="E6-MJMAIN-29" d="M60 749L64 750Q69 750 74 750H86L114 726Q208 641 251 514T294 250Q294 182 284 119T261 12T224 -76T186 -143T145 -194T113 -227T90 -246Q87 -249 86 -250H74Q66 -250 63 -250T58 -247T55 -238Q56 -237 66 -225Q221 -64 221 250T66 725Q56 737 55 738Q55 746 60 749Z"></path>
+</defs>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#E6-MJMATHI-4F" x="0" y="0"></use>
+ <use xlink:href="#E6-MJMAIN-28" x="763" y="0"></use>
+ <use xlink:href="#E6-MJMAIN-31" x="1153" y="0"></use>
+ <use xlink:href="#E6-MJMAIN-29" x="1653" y="0"></use>
+</g>
+</svg></span>。</p>
+<h1 id="实现源码"><a href="#实现源码" class="headerlink" title="实现源码"></a>实现源码</h1><p><a href="https://github.com/qianbinbin/leetcode" target="_blank" rel="noopener">https://github.com/qianbinbin/leetcode</a></p>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><p><a href="https://leetcode.com/problems/perfect-squares/discuss/71488" target="_blank" rel="noopener">Summary of 4 different solutions (BFS, DP, static DP and mathematics) - LeetCode Discuss</a></p>
+<p><a href="https://leetcode.com/problems/perfect-squares/discuss/71475/Short-Python-solution-using-BFS" target="_blank" rel="noopener">Short Python solution using BFS - LeetCode Discuss</a></p>
+<p><a href="https://leetcode.com/problems/perfect-squares/discuss/288720" target="_blank" rel="noopener">My solution different from DP, math or BFS algorithm - LeetCode Discuss</a></p>
+<p><a href="https://leetcode.com/problems/perfect-squares/discuss/71618/4ms-C%2B%2B-code-Solve-it-mathematically" target="_blank" rel="noopener">4ms C++ code - Solve it mathematically - LeetCode Discuss</a></p>
+<p><a href="https://en.wikipedia.org/wiki/Lagrange%27s_four-square_theorem" target="_blank" rel="noopener">Lagrange’s four-square theorem - Wikipedia</a></p>
+<p><a href="https://en.wikipedia.org/wiki/Legendre%27s_three-square_theorem" target="_blank" rel="noopener">Legendre’s three-square theorem - Wikipedia</a></p>
+<p><a href="https://www.changhai.org/articles/science/mathematics/four_square_theorem.php" target="_blank" rel="noopener">Lagrange 四平方定理</a></p>
+
+  </div>
+</article>
+
+    <div class="blog-post-comments">
+        <div id="disqus_thread">
+            <noscript>加载评论需要在浏览器启用 JavaScript 脚本支持。</noscript>
+        </div>
+    </div>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/tags/">标签</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#动态规划"><span class="toc-number">1.</span> <span class="toc-text">动态规划</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#宽度优先搜索"><span class="toc-number">2.</span> <span class="toc-text">宽度优先搜索</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#筛法"><span class="toc-number">3.</span> <span class="toc-text">筛法</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#四平方和定理"><span class="toc-number">4.</span> <span class="toc-text">四平方和定理</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#实现源码"><span class="toc-number">5.</span> <span class="toc-text">实现源码</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#参考资料"><span class="toc-number">6.</span> <span class="toc-text">参考资料</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=https://binac.io/2019/05/08/perfect-squares/" target="_blank" rel="noopener"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=https://binac.io/2019/05/08/perfect-squares/&text=将正整数表示为若干平方数之和 Perfect Squares" target="_blank" rel="noopener"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=https://binac.io/2019/05/08/perfect-squares/&title=将正整数表示为若干平方数之和 Perfect Squares" target="_blank" rel="noopener"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=https://binac.io/2019/05/08/perfect-squares/&is_video=false&description=将正整数表示为若干平方数之和 Perfect Squares" target="_blank" rel="noopener"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=将正整数表示为若干平方数之和 Perfect Squares&body=Check out this article: https://binac.io/2019/05/08/perfect-squares/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=https://binac.io/2019/05/08/perfect-squares/&title=将正整数表示为若干平方数之和 Perfect Squares" target="_blank" rel="noopener"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=https://binac.io/2019/05/08/perfect-squares/&title=将正整数表示为若干平方数之和 Perfect Squares" target="_blank" rel="noopener"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=https://binac.io/2019/05/08/perfect-squares/&title=将正整数表示为若干平方数之和 Perfect Squares" target="_blank" rel="noopener"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=https://binac.io/2019/05/08/perfect-squares/&title=将正整数表示为若干平方数之和 Perfect Squares" target="_blank" rel="noopener"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=https://binac.io/2019/05/08/perfect-squares/&name=将正整数表示为若干平方数之和 Perfect Squares&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=https://binac.io/2019/05/08/perfect-squares/&t=将正整数表示为若干平方数之和 Perfect Squares" target="_blank" rel="noopener"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2020 Binac
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/tags/">标签</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+
+    <!-- jquery -->
+
+<script src="/lib/jquery/jquery.min.js"></script>
+
+
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+
+<!-- clipboard -->
+
+  
+<script src="/lib/clipboard/clipboard.min.js"></script>
+
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+    <script type="text/javascript">
+        var disqus_shortname = 'binac';
+
+        (function(){
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        }());
+    </script>
+
+
+</body>
+</html>

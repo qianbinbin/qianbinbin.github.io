@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="二叉树的递归遍历简洁明了，而非递归遍历则相对复杂，三种递归思路有很大区别，还容易忘。如果不用线索二叉树的话，一般要用栈来实现，即便都是用栈实现，实现思路也有差别，这给我们理解和记忆带来困扰。 本文介绍利用栈来实现的二叉树非递归算法，主要目的是快速实现，而不是详细解释。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="二叉树非递归遍历算法的快速实现">
+<meta property="og:url" content="https://binac.io/2018/03/25/binary-tree-interative-traversal/index.html">
+<meta property="og:site_name" content="Binac">
+<meta property="og:description" content="二叉树的递归遍历简洁明了，而非递归遍历则相对复杂，三种递归思路有很大区别，还容易忘。如果不用线索二叉树的话，一般要用栈来实现，即便都是用栈实现，实现思路也有差别，这给我们理解和记忆带来困扰。 本文介绍利用栈来实现的二叉树非递归算法，主要目的是快速实现，而不是详细解释。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2018-03-25T07:50:19.000Z">
+<meta property="article:modified_time" content="2020-01-22T06:28:50.061Z">
+<meta property="article:author" content="Binac">
+<meta property="article:tag" content="算法">
+<meta property="article:tag" content="二叉树">
+<meta name="twitter:card" content="summary">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>二叉树非递归遍历算法的快速实现</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+      
+<link rel="stylesheet" href="/css/rtl.css">
+
+    
+    <!-- rss -->
+    
+    
+<meta name="generator" content="Hexo 4.2.0"><style>.mjpage .MJX-monospace {
+  font-family: monospace;
+}
+
+.mjpage .MJX-sans-serif {
+  font-family: sans-serif;
+}
+
+.mjpage {
+  display: inline;
+  font-style: normal;
+  font-weight: normal;
+  line-height: normal;
+  font-size: 100%;
+  font-size-adjust: none;
+  text-indent: 0;
+  text-align: left;
+  text-transform: none;
+  letter-spacing: normal;
+  word-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+  float: none;
+  direction: ltr;
+  max-width: none;
+  max-height: none;
+  min-width: 0;
+  min-height: 0;
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.mjpage * {
+  transition: none;
+  -webkit-transition: none;
+  -moz-transition: none;
+  -ms-transition: none;
+  -o-transition: none;
+}
+
+.mjx-svg-href {
+  fill: blue;
+  stroke: blue;
+}
+
+.MathJax_SVG_LineBox {
+  display: table !important;
+}
+
+.MathJax_SVG_LineBox span {
+  display: table-cell !important;
+  width: 10000em !important;
+  min-width: 0;
+  max-width: none;
+  padding: 0;
+  border: 0;
+  margin: 0;
+}
+
+.mjpage__block {
+  text-align: center;
+  margin: 1em 0em;
+  position: relative;
+  display: block !important;
+  text-indent: 0;
+  max-width: none;
+  max-height: none;
+  min-width: 0;
+  min-height: 0;
+  width: 100%;
+}
+</style><style>.mjpage .MJX-monospace {
+  font-family: monospace;
+}
+
+.mjpage .MJX-sans-serif {
+  font-family: sans-serif;
+}
+
+.mjpage {
+  display: inline;
+  font-style: normal;
+  font-weight: normal;
+  line-height: normal;
+  font-size: 100%;
+  font-size-adjust: none;
+  text-indent: 0;
+  text-align: left;
+  text-transform: none;
+  letter-spacing: normal;
+  word-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+  float: none;
+  direction: ltr;
+  max-width: none;
+  max-height: none;
+  min-width: 0;
+  min-height: 0;
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.mjpage * {
+  transition: none;
+  -webkit-transition: none;
+  -moz-transition: none;
+  -ms-transition: none;
+  -o-transition: none;
+}
+
+.mjx-svg-href {
+  fill: blue;
+  stroke: blue;
+}
+
+.MathJax_SVG_LineBox {
+  display: table !important;
+}
+
+.MathJax_SVG_LineBox span {
+  display: table-cell !important;
+  width: 10000em !important;
+  min-width: 0;
+  max-width: none;
+  padding: 0;
+  border: 0;
+  margin: 0;
+}
+
+.mjpage__block {
+  text-align: center;
+  margin: 1em 0em;
+  position: relative;
+  display: block !important;
+  text-indent: 0;
+  max-width: none;
+  max-height: none;
+  min-width: 0;
+  min-height: 0;
+  width: 100%;
+}
+</style></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/tags/">标签</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/2018/04/03/unique-binary-search-trees-ii/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/2018/03/12/swap-back-key-and-recents-key-of-android/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=https://binac.io/2018/03/25/binary-tree-interative-traversal/" target="_blank" rel="noopener"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=https://binac.io/2018/03/25/binary-tree-interative-traversal/&text=二叉树非递归遍历算法的快速实现" target="_blank" rel="noopener"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=https://binac.io/2018/03/25/binary-tree-interative-traversal/&title=二叉树非递归遍历算法的快速实现" target="_blank" rel="noopener"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=https://binac.io/2018/03/25/binary-tree-interative-traversal/&is_video=false&description=二叉树非递归遍历算法的快速实现" target="_blank" rel="noopener"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=二叉树非递归遍历算法的快速实现&body=Check out this article: https://binac.io/2018/03/25/binary-tree-interative-traversal/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=https://binac.io/2018/03/25/binary-tree-interative-traversal/&title=二叉树非递归遍历算法的快速实现" target="_blank" rel="noopener"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=https://binac.io/2018/03/25/binary-tree-interative-traversal/&title=二叉树非递归遍历算法的快速实现" target="_blank" rel="noopener"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=https://binac.io/2018/03/25/binary-tree-interative-traversal/&title=二叉树非递归遍历算法的快速实现" target="_blank" rel="noopener"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=https://binac.io/2018/03/25/binary-tree-interative-traversal/&title=二叉树非递归遍历算法的快速实现" target="_blank" rel="noopener"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=https://binac.io/2018/03/25/binary-tree-interative-traversal/&name=二叉树非递归遍历算法的快速实现&description=&lt;p&gt;二叉树的递归遍历简洁明了，而非递归遍历则相对复杂，三种递归思路有很大区别，还容易忘。如果不用线索二叉树的话，一般要用栈来实现，即便都是用栈实现，实现思路也有差别，这给我们理解和记忆带来困扰。&lt;/p&gt;
+&lt;p&gt;本文介绍利用栈来实现的二叉树非递归算法，主要目的是快速实现，而不是详细解释。&lt;/p&gt;"><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=https://binac.io/2018/03/25/binary-tree-interative-traversal/&t=二叉树非递归遍历算法的快速实现" target="_blank" rel="noopener"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#先序遍历"><span class="toc-number">1.</span> <span class="toc-text">先序遍历</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#中序遍历"><span class="toc-number">2.</span> <span class="toc-text">中序遍历</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#后序遍历"><span class="toc-number">3.</span> <span class="toc-text">后序遍历</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#双栈法"><span class="toc-number">3.1.</span> <span class="toc-text">双栈法</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#参考资料"><span class="toc-number">4.</span> <span class="toc-text">参考资料</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        二叉树非递归遍历算法的快速实现
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Binac</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2018-03-25T07:50:19.000Z" itemprop="datePublished">2018-03-25</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="tag">二叉树</a>, <a class="tag-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <p>二叉树的递归遍历简洁明了，而非递归遍历则相对复杂，三种递归思路有很大区别，还容易忘。如果不用线索二叉树的话，一般要用栈来实现，即便都是用栈实现，实现思路也有差别，这给我们理解和记忆带来困扰。</p>
+<p>本文介绍利用栈来实现的二叉树非递归算法，主要目的是快速实现，而不是详细解释。</p>
+<a id="more"></a>
+
+<h1 id="先序遍历"><a href="#先序遍历" class="headerlink" title="先序遍历"></a>先序遍历</h1><p>递归算法的伪代码：</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">preorder(node)</span><br><span class="line">  <span class="keyword">if</span> (node = null)</span><br><span class="line">    <span class="keyword">return</span></span><br><span class="line">  visit(node)</span><br><span class="line">  preorder(node.left)</span><br><span class="line">  preorder(node.right)</span><br></pre></td></tr></table></figure>
+
+<p>首先我们知道，栈用来存储已经经过，但是还未到访问时机的结点。</p>
+<p>先序遍历的顺序是：根 - 左 - 右，当处理一个结点时，当前结点可以直接访问，而左右子树还未到处理时机，需要将子树的根结点压入栈中：先压入右子结点，再压入左子结点。下次迭代再从栈中取出并处理，这样就保证了 根 - 左 - 右 的访问顺序。</p>
+<p>伪代码：</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">iterativePreorder(node)</span><br><span class="line">  <span class="keyword">if</span> (node = null)</span><br><span class="line">    <span class="keyword">return</span></span><br><span class="line">  s ← empty stack</span><br><span class="line">  s.push(node)</span><br><span class="line">  <span class="keyword">while</span> (<span class="keyword">not</span> s.isEmpty())</span><br><span class="line">    node ← s.pop()</span><br><span class="line">    visit(node)</span><br><span class="line">    //right child <span class="keyword">is</span> pushed first so that left <span class="keyword">is</span> processed first</span><br><span class="line">    <span class="keyword">if</span> (node.right ≠ null)</span><br><span class="line">      s.push(node.right)</span><br><span class="line">    <span class="keyword">if</span> (node.left ≠ null)</span><br><span class="line">      s.push(node.left)</span><br></pre></td></tr></table></figure>
+
+<h1 id="中序遍历"><a href="#中序遍历" class="headerlink" title="中序遍历"></a>中序遍历</h1><p>递归算法伪代码：</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">inorder(node)</span><br><span class="line">  <span class="keyword">if</span> (node = null)</span><br><span class="line">    <span class="keyword">return</span></span><br><span class="line">  inorder(node.left)</span><br><span class="line">  visit(node)</span><br><span class="line">  inorder(node.right)</span><br></pre></td></tr></table></figure>
+
+<p>中序遍历的顺序为 左 - 根 - 右，在处理一个结点时，要先处理它的左子树，再访问本身，再处理右子树。那么就要先把自身压入栈中，然后处理左子树，即指针指向左子结点。</p>
+<p>当指针为空，可以把指针指向的地方当成一棵树，并认为这棵树已经访问完毕，</p>
+<ul>
+<li><p>如果这棵树是它父结点的左子树，接下来就应该访问父结点，即栈顶元素</p>
+</li>
+<li><p>如果这棵树是它父结点的右子树，说明以父结点为根的子树已经全部访问完毕，接下来就应该访问父结点向上首个还未访问的祖先结点，同样是栈顶元素</p>
+</li>
+</ul>
+<p>总之直接出栈访问即可。</p>
+<p>当访问某个结点时，它的左子树必定已经访问完毕，接下来要处理的是右子树，就将指针指向右子结点。</p>
+<p>伪代码：</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">iterativeInorder(node)</span><br><span class="line">  s ← empty stack</span><br><span class="line">  <span class="keyword">while</span> (<span class="keyword">not</span> s.isEmpty() <span class="keyword">or</span> node ≠ null)</span><br><span class="line">    <span class="keyword">if</span> (node ≠ null)</span><br><span class="line">      s.push(node)</span><br><span class="line">      node ← node.left</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">      node ← s.pop()</span><br><span class="line">      visit(node)</span><br><span class="line">      node ← node.right</span><br></pre></td></tr></table></figure>
+
+<p>很多实现会做一些优化，用几个嵌套的<code>while</code>循环，其实不利于理解。</p>
+<p>如果把先序遍历写成和中序遍历风格一致的话：</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">iterativePreorder(node)</span><br><span class="line">  <span class="keyword">if</span> (node = null)</span><br><span class="line">    <span class="keyword">return</span></span><br><span class="line">  s ← empty stack</span><br><span class="line">  <span class="keyword">while</span> (<span class="keyword">not</span> s.isEmpty() <span class="keyword">or</span> node ≠ null)</span><br><span class="line">    <span class="keyword">if</span> (node ≠ null)</span><br><span class="line">      visit(node)</span><br><span class="line">      s.push(node)</span><br><span class="line">      node ← node.left</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">      node ← s.pop().right</span><br></pre></td></tr></table></figure>
+
+<p>不同的是这时栈中保存的就是已经访问过的结点了。</p>
+<h1 id="后序遍历"><a href="#后序遍历" class="headerlink" title="后序遍历"></a>后序遍历</h1><p>递归算法伪代码：</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">postorder(node)</span><br><span class="line">  <span class="keyword">if</span> (node = null)</span><br><span class="line">    <span class="keyword">return</span></span><br><span class="line">  postorder(node.left)</span><br><span class="line">  postorder(node.right)</span><br><span class="line">  visit(node)</span><br></pre></td></tr></table></figure>
+
+<p>后序遍历的顺序为 左 - 右 - 根，在处理一个结点时，要先处理它的左右子树，再访问本身，那么就要先把自身压入栈中，然后把指针指向左子结点。</p>
+<p>当指针为空，可以把指针指向的地方当成一棵树，并认为这棵树已经访问完毕，</p>
+<ul>
+<li><p>如果这棵树是父结点的左子树，接下来就应该处理父结点的右子树，父结点即栈顶元素</p>
+</li>
+<li><p>如果这棵树是父结点的右子树，接下来就应该访问父结点，即栈顶元素</p>
+</li>
+</ul>
+<p>麻烦之处在于，当处理栈顶元素时，此结点的左子树已经处理完毕，我们并不知道它的右子树是否已经处理，这时可以用一个指针指向上一次访问的结点，根据后序遍历的性质，结点右子树最后一个访问的结点必定是这个右子树的根结点，也就是结点的右子结点。如果这个右子结点已经访问，那么说明左右子树全部处理完毕，接下来出栈并访问此结点即可，否则就不要出栈，而让指针指向右子结点。</p>
+<p>伪代码：</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">iterativePostorder(node)</span><br><span class="line">  s ← empty stack</span><br><span class="line">  lastNodeVisited ← null</span><br><span class="line">  <span class="keyword">while</span> (<span class="keyword">not</span> s.isEmpty() <span class="keyword">or</span> node ≠ null)</span><br><span class="line">    <span class="keyword">if</span> (node ≠ null)</span><br><span class="line">      s.push(node)</span><br><span class="line">      node ← node.left</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">      peekNode ← s.peek()</span><br><span class="line">      // <span class="keyword">if</span> right child exists <span class="keyword">and</span> traversing node</span><br><span class="line">      // <span class="keyword">from</span> left child, then move right</span><br><span class="line">      <span class="keyword">if</span> (peekNode.right ≠ null <span class="keyword">and</span> lastNodeVisited ≠ peekNode.right)</span><br><span class="line">        node ← peekNode.right</span><br><span class="line">      <span class="keyword">else</span></span><br><span class="line">        visit(peekNode)</span><br><span class="line">        lastNodeVisited ← s.pop()</span><br></pre></td></tr></table></figure>
+
+<h2 id="双栈法"><a href="#双栈法" class="headerlink" title="双栈法"></a>双栈法</h2><p>如果使用两个栈，则后序遍历会简单很多。</p>
+<p>栈<code>s1</code>存储等待处理的子树的根结点，<code>s2</code>存储等待访问的结点。</p>
+<p>当处理一个子树时，将其根结点从<code>s1</code>中出栈，压入<code>s2</code>，此结点的左右子结点依次压入<code>s1</code>，这样就保证了先左后右的处理顺序。</p>
+<p><code>s2</code>总是先存储根结点，它的进栈顺序和遍历结果是相反的，出栈顺序则相同，因此可以得到后序遍历序列。</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">iterativePostorder(node)</span><br><span class="line">  s1 ← empty stack</span><br><span class="line">  s1.push(node)</span><br><span class="line">  s2 ← empty stack</span><br><span class="line">  <span class="keyword">while</span> (<span class="keyword">not</span> s1.isEmpty())</span><br><span class="line">    node ← s1.pop()</span><br><span class="line">    <span class="keyword">if</span> (node.left ≠ null)</span><br><span class="line">      s1.push(node.left)</span><br><span class="line">    <span class="keyword">if</span> (node.right ≠ null)</span><br><span class="line">      s1.push(node.right)</span><br><span class="line">    s2.push(node)</span><br><span class="line">  <span class="keyword">while</span> (<span class="keyword">not</span> s2.isEmpty())</span><br><span class="line">    visit(s2.pop())</span><br></pre></td></tr></table></figure>
+
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><p><a href="https://en.wikipedia.org/wiki/Tree_traversal" target="_blank" rel="noopener">Tree traversal - Wikipedia</a></p>
+
+  </div>
+</article>
+
+    <div class="blog-post-comments">
+        <div id="disqus_thread">
+            <noscript>加载评论需要在浏览器启用 JavaScript 脚本支持。</noscript>
+        </div>
+    </div>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/tags/">标签</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#先序遍历"><span class="toc-number">1.</span> <span class="toc-text">先序遍历</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#中序遍历"><span class="toc-number">2.</span> <span class="toc-text">中序遍历</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#后序遍历"><span class="toc-number">3.</span> <span class="toc-text">后序遍历</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#双栈法"><span class="toc-number">3.1.</span> <span class="toc-text">双栈法</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#参考资料"><span class="toc-number">4.</span> <span class="toc-text">参考资料</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=https://binac.io/2018/03/25/binary-tree-interative-traversal/" target="_blank" rel="noopener"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=https://binac.io/2018/03/25/binary-tree-interative-traversal/&text=二叉树非递归遍历算法的快速实现" target="_blank" rel="noopener"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=https://binac.io/2018/03/25/binary-tree-interative-traversal/&title=二叉树非递归遍历算法的快速实现" target="_blank" rel="noopener"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=https://binac.io/2018/03/25/binary-tree-interative-traversal/&is_video=false&description=二叉树非递归遍历算法的快速实现" target="_blank" rel="noopener"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=二叉树非递归遍历算法的快速实现&body=Check out this article: https://binac.io/2018/03/25/binary-tree-interative-traversal/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=https://binac.io/2018/03/25/binary-tree-interative-traversal/&title=二叉树非递归遍历算法的快速实现" target="_blank" rel="noopener"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=https://binac.io/2018/03/25/binary-tree-interative-traversal/&title=二叉树非递归遍历算法的快速实现" target="_blank" rel="noopener"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=https://binac.io/2018/03/25/binary-tree-interative-traversal/&title=二叉树非递归遍历算法的快速实现" target="_blank" rel="noopener"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=https://binac.io/2018/03/25/binary-tree-interative-traversal/&title=二叉树非递归遍历算法的快速实现" target="_blank" rel="noopener"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=https://binac.io/2018/03/25/binary-tree-interative-traversal/&name=二叉树非递归遍历算法的快速实现&description=&lt;p&gt;二叉树的递归遍历简洁明了，而非递归遍历则相对复杂，三种递归思路有很大区别，还容易忘。如果不用线索二叉树的话，一般要用栈来实现，即便都是用栈实现，实现思路也有差别，这给我们理解和记忆带来困扰。&lt;/p&gt;
+&lt;p&gt;本文介绍利用栈来实现的二叉树非递归算法，主要目的是快速实现，而不是详细解释。&lt;/p&gt;"><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=https://binac.io/2018/03/25/binary-tree-interative-traversal/&t=二叉树非递归遍历算法的快速实现" target="_blank" rel="noopener"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2020 Binac
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/tags/">标签</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+
+    <!-- jquery -->
+
+<script src="/lib/jquery/jquery.min.js"></script>
+
+
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+
+<!-- clipboard -->
+
+  
+<script src="/lib/clipboard/clipboard.min.js"></script>
+
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+    <script type="text/javascript">
+        var disqus_shortname = 'binac';
+
+        (function(){
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        }());
+    </script>
+
+
+</body>
+</html>

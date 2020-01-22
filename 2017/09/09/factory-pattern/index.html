@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="工厂模式可分为 Simple Factory Pattern 简单工厂模式、Factory Method Pattern 工厂方法模式 和 Abstract Factory Pattern 抽象工厂模式。 本文涉及源码：https:&#x2F;&#x2F;github.com&#x2F;qianbinbin&#x2F;DesignPattern&#x2F;tree&#x2F;master&#x2F;src&#x2F;main&#x2F;java&#x2F;io&#x2F;binac&#x2F;factory">
+<meta property="og:type" content="article">
+<meta property="og:title" content="工厂模式 Factory Pattern">
+<meta property="og:url" content="https://binac.io/2017/09/09/factory-pattern/index.html">
+<meta property="og:site_name" content="Binac">
+<meta property="og:description" content="工厂模式可分为 Simple Factory Pattern 简单工厂模式、Factory Method Pattern 工厂方法模式 和 Abstract Factory Pattern 抽象工厂模式。 本文涉及源码：https:&#x2F;&#x2F;github.com&#x2F;qianbinbin&#x2F;DesignPattern&#x2F;tree&#x2F;master&#x2F;src&#x2F;main&#x2F;java&#x2F;io&#x2F;binac&#x2F;factory">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2017-09-09T03:54:23.000Z">
+<meta property="article:modified_time" content="2020-01-22T06:08:53.205Z">
+<meta property="article:author" content="Binac">
+<meta property="article:tag" content="Java">
+<meta property="article:tag" content="设计模式">
+<meta name="twitter:card" content="summary">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>工厂模式 Factory Pattern</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+      
+<link rel="stylesheet" href="/css/rtl.css">
+
+    
+    <!-- rss -->
+    
+    
+<meta name="generator" content="Hexo 4.2.0"><style>.mjpage .MJX-monospace {
+  font-family: monospace;
+}
+
+.mjpage .MJX-sans-serif {
+  font-family: sans-serif;
+}
+
+.mjpage {
+  display: inline;
+  font-style: normal;
+  font-weight: normal;
+  line-height: normal;
+  font-size: 100%;
+  font-size-adjust: none;
+  text-indent: 0;
+  text-align: left;
+  text-transform: none;
+  letter-spacing: normal;
+  word-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+  float: none;
+  direction: ltr;
+  max-width: none;
+  max-height: none;
+  min-width: 0;
+  min-height: 0;
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.mjpage * {
+  transition: none;
+  -webkit-transition: none;
+  -moz-transition: none;
+  -ms-transition: none;
+  -o-transition: none;
+}
+
+.mjx-svg-href {
+  fill: blue;
+  stroke: blue;
+}
+
+.MathJax_SVG_LineBox {
+  display: table !important;
+}
+
+.MathJax_SVG_LineBox span {
+  display: table-cell !important;
+  width: 10000em !important;
+  min-width: 0;
+  max-width: none;
+  padding: 0;
+  border: 0;
+  margin: 0;
+}
+
+.mjpage__block {
+  text-align: center;
+  margin: 1em 0em;
+  position: relative;
+  display: block !important;
+  text-indent: 0;
+  max-width: none;
+  max-height: none;
+  min-width: 0;
+  min-height: 0;
+  width: 100%;
+}
+</style><style>.mjpage .MJX-monospace {
+  font-family: monospace;
+}
+
+.mjpage .MJX-sans-serif {
+  font-family: sans-serif;
+}
+
+.mjpage {
+  display: inline;
+  font-style: normal;
+  font-weight: normal;
+  line-height: normal;
+  font-size: 100%;
+  font-size-adjust: none;
+  text-indent: 0;
+  text-align: left;
+  text-transform: none;
+  letter-spacing: normal;
+  word-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+  float: none;
+  direction: ltr;
+  max-width: none;
+  max-height: none;
+  min-width: 0;
+  min-height: 0;
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.mjpage * {
+  transition: none;
+  -webkit-transition: none;
+  -moz-transition: none;
+  -ms-transition: none;
+  -o-transition: none;
+}
+
+.mjx-svg-href {
+  fill: blue;
+  stroke: blue;
+}
+
+.MathJax_SVG_LineBox {
+  display: table !important;
+}
+
+.MathJax_SVG_LineBox span {
+  display: table-cell !important;
+  width: 10000em !important;
+  min-width: 0;
+  max-width: none;
+  padding: 0;
+  border: 0;
+  margin: 0;
+}
+
+.mjpage__block {
+  text-align: center;
+  margin: 1em 0em;
+  position: relative;
+  display: block !important;
+  text-indent: 0;
+  max-width: none;
+  max-height: none;
+  min-width: 0;
+  min-height: 0;
+  width: 100%;
+}
+</style></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/tags/">标签</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/2017/09/19/virtual-key-statusbar-lockscreen-disabled/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/2017/08/30/print-log-in-libcore/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=https://binac.io/2017/09/09/factory-pattern/" target="_blank" rel="noopener"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=https://binac.io/2017/09/09/factory-pattern/&text=工厂模式 Factory Pattern" target="_blank" rel="noopener"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=https://binac.io/2017/09/09/factory-pattern/&title=工厂模式 Factory Pattern" target="_blank" rel="noopener"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=https://binac.io/2017/09/09/factory-pattern/&is_video=false&description=工厂模式 Factory Pattern" target="_blank" rel="noopener"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=工厂模式 Factory Pattern&body=Check out this article: https://binac.io/2017/09/09/factory-pattern/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=https://binac.io/2017/09/09/factory-pattern/&title=工厂模式 Factory Pattern" target="_blank" rel="noopener"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=https://binac.io/2017/09/09/factory-pattern/&title=工厂模式 Factory Pattern" target="_blank" rel="noopener"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=https://binac.io/2017/09/09/factory-pattern/&title=工厂模式 Factory Pattern" target="_blank" rel="noopener"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=https://binac.io/2017/09/09/factory-pattern/&title=工厂模式 Factory Pattern" target="_blank" rel="noopener"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=https://binac.io/2017/09/09/factory-pattern/&name=工厂模式 Factory Pattern&description=&lt;p&gt;工厂模式可分为 Simple Factory Pattern 简单工厂模式、Factory Method Pattern 工厂方法模式 和 Abstract Factory Pattern 抽象工厂模式。&lt;/p&gt;
+&lt;p&gt;本文涉及源码：&lt;br&gt;&lt;a href=&#34;https://github.com/qianbinbin/DesignPattern/tree/master/src/main/java/io/binac/factory&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;https://github.com/qianbinbin/DesignPattern/tree/master/src/main/java/io/binac/factory&lt;/a&gt;&lt;/p&gt;"><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=https://binac.io/2017/09/09/factory-pattern/&t=工厂模式 Factory Pattern" target="_blank" rel="noopener"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#简单工厂模式"><span class="toc-number">1.</span> <span class="toc-text">简单工厂模式</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#实例"><span class="toc-number">1.1.</span> <span class="toc-text">实例</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#抽象产品"><span class="toc-number">1.1.1.</span> <span class="toc-text">抽象产品</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#具体产品"><span class="toc-number">1.1.2.</span> <span class="toc-text">具体产品</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#工厂"><span class="toc-number">1.1.3.</span> <span class="toc-text">工厂</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#测试"><span class="toc-number">1.1.4.</span> <span class="toc-text">测试</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">1.2.</span> <span class="toc-text">小结</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#工厂方法模式"><span class="toc-number">2.</span> <span class="toc-text">工厂方法模式</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#实例-1"><span class="toc-number">2.1.</span> <span class="toc-text">实例</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#抽象工厂"><span class="toc-number">2.1.1.</span> <span class="toc-text">抽象工厂</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#具体工厂"><span class="toc-number">2.1.2.</span> <span class="toc-text">具体工厂</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#测试-1"><span class="toc-number">2.1.3.</span> <span class="toc-text">测试</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结-1"><span class="toc-number">2.2.</span> <span class="toc-text">小结</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#抽象工厂模式"><span class="toc-number">3.</span> <span class="toc-text">抽象工厂模式</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#实例-2"><span class="toc-number">3.1.</span> <span class="toc-text">实例</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#抽象产品-1"><span class="toc-number">3.1.1.</span> <span class="toc-text">抽象产品</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#具体产品-1"><span class="toc-number">3.1.2.</span> <span class="toc-text">具体产品</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#抽象工厂-1"><span class="toc-number">3.1.3.</span> <span class="toc-text">抽象工厂</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#具体工厂-1"><span class="toc-number">3.1.4.</span> <span class="toc-text">具体工厂</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#测试-2"><span class="toc-number">3.1.5.</span> <span class="toc-text">测试</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结-2"><span class="toc-number">3.2.</span> <span class="toc-text">小结</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#参考资料"><span class="toc-number">4.</span> <span class="toc-text">参考资料</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        工厂模式 Factory Pattern
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Binac</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2017-09-09T03:54:23.000Z" itemprop="datePublished">2017-09-09</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/Java/" rel="tag">Java</a>, <a class="tag-link" href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" rel="tag">设计模式</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <p>工厂模式可分为 Simple Factory Pattern 简单工厂模式、Factory Method Pattern 工厂方法模式 和 Abstract Factory Pattern 抽象工厂模式。</p>
+<p>本文涉及源码：<br><a href="https://github.com/qianbinbin/DesignPattern/tree/master/src/main/java/io/binac/factory" target="_blank" rel="noopener">https://github.com/qianbinbin/DesignPattern/tree/master/src/main/java/io/binac/factory</a></p>
+<a id="more"></a>
+
+<h1 id="简单工厂模式"><a href="#简单工厂模式" class="headerlink" title="简单工厂模式"></a>简单工厂模式</h1><p>简单工厂模式实际上是对产品创建逻辑做了统一的封装，包含如下角色：</p>
+<ul>
+<li><p>抽象产品：具体产品的接口（或父类）</p>
+</li>
+<li><p>具体产品：产品的具体实现</p>
+</li>
+<li><p>工厂：创建所有产品实例的类</p>
+</li>
+</ul>
+<h2 id="实例"><a href="#实例" class="headerlink" title="实例"></a>实例</h2><h3 id="抽象产品"><a href="#抽象产品" class="headerlink" title="抽象产品"></a>抽象产品</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">IProduct</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">use</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="具体产品"><a href="#具体产品" class="headerlink" title="具体产品"></a>具体产品</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ConcreteProductA</span> <span class="keyword">implements</span> <span class="title">IProduct</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">use</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"using an instance of "</span> + <span class="keyword">this</span>.getClass());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ConcreteProductB</span> <span class="keyword">implements</span> <span class="title">IProduct</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">use</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"using an instance of "</span> + <span class="keyword">this</span>.getClass());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="工厂"><a href="#工厂" class="headerlink" title="工厂"></a>工厂</h3><p>根据客户端传来的参数，创建并返回不同的产品。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ConcreteSimpleFactory</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> IProduct <span class="title">createProduct</span><span class="params">(ProductType type)</span> <span class="keyword">throws</span> IllegalArgumentException </span>&#123;</span><br><span class="line">        <span class="keyword">switch</span> (type) &#123;</span><br><span class="line">            <span class="keyword">case</span> TYPE_A:</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">new</span> ConcreteProductA();</span><br><span class="line">            <span class="keyword">case</span> TYPE_B:</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">new</span> ConcreteProductB();</span><br><span class="line">            <span class="keyword">default</span>:</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"undefined product type"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">enum</span> ProductType &#123;</span><br><span class="line">        TYPE_A,</span><br><span class="line">        TYPE_B</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">IProduct product = ConcreteSimpleFactory.createProduct(ProductType.TYPE_A);</span><br><span class="line">product.use();</span><br></pre></td></tr></table></figure>
+
+<p>输出：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">using an instance of class io.binac.factory.ConcreteProductA</span><br></pre></td></tr></table></figure>
+
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>由于创建产品的方法是静态的，简单工厂模式也称为静态工厂模式。</p>
+<p>优点：</p>
+<ul>
+<li><p>对客户端隐藏产品实例的创建过程，符合迪米特法则</p>
+</li>
+<li><p>对客户端隐藏具体类，以便在后续版本修改实现</p>
+</li>
+<li><p>如果创建实例时需要先初始化各种参数，在客户端多次创建时，可避免重复编码</p>
+</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li><p>增加产品时，需要修改工厂类，违反开闭原则</p>
+</li>
+<li><p>产品过多时，难以维护</p>
+</li>
+</ul>
+<h1 id="工厂方法模式"><a href="#工厂方法模式" class="headerlink" title="工厂方法模式"></a>工厂方法模式</h1><p>工厂方法模式是对简单工厂模式的改进，把工厂角色分为抽象工厂和具体工厂，即包含抽象产品、具体产品、抽象工厂、具体工厂四个角色，每个具体产品对应一个具体工厂。</p>
+<h2 id="实例-1"><a href="#实例-1" class="headerlink" title="实例"></a>实例</h2><p>抽象产品和具体产品代码同简单工厂模式。</p>
+<h3 id="抽象工厂"><a href="#抽象工厂" class="headerlink" title="抽象工厂"></a>抽象工厂</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">IFactory</span> </span>&#123;</span><br><span class="line">    <span class="function">IProduct <span class="title">createProduct</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="具体工厂"><a href="#具体工厂" class="headerlink" title="具体工厂"></a>具体工厂</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ConcreteFactoryA</span> <span class="keyword">implements</span> <span class="title">IFactory</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> IProduct <span class="title">createProduct</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> ConcreteProductA();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ConcreteFactoryB</span> <span class="keyword">implements</span> <span class="title">IFactory</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> IProduct <span class="title">createProduct</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> ConcreteProductB();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="测试-1"><a href="#测试-1" class="headerlink" title="测试"></a>测试</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">IFactory factory = <span class="keyword">new</span> ConcreteFactoryB();</span><br><span class="line">IProduct product = factory.createProduct();</span><br><span class="line">product.use();</span><br></pre></td></tr></table></figure>
+
+<p>输出：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">using an instance of class io.binac.factory.ConcreteProductB</span><br></pre></td></tr></table></figure>
+
+<h2 id="小结-1"><a href="#小结-1" class="headerlink" title="小结"></a>小结</h2><p>优点：</p>
+<ul>
+<li><p>拥有简单工厂模式所有优点</p>
+</li>
+<li><p>当需要增加产品时，只需要增加产品类和相应的工厂类即可，符合开闭原则</p>
+</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li>增加产品时，类的个数成对增加，增加了系统复杂性</li>
+</ul>
+<h1 id="抽象工厂模式"><a href="#抽象工厂模式" class="headerlink" title="抽象工厂模式"></a>抽象工厂模式</h1><p>在工厂方法模式中，一个具体产品对应一个具体工厂。如果一个具体工厂可以提供多种相关的产品，称这些产品属于同一个产品族。</p>
+<p>例如，A 系列手机配套的是 3.5 mm 接口耳机、Micro-USB 数据线，B 系列手机配套的是蓝牙耳机、USB Type-C 数据线，每种系列的一套配件可以看作是一个产品族。抽象工厂模式通常用于提供成套的产品。</p>
+<p>抽象工厂模式同样包含抽象产品、具体产品、抽象工厂、具体工厂四个角色。</p>
+<h2 id="实例-2"><a href="#实例-2" class="headerlink" title="实例"></a>实例</h2><h3 id="抽象产品-1"><a href="#抽象产品-1" class="headerlink" title="抽象产品"></a>抽象产品</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">IProductA</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">use</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">IProductB</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">use</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="具体产品-1"><a href="#具体产品-1" class="headerlink" title="具体产品"></a>具体产品</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ConcreteProductA1</span> <span class="keyword">implements</span> <span class="title">IProductA</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">use</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"using an instance of "</span> + <span class="keyword">this</span>.getClass());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ConcreteProductB1</span> <span class="keyword">implements</span> <span class="title">IProductB</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">use</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"using an instance of "</span> + <span class="keyword">this</span>.getClass());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ConcreteProductA2</span> <span class="keyword">implements</span> <span class="title">IProductA</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">use</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"using an instance of "</span> + <span class="keyword">this</span>.getClass());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ConcreteProductB2</span> <span class="keyword">implements</span> <span class="title">IProductB</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">use</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"using an instance of "</span> + <span class="keyword">this</span>.getClass());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="抽象工厂-1"><a href="#抽象工厂-1" class="headerlink" title="抽象工厂"></a>抽象工厂</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">AbstractFactory</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> IProductA <span class="title">createProductA</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> IProductB <span class="title">createProductB</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里使用的是抽象类，也可以用接口。</p>
+<h3 id="具体工厂-1"><a href="#具体工厂-1" class="headerlink" title="具体工厂"></a>具体工厂</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ConcreteFactory1</span> <span class="keyword">extends</span> <span class="title">AbstractFactory</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> IProductA <span class="title">createProductA</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> ConcreteProductA1();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> IProductB <span class="title">createProductB</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> ConcreteProductB1();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ConcreteFactory2</span> <span class="keyword">extends</span> <span class="title">AbstractFactory</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> IProductA <span class="title">createProductA</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> ConcreteProductA2();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> IProductB <span class="title">createProductB</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> ConcreteProductB2();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="测试-2"><a href="#测试-2" class="headerlink" title="测试"></a>测试</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">AbstractFactory factory1 = <span class="keyword">new</span> ConcreteFactory1();</span><br><span class="line">IProductA productA = factory1.createProductA();</span><br><span class="line">IProductB productB = factory1.createProductB();</span><br><span class="line">productA.use();</span><br><span class="line">productB.use();</span><br></pre></td></tr></table></figure>
+
+<p>输出：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">using an instance of class io.binac.factory.abstractfactory.ConcreteProductA1</span><br><span class="line">using an instance of class io.binac.factory.abstractfactory.ConcreteProductB1</span><br></pre></td></tr></table></figure>
+
+<h2 id="小结-2"><a href="#小结-2" class="headerlink" title="小结"></a>小结</h2><p>优点：</p>
+<ul>
+<li><p>拥有简单工厂模式所有优点</p>
+</li>
+<li><p>便于客户端使用同一个产品族中的产品</p>
+</li>
+<li><p>增加新的具体工厂和产品族非常方便，符合开闭原则</p>
+</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li>产品族增加新的产品非常麻烦，需要修改所有的工厂类，对开闭原则有倾斜性</li>
+</ul>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><p><a href="http://design-patterns.readthedocs.io/zh_CN/latest/creational_patterns/creational.html" target="_blank" rel="noopener">创建型模式 — Graphic Design Patterns</a></p>
+<p><a href="http://www.hollischuang.com/archives/1420" target="_blank" rel="noopener">设计模式（七）——抽象工厂模式-HollisChuang’s Blog</a></p>
+<p><a href="http://blog.csdn.net/zhengzhb/article/details/7348707" target="_blank" rel="noopener">23种设计模式（2）：工厂方法模式 - 卡奴达摩的专栏 - CSDN博客</a></p>
+<p><a href="http://blog.csdn.net/zhengzhb/article/details/7359385" target="_blank" rel="noopener">23种设计模式（3）：抽象工厂模式 - 卡奴达摩的专栏 - CSDN博客</a></p>
+
+  </div>
+</article>
+
+    <div class="blog-post-comments">
+        <div id="disqus_thread">
+            <noscript>加载评论需要在浏览器启用 JavaScript 脚本支持。</noscript>
+        </div>
+    </div>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/tags/">标签</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#简单工厂模式"><span class="toc-number">1.</span> <span class="toc-text">简单工厂模式</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#实例"><span class="toc-number">1.1.</span> <span class="toc-text">实例</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#抽象产品"><span class="toc-number">1.1.1.</span> <span class="toc-text">抽象产品</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#具体产品"><span class="toc-number">1.1.2.</span> <span class="toc-text">具体产品</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#工厂"><span class="toc-number">1.1.3.</span> <span class="toc-text">工厂</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#测试"><span class="toc-number">1.1.4.</span> <span class="toc-text">测试</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">1.2.</span> <span class="toc-text">小结</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#工厂方法模式"><span class="toc-number">2.</span> <span class="toc-text">工厂方法模式</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#实例-1"><span class="toc-number">2.1.</span> <span class="toc-text">实例</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#抽象工厂"><span class="toc-number">2.1.1.</span> <span class="toc-text">抽象工厂</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#具体工厂"><span class="toc-number">2.1.2.</span> <span class="toc-text">具体工厂</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#测试-1"><span class="toc-number">2.1.3.</span> <span class="toc-text">测试</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结-1"><span class="toc-number">2.2.</span> <span class="toc-text">小结</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#抽象工厂模式"><span class="toc-number">3.</span> <span class="toc-text">抽象工厂模式</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#实例-2"><span class="toc-number">3.1.</span> <span class="toc-text">实例</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#抽象产品-1"><span class="toc-number">3.1.1.</span> <span class="toc-text">抽象产品</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#具体产品-1"><span class="toc-number">3.1.2.</span> <span class="toc-text">具体产品</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#抽象工厂-1"><span class="toc-number">3.1.3.</span> <span class="toc-text">抽象工厂</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#具体工厂-1"><span class="toc-number">3.1.4.</span> <span class="toc-text">具体工厂</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#测试-2"><span class="toc-number">3.1.5.</span> <span class="toc-text">测试</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结-2"><span class="toc-number">3.2.</span> <span class="toc-text">小结</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#参考资料"><span class="toc-number">4.</span> <span class="toc-text">参考资料</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=https://binac.io/2017/09/09/factory-pattern/" target="_blank" rel="noopener"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=https://binac.io/2017/09/09/factory-pattern/&text=工厂模式 Factory Pattern" target="_blank" rel="noopener"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=https://binac.io/2017/09/09/factory-pattern/&title=工厂模式 Factory Pattern" target="_blank" rel="noopener"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=https://binac.io/2017/09/09/factory-pattern/&is_video=false&description=工厂模式 Factory Pattern" target="_blank" rel="noopener"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=工厂模式 Factory Pattern&body=Check out this article: https://binac.io/2017/09/09/factory-pattern/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=https://binac.io/2017/09/09/factory-pattern/&title=工厂模式 Factory Pattern" target="_blank" rel="noopener"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=https://binac.io/2017/09/09/factory-pattern/&title=工厂模式 Factory Pattern" target="_blank" rel="noopener"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=https://binac.io/2017/09/09/factory-pattern/&title=工厂模式 Factory Pattern" target="_blank" rel="noopener"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=https://binac.io/2017/09/09/factory-pattern/&title=工厂模式 Factory Pattern" target="_blank" rel="noopener"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=https://binac.io/2017/09/09/factory-pattern/&name=工厂模式 Factory Pattern&description=&lt;p&gt;工厂模式可分为 Simple Factory Pattern 简单工厂模式、Factory Method Pattern 工厂方法模式 和 Abstract Factory Pattern 抽象工厂模式。&lt;/p&gt;
+&lt;p&gt;本文涉及源码：&lt;br&gt;&lt;a href=&#34;https://github.com/qianbinbin/DesignPattern/tree/master/src/main/java/io/binac/factory&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;https://github.com/qianbinbin/DesignPattern/tree/master/src/main/java/io/binac/factory&lt;/a&gt;&lt;/p&gt;"><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=https://binac.io/2017/09/09/factory-pattern/&t=工厂模式 Factory Pattern" target="_blank" rel="noopener"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2020 Binac
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/tags/">标签</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+
+    <!-- jquery -->
+
+<script src="/lib/jquery/jquery.min.js"></script>
+
+
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+
+<!-- clipboard -->
+
+  
+<script src="/lib/clipboard/clipboard.min.js"></script>
+
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+    <script type="text/javascript">
+        var disqus_shortname = 'binac';
+
+        (function(){
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        }());
+    </script>
+
+
+</body>
+</html>

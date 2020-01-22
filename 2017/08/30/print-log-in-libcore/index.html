@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="Android Java 核心库中是无法直接使用 android.util.Log 的，添加后编译不通过，因为 framework 中的 Java API 依赖于 Java 核心库。 在 Android 7.0 之前，Java 核心库源码在libcore&#x2F;luni&#x2F;下，luni 代表 lang、util、net、io，是 Java 中最常见的包；Android 7.0 中，核心库在libcore&#x2F;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="在 Android Java 核心库 libcore 中打印 Log">
+<meta property="og:url" content="https://binac.io/2017/08/30/print-log-in-libcore/index.html">
+<meta property="og:site_name" content="Binac">
+<meta property="og:description" content="Android Java 核心库中是无法直接使用 android.util.Log 的，添加后编译不通过，因为 framework 中的 Java API 依赖于 Java 核心库。 在 Android 7.0 之前，Java 核心库源码在libcore&#x2F;luni&#x2F;下，luni 代表 lang、util、net、io，是 Java 中最常见的包；Android 7.0 中，核心库在libcore&#x2F;">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2017-08-30T11:41:27.000Z">
+<meta property="article:modified_time" content="2020-01-20T07:38:12.125Z">
+<meta property="article:author" content="Binac">
+<meta property="article:tag" content="Java">
+<meta property="article:tag" content="Android">
+<meta property="article:tag" content="JNI">
+<meta name="twitter:card" content="summary">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>在 Android Java 核心库 libcore 中打印 Log</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+      
+<link rel="stylesheet" href="/css/rtl.css">
+
+    
+    <!-- rss -->
+    
+    
+<meta name="generator" content="Hexo 4.2.0"><style>.mjpage .MJX-monospace {
+  font-family: monospace;
+}
+
+.mjpage .MJX-sans-serif {
+  font-family: sans-serif;
+}
+
+.mjpage {
+  display: inline;
+  font-style: normal;
+  font-weight: normal;
+  line-height: normal;
+  font-size: 100%;
+  font-size-adjust: none;
+  text-indent: 0;
+  text-align: left;
+  text-transform: none;
+  letter-spacing: normal;
+  word-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+  float: none;
+  direction: ltr;
+  max-width: none;
+  max-height: none;
+  min-width: 0;
+  min-height: 0;
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.mjpage * {
+  transition: none;
+  -webkit-transition: none;
+  -moz-transition: none;
+  -ms-transition: none;
+  -o-transition: none;
+}
+
+.mjx-svg-href {
+  fill: blue;
+  stroke: blue;
+}
+
+.MathJax_SVG_LineBox {
+  display: table !important;
+}
+
+.MathJax_SVG_LineBox span {
+  display: table-cell !important;
+  width: 10000em !important;
+  min-width: 0;
+  max-width: none;
+  padding: 0;
+  border: 0;
+  margin: 0;
+}
+
+.mjpage__block {
+  text-align: center;
+  margin: 1em 0em;
+  position: relative;
+  display: block !important;
+  text-indent: 0;
+  max-width: none;
+  max-height: none;
+  min-width: 0;
+  min-height: 0;
+  width: 100%;
+}
+</style><style>.mjpage .MJX-monospace {
+  font-family: monospace;
+}
+
+.mjpage .MJX-sans-serif {
+  font-family: sans-serif;
+}
+
+.mjpage {
+  display: inline;
+  font-style: normal;
+  font-weight: normal;
+  line-height: normal;
+  font-size: 100%;
+  font-size-adjust: none;
+  text-indent: 0;
+  text-align: left;
+  text-transform: none;
+  letter-spacing: normal;
+  word-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+  float: none;
+  direction: ltr;
+  max-width: none;
+  max-height: none;
+  min-width: 0;
+  min-height: 0;
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.mjpage * {
+  transition: none;
+  -webkit-transition: none;
+  -moz-transition: none;
+  -ms-transition: none;
+  -o-transition: none;
+}
+
+.mjx-svg-href {
+  fill: blue;
+  stroke: blue;
+}
+
+.MathJax_SVG_LineBox {
+  display: table !important;
+}
+
+.MathJax_SVG_LineBox span {
+  display: table-cell !important;
+  width: 10000em !important;
+  min-width: 0;
+  max-width: none;
+  padding: 0;
+  border: 0;
+  margin: 0;
+}
+
+.mjpage__block {
+  text-align: center;
+  margin: 1em 0em;
+  position: relative;
+  display: block !important;
+  text-indent: 0;
+  max-width: none;
+  max-height: none;
+  min-width: 0;
+  min-height: 0;
+  width: 100%;
+}
+</style></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/tags/">标签</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/2017/09/09/factory-pattern/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/2017/07/24/median-of-two-sorted-arrays/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=https://binac.io/2017/08/30/print-log-in-libcore/" target="_blank" rel="noopener"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=https://binac.io/2017/08/30/print-log-in-libcore/&text=在 Android Java 核心库 libcore 中打印 Log" target="_blank" rel="noopener"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=https://binac.io/2017/08/30/print-log-in-libcore/&title=在 Android Java 核心库 libcore 中打印 Log" target="_blank" rel="noopener"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=https://binac.io/2017/08/30/print-log-in-libcore/&is_video=false&description=在 Android Java 核心库 libcore 中打印 Log" target="_blank" rel="noopener"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=在 Android Java 核心库 libcore 中打印 Log&body=Check out this article: https://binac.io/2017/08/30/print-log-in-libcore/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=https://binac.io/2017/08/30/print-log-in-libcore/&title=在 Android Java 核心库 libcore 中打印 Log" target="_blank" rel="noopener"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=https://binac.io/2017/08/30/print-log-in-libcore/&title=在 Android Java 核心库 libcore 中打印 Log" target="_blank" rel="noopener"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=https://binac.io/2017/08/30/print-log-in-libcore/&title=在 Android Java 核心库 libcore 中打印 Log" target="_blank" rel="noopener"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=https://binac.io/2017/08/30/print-log-in-libcore/&title=在 Android Java 核心库 libcore 中打印 Log" target="_blank" rel="noopener"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=https://binac.io/2017/08/30/print-log-in-libcore/&name=在 Android Java 核心库 libcore 中打印 Log&description=&lt;p&gt;Android Java 核心库中是无法直接使用 android.util.Log 的，添加后编译不通过，因为 framework 中的 Java API 依赖于 Java 核心库。&lt;/p&gt;
+&lt;p&gt;在 Android 7.0 之前，Java 核心库源码在&lt;code&gt;libcore/luni/&lt;/code&gt;下，luni 代表 lang、util、net、io，是 Java 中最常见的包；Android 7.0 中，核心库在&lt;code&gt;libcore/ojluni/&lt;/code&gt;下，oj 代表 OpenJDK。&lt;/p&gt;
+&lt;p&gt;本文简单介绍在核心库中打印 Log 的几种方法。&lt;/p&gt;"><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=https://binac.io/2017/08/30/print-log-in-libcore/&t=在 Android Java 核心库 libcore 中打印 Log" target="_blank" rel="noopener"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#使用-System-out-和-System-err"><span class="toc-number">1.</span> <span class="toc-text">使用 System.out 和 System.err</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#使用-java-util-logging-Logger"><span class="toc-number">1.1.</span> <span class="toc-text">使用 java.util.logging.Logger</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#移植-android-util-Log"><span class="toc-number">2.</span> <span class="toc-text">移植 android.util.Log</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#在-Java-代码中声明-native-方法"><span class="toc-number">2.1.</span> <span class="toc-text">在 Java 代码中声明 native 方法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#实现-JNI-层"><span class="toc-number">2.2.</span> <span class="toc-text">实现 JNI 层</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#打印栈信息-Stack-Trace"><span class="toc-number">3.</span> <span class="toc-text">打印栈信息 Stack Trace</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        在 Android Java 核心库 libcore 中打印 Log
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Binac</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2017-08-30T11:41:27.000Z" itemprop="datePublished">2017-08-30</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/Android/" rel="tag">Android</a>, <a class="tag-link" href="/tags/JNI/" rel="tag">JNI</a>, <a class="tag-link" href="/tags/Java/" rel="tag">Java</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <p>Android Java 核心库中是无法直接使用 android.util.Log 的，添加后编译不通过，因为 framework 中的 Java API 依赖于 Java 核心库。</p>
+<p>在 Android 7.0 之前，Java 核心库源码在<code>libcore/luni/</code>下，luni 代表 lang、util、net、io，是 Java 中最常见的包；Android 7.0 中，核心库在<code>libcore/ojluni/</code>下，oj 代表 OpenJDK。</p>
+<p>本文简单介绍在核心库中打印 Log 的几种方法。</p>
+<a id="more"></a>
+
+<h1 id="使用-System-out-和-System-err"><a href="#使用-System-out-和-System-err" class="headerlink" title="使用 System.out 和 System.err"></a>使用 System.out 和 System.err</h1><p>这是很常见的方法，在 Android 中它被重定向到本地的 Log 系统，tag 分别为<code>System.out</code>和<code>System.err</code>。</p>
+<p>缺点在于，它不能自定义 tag，而且这种方法是在 SystemServer 进程创建之后、启动之前进行重定向的，在这之前无法打印 Log。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// frameworks/base/core/java/com/android/internal/os/RuntimeInit.java</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * The main function called when started through the zygote process. This</span></span><br><span class="line"><span class="comment"> * could be unified with main(), if the native code in nativeFinishInit()</span></span><br><span class="line"><span class="comment"> * were rationalized with Zygote startup.&lt;p&gt;</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * Current recognized args:</span></span><br><span class="line"><span class="comment"> * &lt;ul&gt;</span></span><br><span class="line"><span class="comment"> *   &lt;li&gt; &lt;code&gt; [--] &amp;lt;start class name&amp;gt;  &amp;lt;args&amp;gt;</span></span><br><span class="line"><span class="comment"> * &lt;/ul&gt;</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> targetSdkVersion target SDK version</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> argv arg strings</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">void</span> <span class="title">zygoteInit</span><span class="params">(<span class="keyword">int</span> targetSdkVersion, String[] argv, ClassLoader classLoader)</span></span></span><br><span class="line"><span class="function">        <span class="keyword">throws</span> ZygoteInit.MethodAndArgsCaller </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (DEBUG) Slog.d(TAG, <span class="string">"RuntimeInit: Starting application from zygote"</span>);</span><br><span class="line"></span><br><span class="line">    Trace.traceBegin(Trace.TRACE_TAG_ACTIVITY_MANAGER, <span class="string">"RuntimeInit"</span>);</span><br><span class="line">    redirectLogStreams();</span><br><span class="line"></span><br><span class="line">    commonInit();</span><br><span class="line">    nativeZygoteInit();</span><br><span class="line">    applicationInit(targetSdkVersion, argv, classLoader);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// ...</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Redirect System.out and System.err to the Android log.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">redirectLogStreams</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    System.out.close();</span><br><span class="line">    System.setOut(<span class="keyword">new</span> AndroidPrintStream(Log.INFO, <span class="string">"System.out"</span>));</span><br><span class="line">    System.err.close();</span><br><span class="line">    System.setErr(<span class="keyword">new</span> AndroidPrintStream(Log.WARN, <span class="string">"System.err"</span>));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在<code>RuntimeInit.zygoteInit()</code>方法中，调用<code>redirectLogStreams()</code>方法，设置输出流为 AndroidPrintStream，当使用<code>System.out</code>和<code>System.err</code>进行打印时，最终是调用的是 android.util.Log：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// frameworks/base/core/java/com/android/internal/os/AndroidPrintStream.java</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Print stream which log lines using Android's logging system.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * &#123;<span class="doctag">@hide</span>&#125;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">AndroidPrintStream</span> <span class="keyword">extends</span> <span class="title">LoggingPrintStream</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">int</span> priority;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> String tag;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Constructs a new logging print stream.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> priority from &#123;<span class="doctag">@link</span> android.util.Log&#125;</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> tag to log</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">AndroidPrintStream</span><span class="params">(<span class="keyword">int</span> priority, String tag)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (tag == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> NullPointerException(<span class="string">"tag"</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">this</span>.priority = priority;</span><br><span class="line">        <span class="keyword">this</span>.tag = tag;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">log</span><span class="params">(String line)</span> </span>&#123;</span><br><span class="line">        Log.println(priority, tag, line);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="使用-java-util-logging-Logger"><a href="#使用-java-util-logging-Logger" class="headerlink" title="使用 java.util.logging.Logger"></a>使用 java.util.logging.Logger</h2><p>Java 核心库中有 java.util.logging.Logger，在 Android 中它也被重定向到 Android 本地的 Log 系统。</p>
+<p>使用方法很简单，在需要打印 Log 的源码中添加：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Logger sLogger = Logger.getLogger(<span class="string">"MyTag"</span>);</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">logi</span><span class="params">(String msg)</span> </span>&#123;</span><br><span class="line">    sLogger.info(msg);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>使用时只需调用<code>logi()</code>方法即可。</p>
+<p>这里使用的是 Level 为 INFO 的 Log。你也可以自定义 Level，核心库 java.util.logging.Logger 与 Android 本地 android.util.Log 的 Level 对应关系，可以参考 java.util.logging.Level 和 com.android.internal.logging.AndroidHandler。</p>
+<p>Logger 的重定向位置和<code>System.out</code>接近，在这之前也无法打印 Log。</p>
+<p>事实上，这里 Log 实际上是调用了 Logger 中注册的 Handler（java.util.logging.Handler，不是 android.os.Handler）。</p>
+<p>Handler 的注册，紧随<code>RuntimeInit.zygoteInit()</code>方法中<code>redirectLogStreams()</code>后，调用<code>commonInit()</code>方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// frameworks/base/core/java/com/android/internal/os/RuntimeInit.java</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">void</span> <span class="title">commonInit</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * Sets handler for java.util.logging to use Android log facilities.</span></span><br><span class="line"><span class="comment">     * The odd "new instance-and-then-throw-away" is a mirror of how</span></span><br><span class="line"><span class="comment">     * the "java.util.logging.config.class" system property works. We</span></span><br><span class="line"><span class="comment">     * can't use the system property here since the logger has almost</span></span><br><span class="line"><span class="comment">     * certainly already been initialized.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    LogManager.getLogManager().reset();</span><br><span class="line">    <span class="keyword">new</span> AndroidConfig();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里实例化了 AndroidConfig 然后丢弃。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// frameworks/base/core/java/com/android/internal/logging/AndroidConfig.java</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Implements the java.util.logging configuration for Android. Activates a log</span></span><br><span class="line"><span class="comment"> * handler that writes to the Android log.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AndroidConfig</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * This looks a bit weird, but it's the way the logging config works: A</span></span><br><span class="line"><span class="comment">     * named class is instantiated, the constructor is assumed to tweak the</span></span><br><span class="line"><span class="comment">     * configuration, the instance itself is of no interest.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">AndroidConfig</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            Logger rootLogger = Logger.getLogger(<span class="string">""</span>);</span><br><span class="line">            rootLogger.addHandler(<span class="keyword">new</span> AndroidHandler());</span><br><span class="line">            rootLogger.setLevel(Level.INFO);</span><br><span class="line"></span><br><span class="line">            <span class="comment">// Turn down logging in Apache libraries.</span></span><br><span class="line">            Logger.getLogger(<span class="string">"org.apache"</span>).setLevel(Level.WARNING);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception ex) &#123;</span><br><span class="line">            ex.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>实例化过程中注册了 AndroidHandler。</p>
+<p>当使用 Logger 打印 Log 时，最终调用的是<code>Logger#log(LogRecord)</code>方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// libcore/ojluni/src/main/java/java/util/logging/Logger.java</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">log</span><span class="params">(LogRecord record)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line"></span><br><span class="line">    Logger logger = <span class="keyword">this</span>;</span><br><span class="line">    <span class="keyword">while</span> (logger != <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">for</span> (Handler handler : logger.getHandlers()) &#123;</span><br><span class="line">            handler.publish(record);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (!logger.getUseParentHandlers()) &#123;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        logger = logger.getParent();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>对已经注册的 Handler 回调其<code>publish()</code>方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// frameworks/base/core/java/com/android/internal/logging/AndroidHandler.java</span></span><br><span class="line"></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">publish</span><span class="params">(Logger source, String tag, Level level, String message)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// <span class="doctag">TODO:</span> avoid ducking into native 2x; we aren't saving any formatter calls</span></span><br><span class="line">    <span class="keyword">int</span> priority = getAndroidLevel(level);</span><br><span class="line">    <span class="keyword">if</span> (!Log.isLoggable(tag, priority)) &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        Log.println(priority, tag, message);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (RuntimeException e) &#123;</span><br><span class="line">        Log.e(<span class="string">"AndroidHandler"</span>, <span class="string">"Error logging message."</span>, e);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可见最终还是调用的 android.util.Log。</p>
+<p>如果需要在开机流程中较早的位置打印 Log，则此方法同样无效。</p>
+<h1 id="移植-android-util-Log"><a href="#移植-android-util-Log" class="headerlink" title="移植 android.util.Log"></a>移植 android.util.Log</h1><p>以上方法使用简单，可以满足大部分需要，但都有一些缺陷。其实也可以把 android.util.Log 核心部分移植过来，只不过有些繁琐，需要以 JNI 方式调用 liblog 中的 Log 函数。</p>
+<p>例如，要使<code>java.util.logging.Logger</code>也能像<code>android.util.Log</code>那样方便地打印 Log，可以在 Logger 类中添加一个静态方法<code>d()</code>，对应<code>android.util.Log.d()</code>。</p>
+<h2 id="在-Java-代码中声明-native-方法"><a href="#在-Java-代码中声明-native-方法" class="headerlink" title="在 Java 代码中声明 native 方法"></a>在 Java 代码中声明 native 方法</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// libcore/ojluni/src/main/java/java/util/logging/Logger.java</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@hide</span></span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">d</span><span class="params">(String tag, String msg)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> println_native(<span class="number">0</span>, <span class="number">3</span>, tag, msg);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@hide</span></span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">native</span> <span class="keyword">int</span> <span class="title">println_native</span><span class="params">(<span class="keyword">int</span> bufID,</span></span></span><br><span class="line"><span class="function"><span class="params">        <span class="keyword">int</span> priority, String tag, String msg)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>注意要使用<code>hide</code>修饰。</p>
+<p>然后在需要的地方调用<code>Logger.d()</code>方法。</p>
+<p>编译生成 core-oj.jar，把它 push 到 /system/framework/ 中。要使此核心库生效，可能需要删除 /system/framework/arm/ 或 /system/framework/arm64/ 下的 boot.art、boot.oat（取决于手机，可都删除，删除后重启会比较慢）。</p>
+<h2 id="实现-JNI-层"><a href="#实现-JNI-层" class="headerlink" title="实现 JNI 层"></a>实现 JNI 层</h2><p>只要移植 android_util_Log.cpp 中的<code>android_util_Log_println_native()</code>方法即可，创建文件：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// libcore/ojluni/src/main/native/java_util_logging_Logger.cpp</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"jni.h"</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"JNIHelp.h"</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cutils/log.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> NATIVE_METHOD(className, functionName, signature) \</span></span><br><span class="line">&#123; #functionName, signature, (<span class="keyword">void</span>*)(className ## _ ## functionName) &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/*******************************************************************/</span></span><br><span class="line"><span class="comment">/*  BEGIN JNI ********* BEGIN JNI *********** BEGIN JNI ************/</span></span><br><span class="line"><span class="comment">/*******************************************************************/</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> jint <span class="title">Logger_println_native</span><span class="params">(JNIEnv* env, jobject clazz,</span></span></span><br><span class="line"><span class="function"><span class="params">        jint bufID, jint priority, jstring tagObj, jstring msgObj)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">char</span>* tag = <span class="literal">NULL</span>;</span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">char</span>* msg = <span class="literal">NULL</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (msgObj == <span class="literal">NULL</span>) &#123;</span><br><span class="line">        jniThrowNullPointerException(env, <span class="string">"println needs a message"</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (bufID &lt; <span class="number">0</span> || bufID &gt;= LOG_ID_MAX) &#123;</span><br><span class="line">        jniThrowNullPointerException(env, <span class="string">"bad bufID"</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (tagObj != <span class="literal">NULL</span>)</span><br><span class="line">        tag = env-&gt;GetStringUTFChars(tagObj, <span class="literal">NULL</span>);</span><br><span class="line">    msg = env-&gt;GetStringUTFChars(msgObj, <span class="literal">NULL</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> res = __android_log_buf_write(bufID, (android_LogPriority)priority, tag, msg);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (tag != <span class="literal">NULL</span>)</span><br><span class="line">        env-&gt;ReleaseStringUTFChars(tagObj, tag);</span><br><span class="line">    env-&gt;ReleaseStringUTFChars(msgObj, msg);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> res;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> JNINativeMethod gMethods[] = &#123;</span><br><span class="line">    NATIVE_METHOD(Logger, println_native, <span class="string">"(IILjava/lang/String;Ljava/lang/String;)I"</span>),</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">register_java_util_logging_Logger</span><span class="params">(JNIEnv* env)</span> </span>&#123;</span><br><span class="line">    jniRegisterNativeMethods(env, <span class="string">"java/util/logging/Logger"</span>, gMethods, NELEM(gMethods));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在 Regisger.cpp 中注册：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// libcore/ojluni/src/main/native/Register.cpp</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// ...</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">extern</span> <span class="keyword">void</span> <span class="title">register_java_util_logging_Logger</span><span class="params">(JNIEnv* env)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// ...</span></span><br><span class="line"></span><br><span class="line"><span class="function">jint <span class="title">JNI_OnLoad</span><span class="params">(JavaVM* vm, <span class="keyword">void</span>*)</span> </span>&#123; JNIEnv* env;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line"></span><br><span class="line">    register_java_util_logging_Logger(env);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>接着在 libcore/ojluni/src/main/native/openjdksub.mk 中添加相应的 C++ 文件。</p>
+<p>编译生成 libopenjdk.so，把它 push 到 /system/lib/ 或 /system/lib64/ 下（取决于手机），然后重启即可打印出我们想要的 Log 了。</p>
+<p>但我在<code>java.io.File#delete()</code>中使用这个 Log 时，发现了一个奇怪的问题：一些第三方 APP 会报 java.lang.UnsatisfiedLinkError 错误（如 Chrome 等），而 Android 系统本身，以及其它 APP，包括自己写的 demo 都没有问题，尝试网上各种方法无果，希望有人能指点迷津……</p>
+<h1 id="打印栈信息-Stack-Trace"><a href="#打印栈信息-Stack-Trace" class="headerlink" title="打印栈信息 Stack Trace"></a>打印栈信息 Stack Trace</h1><p>同样我们可以把 android.util.Log 中的<code>getStackTraceString()</code>方法移植过来。</p>
+<p>需要注意的是，FastPrintWriter 也是 framework 中的，这里可以替换为 Java 核心库中的 PrintWriter。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@hide</span></span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> String <span class="title">getStackTraceString</span><span class="params">(Throwable tr)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (tr == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">""</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// This is to reduce the amount of log spew that apps do in the non-error</span></span><br><span class="line">    <span class="comment">// condition of the network being unavailable.</span></span><br><span class="line">    Throwable t = tr;</span><br><span class="line">    <span class="keyword">while</span> (t != <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (t <span class="keyword">instanceof</span> UnknownHostException) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="string">""</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        t = t.getCause();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    StringWriter sw = <span class="keyword">new</span> StringWriter();</span><br><span class="line">    <span class="comment">// PrintWriter pw = new FastPrintWriter(sw, false, 256);</span></span><br><span class="line">    PrintWriter pw = <span class="keyword">new</span> PrintWriter(sw, <span class="keyword">false</span>);</span><br><span class="line">    tr.printStackTrace(pw);</span><br><span class="line">    pw.flush();</span><br><span class="line">    <span class="keyword">return</span> sw.toString();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>使用<code>getStackTraceString(new Throwable())</code>即可得到栈信息了。</p>
+
+  </div>
+</article>
+
+    <div class="blog-post-comments">
+        <div id="disqus_thread">
+            <noscript>加载评论需要在浏览器启用 JavaScript 脚本支持。</noscript>
+        </div>
+    </div>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/tags/">标签</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#使用-System-out-和-System-err"><span class="toc-number">1.</span> <span class="toc-text">使用 System.out 和 System.err</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#使用-java-util-logging-Logger"><span class="toc-number">1.1.</span> <span class="toc-text">使用 java.util.logging.Logger</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#移植-android-util-Log"><span class="toc-number">2.</span> <span class="toc-text">移植 android.util.Log</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#在-Java-代码中声明-native-方法"><span class="toc-number">2.1.</span> <span class="toc-text">在 Java 代码中声明 native 方法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#实现-JNI-层"><span class="toc-number">2.2.</span> <span class="toc-text">实现 JNI 层</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#打印栈信息-Stack-Trace"><span class="toc-number">3.</span> <span class="toc-text">打印栈信息 Stack Trace</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=https://binac.io/2017/08/30/print-log-in-libcore/" target="_blank" rel="noopener"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=https://binac.io/2017/08/30/print-log-in-libcore/&text=在 Android Java 核心库 libcore 中打印 Log" target="_blank" rel="noopener"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=https://binac.io/2017/08/30/print-log-in-libcore/&title=在 Android Java 核心库 libcore 中打印 Log" target="_blank" rel="noopener"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=https://binac.io/2017/08/30/print-log-in-libcore/&is_video=false&description=在 Android Java 核心库 libcore 中打印 Log" target="_blank" rel="noopener"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=在 Android Java 核心库 libcore 中打印 Log&body=Check out this article: https://binac.io/2017/08/30/print-log-in-libcore/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=https://binac.io/2017/08/30/print-log-in-libcore/&title=在 Android Java 核心库 libcore 中打印 Log" target="_blank" rel="noopener"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=https://binac.io/2017/08/30/print-log-in-libcore/&title=在 Android Java 核心库 libcore 中打印 Log" target="_blank" rel="noopener"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=https://binac.io/2017/08/30/print-log-in-libcore/&title=在 Android Java 核心库 libcore 中打印 Log" target="_blank" rel="noopener"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=https://binac.io/2017/08/30/print-log-in-libcore/&title=在 Android Java 核心库 libcore 中打印 Log" target="_blank" rel="noopener"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=https://binac.io/2017/08/30/print-log-in-libcore/&name=在 Android Java 核心库 libcore 中打印 Log&description=&lt;p&gt;Android Java 核心库中是无法直接使用 android.util.Log 的，添加后编译不通过，因为 framework 中的 Java API 依赖于 Java 核心库。&lt;/p&gt;
+&lt;p&gt;在 Android 7.0 之前，Java 核心库源码在&lt;code&gt;libcore/luni/&lt;/code&gt;下，luni 代表 lang、util、net、io，是 Java 中最常见的包；Android 7.0 中，核心库在&lt;code&gt;libcore/ojluni/&lt;/code&gt;下，oj 代表 OpenJDK。&lt;/p&gt;
+&lt;p&gt;本文简单介绍在核心库中打印 Log 的几种方法。&lt;/p&gt;"><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=https://binac.io/2017/08/30/print-log-in-libcore/&t=在 Android Java 核心库 libcore 中打印 Log" target="_blank" rel="noopener"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2020 Binac
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/tags/">标签</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+
+    <!-- jquery -->
+
+<script src="/lib/jquery/jquery.min.js"></script>
+
+
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+
+<!-- clipboard -->
+
+  
+<script src="/lib/clipboard/clipboard.min.js"></script>
+
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+    <script type="text/javascript">
+        var disqus_shortname = 'binac';
+
+        (function(){
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        }());
+    </script>
+
+
+</body>
+</html>

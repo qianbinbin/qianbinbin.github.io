@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="1.1 信息就是二进制位+上下文例如 C 语言源码文件 hello.c，可用 vim 以二进制方式打开： 1$ vim -b hello.c  然后使用 :%!xxd 转换为 16 进制，直接查看 ASCII 码： 1234500000000: 2369 6e63 6c75 6465 203c 7374 6469 6f2e  #include &lt;stdio.00000010: 683e 0a">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CSAPP 计算机系统漫游">
+<meta property="og:url" content="https://binac.io/2018/12/24/csapp-notes-chapter01/index.html">
+<meta property="og:site_name" content="Binac">
+<meta property="og:description" content="1.1 信息就是二进制位+上下文例如 C 语言源码文件 hello.c，可用 vim 以二进制方式打开： 1$ vim -b hello.c  然后使用 :%!xxd 转换为 16 进制，直接查看 ASCII 码： 1234500000000: 2369 6e63 6c75 6465 203c 7374 6469 6f2e  #include &lt;stdio.00000010: 683e 0a">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2018-12-24T13:30:09.000Z">
+<meta property="article:modified_time" content="2020-01-22T12:37:10.419Z">
+<meta property="article:author" content="Binac">
+<meta property="article:tag" content="CSAPP">
+<meta property="article:tag" content="读书笔记">
+<meta name="twitter:card" content="summary">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>CSAPP 计算机系统漫游</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+      
+<link rel="stylesheet" href="/css/rtl.css">
+
+    
+    <!-- rss -->
+    
+    
+<meta name="generator" content="Hexo 4.2.0"><style>.mjpage .MJX-monospace {
+  font-family: monospace;
+}
+
+.mjpage .MJX-sans-serif {
+  font-family: sans-serif;
+}
+
+.mjpage {
+  display: inline;
+  font-style: normal;
+  font-weight: normal;
+  line-height: normal;
+  font-size: 100%;
+  font-size-adjust: none;
+  text-indent: 0;
+  text-align: left;
+  text-transform: none;
+  letter-spacing: normal;
+  word-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+  float: none;
+  direction: ltr;
+  max-width: none;
+  max-height: none;
+  min-width: 0;
+  min-height: 0;
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.mjpage * {
+  transition: none;
+  -webkit-transition: none;
+  -moz-transition: none;
+  -ms-transition: none;
+  -o-transition: none;
+}
+
+.mjx-svg-href {
+  fill: blue;
+  stroke: blue;
+}
+
+.MathJax_SVG_LineBox {
+  display: table !important;
+}
+
+.MathJax_SVG_LineBox span {
+  display: table-cell !important;
+  width: 10000em !important;
+  min-width: 0;
+  max-width: none;
+  padding: 0;
+  border: 0;
+  margin: 0;
+}
+
+.mjpage__block {
+  text-align: center;
+  margin: 1em 0em;
+  position: relative;
+  display: block !important;
+  text-indent: 0;
+  max-width: none;
+  max-height: none;
+  min-width: 0;
+  min-height: 0;
+  width: 100%;
+}
+</style><style>.mjpage .MJX-monospace {
+  font-family: monospace;
+}
+
+.mjpage .MJX-sans-serif {
+  font-family: sans-serif;
+}
+
+.mjpage {
+  display: inline;
+  font-style: normal;
+  font-weight: normal;
+  line-height: normal;
+  font-size: 100%;
+  font-size-adjust: none;
+  text-indent: 0;
+  text-align: left;
+  text-transform: none;
+  letter-spacing: normal;
+  word-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+  float: none;
+  direction: ltr;
+  max-width: none;
+  max-height: none;
+  min-width: 0;
+  min-height: 0;
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.mjpage * {
+  transition: none;
+  -webkit-transition: none;
+  -moz-transition: none;
+  -ms-transition: none;
+  -o-transition: none;
+}
+
+.mjx-svg-href {
+  fill: blue;
+  stroke: blue;
+}
+
+.MathJax_SVG_LineBox {
+  display: table !important;
+}
+
+.MathJax_SVG_LineBox span {
+  display: table-cell !important;
+  width: 10000em !important;
+  min-width: 0;
+  max-width: none;
+  padding: 0;
+  border: 0;
+  margin: 0;
+}
+
+.mjpage__block {
+  text-align: center;
+  margin: 1em 0em;
+  position: relative;
+  display: block !important;
+  text-indent: 0;
+  max-width: none;
+  max-height: none;
+  min-width: 0;
+  min-height: 0;
+  width: 100%;
+}
+</style></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/tags/">标签</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/2018/12/25/csapp-notes-chapter02/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/2018/08/24/pow-x-n/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=https://binac.io/2018/12/24/csapp-notes-chapter01/" target="_blank" rel="noopener"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=https://binac.io/2018/12/24/csapp-notes-chapter01/&text=CSAPP 计算机系统漫游" target="_blank" rel="noopener"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=https://binac.io/2018/12/24/csapp-notes-chapter01/&title=CSAPP 计算机系统漫游" target="_blank" rel="noopener"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=https://binac.io/2018/12/24/csapp-notes-chapter01/&is_video=false&description=CSAPP 计算机系统漫游" target="_blank" rel="noopener"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=CSAPP 计算机系统漫游&body=Check out this article: https://binac.io/2018/12/24/csapp-notes-chapter01/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=https://binac.io/2018/12/24/csapp-notes-chapter01/&title=CSAPP 计算机系统漫游" target="_blank" rel="noopener"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=https://binac.io/2018/12/24/csapp-notes-chapter01/&title=CSAPP 计算机系统漫游" target="_blank" rel="noopener"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=https://binac.io/2018/12/24/csapp-notes-chapter01/&title=CSAPP 计算机系统漫游" target="_blank" rel="noopener"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=https://binac.io/2018/12/24/csapp-notes-chapter01/&title=CSAPP 计算机系统漫游" target="_blank" rel="noopener"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=https://binac.io/2018/12/24/csapp-notes-chapter01/&name=CSAPP 计算机系统漫游&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=https://binac.io/2018/12/24/csapp-notes-chapter01/&t=CSAPP 计算机系统漫游" target="_blank" rel="noopener"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1-1-信息就是二进制位-上下文"><span class="toc-number">1.</span> <span class="toc-text">1.1 信息就是二进制位+上下文</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#1-2-程序被其他程序翻译成不同的格式"><span class="toc-number">2.</span> <span class="toc-text">1.2 程序被其他程序翻译成不同的格式</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#1-7-操作系统管理硬件"><span class="toc-number">3.</span> <span class="toc-text">1.7 操作系统管理硬件</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-7-3-虚拟内存"><span class="toc-number">3.1.</span> <span class="toc-text">1.7.3 虚拟内存</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-7-4-文件"><span class="toc-number">3.2.</span> <span class="toc-text">1.7.4 文件</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#1-9-重要主题"><span class="toc-number">4.</span> <span class="toc-text">1.9 重要主题</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-9-1-Amdahl-定律"><span class="toc-number">4.1.</span> <span class="toc-text">1.9.1 Amdahl 定律</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-9-2-并发和并行"><span class="toc-number">4.2.</span> <span class="toc-text">1.9.2 并发和并行</span></a></li></ol></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        CSAPP 计算机系统漫游
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Binac</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2018-12-24T13:30:09.000Z" itemprop="datePublished">2018-12-24</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/CSAPP/" rel="tag">CSAPP</a>, <a class="tag-link" href="/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" rel="tag">读书笔记</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h1 id="1-1-信息就是二进制位-上下文"><a href="#1-1-信息就是二进制位-上下文" class="headerlink" title="1.1 信息就是二进制位+上下文"></a>1.1 信息就是二进制位+上下文</h1><p>例如 C 语言源码文件 <a href="https://github.com/qianbinbin/csapp/blob/master/ch01/hello.c" target="_blank" rel="noopener">hello.c</a>，可用 vim 以二进制方式打开：</p>
+<figure class="highlight sh"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ vim -b hello.c</span><br></pre></td></tr></tbody></table></figure>
+
+<p>然后使用 <code>:%!xxd</code> 转换为 16 进制，直接查看 <a href="https://github.com/qianbinbin/csapp/blob/master/ch01/hello.ascii" target="_blank" rel="noopener">ASCII 码</a>：</p>
+<figure class="highlight plain"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">00000000: 2369 6e63 6c75 6465 203c 7374 6469 6f2e  #include &lt;stdio.</span><br><span class="line">00000010: 683e 0a0a 696e 7420 6d61 696e 2829 0a7b  h&gt;..int main().{</span><br><span class="line">00000020: 0a20 2020 2070 7269 6e74 6628 2268 656c  .    printf("hel</span><br><span class="line">00000030: 6c6f 2c20 776f 726c 645c 6e22 293b 0a20  lo, world\n");. </span><br><span class="line">00000040: 2020 2072 6574 7572 6e20 303b 0a7d 0a       return 0;.}.</span><br></pre></td></tr></tbody></table></figure>
+
+<h1 id="1-2-程序被其他程序翻译成不同的格式"><a href="#1-2-程序被其他程序翻译成不同的格式" class="headerlink" title="1.2 程序被其他程序翻译成不同的格式"></a>1.2 程序被其他程序翻译成不同的格式</h1><p>gcc 编译保留中间文件：</p>
+<figure class="highlight sh"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ gcc -save-temps -o hello hello.c</span><br></pre></td></tr></tbody></table></figure>
+
+<p>翻译过程：</p>
+<ol>
+<li><p>预处理：原始 C 程序 <code>hello.c</code> 中以 <code>#</code> 开头的命令，告诉预处理器读取系统头文件，并将头文件直接插入程序文本，得到修改的源程序文本 <a href="https://github.com/qianbinbin/csapp/blob/master/ch01/hello.i" target="_blank" rel="noopener">hello.i</a></p>
+</li>
+<li><p>编译：将 <code>hello.i</code> 翻译成文本文件 <a href="https://github.com/qianbinbin/csapp/blob/master/ch01/hello.s" target="_blank" rel="noopener">hello.s</a>，它包含一个汇编语言程序，该程序包含函数 <code>main</code> 的定义</p>
+</li>
+<li><p>汇编：汇编器将 <code>hello.s</code> 翻译成机器语言指令，并把指令打包成可重定位目标程序，结果保存到二进制文件 <a href="https://github.com/qianbinbin/csapp/blob/master/ch01/hello.o" target="_blank" rel="noopener">hello.o</a></p>
+</li>
+<li><p>链接：<code>hello</code> 程序调用了 <code>printf</code>函数，它存在于一个名为 <code>printf.o</code> 到单独的预编译好的目标文件中，链接器将它以某种方式合并到 <code>hello.o</code> 程序中，结果得到可执行文件 <a href="https://github.com/qianbinbin/csapp/blob/master/ch01/hello" target="_blank" rel="noopener">hello</a></p>
+</li>
+</ol>
+<h1 id="1-7-操作系统管理硬件"><a href="#1-7-操作系统管理硬件" class="headerlink" title="1.7 操作系统管理硬件"></a>1.7 操作系统管理硬件</h1><h2 id="1-7-3-虚拟内存"><a href="#1-7-3-虚拟内存" class="headerlink" title="1.7.3 虚拟内存"></a>1.7.3 虚拟内存</h2><p>Linux 中，虚拟地址空间由大量区构成，从低到高有：</p>
+<ul>
+<li><p>程序代码和数据。</p>
+</li>
+<li><p>堆。调用 <code>malloc</code> 和 <code>free</code> 这样的 C 标准函数，堆可以在运行时动态扩展和收缩。</p>
+</li>
+<li><p>共享库。存放像 C 标准库和数学库这样的共享库的代码和数据的区域。</p>
+</li>
+<li><p>栈。编译器用它来实现函数调用。</p>
+</li>
+<li><p>内核虚拟内存。位于地址空间顶部区域。</p>
+</li>
+</ul>
+<h2 id="1-7-4-文件"><a href="#1-7-4-文件" class="headerlink" title="1.7.4 文件"></a>1.7.4 文件</h2><p>文件就是字节序列，每个 I/O 设备包括磁盘、键盘、显示器甚至网络，均可看作文件，系统中所有输入输出都是通过称为 Unix I/O 的系统函数调用读写文件来实现的。</p>
+<h1 id="1-9-重要主题"><a href="#1-9-重要主题" class="headerlink" title="1.9 重要主题"></a>1.9 重要主题</h1><h2 id="1-9-1-Amdahl-定律"><a href="#1-9-1-Amdahl-定律" class="headerlink" title="1.9.1 Amdahl 定律"></a>1.9.1 Amdahl 定律</h2><p>若某程序需要时间为 <span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="3.737ex" height="2.509ex" style="vertical-align: -0.671ex;" viewBox="0 -791.3 1609 1080.4" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-1-Title">
+<title id="MathJax-SVG-1-Title">T_{old}</title>
+<defs aria-hidden="true">
+<path stroke-width="1" id="E1-MJMATHI-54" d="M40 437Q21 437 21 445Q21 450 37 501T71 602L88 651Q93 669 101 677H569H659Q691 677 697 676T704 667Q704 661 687 553T668 444Q668 437 649 437Q640 437 637 437T631 442L629 445Q629 451 635 490T641 551Q641 586 628 604T573 629Q568 630 515 631Q469 631 457 630T439 622Q438 621 368 343T298 60Q298 48 386 46Q418 46 427 45T436 36Q436 31 433 22Q429 4 424 1L422 0Q419 0 415 0Q410 0 363 1T228 2Q99 2 64 0H49Q43 6 43 9T45 27Q49 40 55 46H83H94Q174 46 189 55Q190 56 191 56Q196 59 201 76T241 233Q258 301 269 344Q339 619 339 625Q339 630 310 630H279Q212 630 191 624Q146 614 121 583T67 467Q60 445 57 441T43 437H40Z"></path>
+<path stroke-width="1" id="E1-MJMATHI-6F" d="M201 -11Q126 -11 80 38T34 156Q34 221 64 279T146 380Q222 441 301 441Q333 441 341 440Q354 437 367 433T402 417T438 387T464 338T476 268Q476 161 390 75T201 -11ZM121 120Q121 70 147 48T206 26Q250 26 289 58T351 142Q360 163 374 216T388 308Q388 352 370 375Q346 405 306 405Q243 405 195 347Q158 303 140 230T121 120Z"></path>
+<path stroke-width="1" id="E1-MJMATHI-6C" d="M117 59Q117 26 142 26Q179 26 205 131Q211 151 215 152Q217 153 225 153H229Q238 153 241 153T246 151T248 144Q247 138 245 128T234 90T214 43T183 6T137 -11Q101 -11 70 11T38 85Q38 97 39 102L104 360Q167 615 167 623Q167 626 166 628T162 632T157 634T149 635T141 636T132 637T122 637Q112 637 109 637T101 638T95 641T94 647Q94 649 96 661Q101 680 107 682T179 688Q194 689 213 690T243 693T254 694Q266 694 266 686Q266 675 193 386T118 83Q118 81 118 75T117 65V59Z"></path>
+<path stroke-width="1" id="E1-MJMATHI-64" d="M366 683Q367 683 438 688T511 694Q523 694 523 686Q523 679 450 384T375 83T374 68Q374 26 402 26Q411 27 422 35Q443 55 463 131Q469 151 473 152Q475 153 483 153H487H491Q506 153 506 145Q506 140 503 129Q490 79 473 48T445 8T417 -8Q409 -10 393 -10Q359 -10 336 5T306 36L300 51Q299 52 296 50Q294 48 292 46Q233 -10 172 -10Q117 -10 75 30T33 157Q33 205 53 255T101 341Q148 398 195 420T280 442Q336 442 364 400Q369 394 369 396Q370 400 396 505T424 616Q424 629 417 632T378 637H357Q351 643 351 645T353 664Q358 683 366 683ZM352 326Q329 405 277 405Q242 405 210 374T160 293Q131 214 119 129Q119 126 119 118T118 106Q118 61 136 44T179 26Q233 26 290 98L298 109L352 326Z"></path>
+</defs>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#E1-MJMATHI-54" x="0" y="0"></use>
+<g transform="translate(584,-150)">
+ <use transform="scale(0.707)" xlink:href="#E1-MJMATHI-6F" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#E1-MJMATHI-6C" x="485" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#E1-MJMATHI-64" x="784" y="0"></use>
+</g>
+</g>
+</svg></span>，某部分所需执行时间占比为 <span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="1.488ex" height="1.676ex" style="vertical-align: -0.338ex;" viewBox="0 -576.1 640.5 721.6" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-2-Title">
+<title id="MathJax-SVG-2-Title">\alpha</title>
+<defs aria-hidden="true">
+<path stroke-width="1" id="E2-MJMATHI-3B1" d="M34 156Q34 270 120 356T309 442Q379 442 421 402T478 304Q484 275 485 237V208Q534 282 560 374Q564 388 566 390T582 393Q603 393 603 385Q603 376 594 346T558 261T497 161L486 147L487 123Q489 67 495 47T514 26Q528 28 540 37T557 60Q559 67 562 68T577 70Q597 70 597 62Q597 56 591 43Q579 19 556 5T512 -10H505Q438 -10 414 62L411 69L400 61Q390 53 370 41T325 18T267 -2T203 -11Q124 -11 79 39T34 156ZM208 26Q257 26 306 47T379 90L403 112Q401 255 396 290Q382 405 304 405Q235 405 183 332Q156 292 139 224T121 120Q121 71 146 49T208 26Z"></path>
+</defs>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#E2-MJMATHI-3B1" x="0" y="0"></use>
+</g>
+</svg></span>，该部分性能提升比例为 <span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="1.211ex" height="2.176ex" style="vertical-align: -0.338ex;" viewBox="0 -791.3 521.5 936.9" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-3-Title">
+<title id="MathJax-SVG-3-Title">k</title>
+<defs aria-hidden="true">
+<path stroke-width="1" id="E3-MJMATHI-6B" d="M121 647Q121 657 125 670T137 683Q138 683 209 688T282 694Q294 694 294 686Q294 679 244 477Q194 279 194 272Q213 282 223 291Q247 309 292 354T362 415Q402 442 438 442Q468 442 485 423T503 369Q503 344 496 327T477 302T456 291T438 288Q418 288 406 299T394 328Q394 353 410 369T442 390L458 393Q446 405 434 405H430Q398 402 367 380T294 316T228 255Q230 254 243 252T267 246T293 238T320 224T342 206T359 180T365 147Q365 130 360 106T354 66Q354 26 381 26Q429 26 459 145Q461 153 479 153H483Q499 153 499 144Q499 139 496 130Q455 -11 378 -11Q333 -11 305 15T277 90Q277 108 280 121T283 145Q283 167 269 183T234 206T200 217T182 220H180Q168 178 159 139T145 81T136 44T129 20T122 7T111 -2Q98 -11 83 -11Q66 -11 57 -1T48 16Q48 26 85 176T158 471L195 616Q196 629 188 632T149 637H144Q134 637 131 637T124 640T121 647Z"></path>
+</defs>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#E3-MJMATHI-6B" x="0" y="0"></use>
+</g>
+</svg></span>，则总的执行时间变为</p>
+<p><span class="mjpage mjpage__block"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="53.033ex" height="2.843ex" style="vertical-align: -0.838ex;" viewBox="0 -863.1 22833.6 1223.9" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-4-Title">
+<title id="MathJax-SVG-4-Title">T_{new} = (1 - \alpha)T_{old} + (\alpha T_{old}) / k = T_{old}[(1 - \alpha) + \alpha / k]</title>
+<defs aria-hidden="true">
+<path stroke-width="1" id="E4-MJMATHI-54" d="M40 437Q21 437 21 445Q21 450 37 501T71 602L88 651Q93 669 101 677H569H659Q691 677 697 676T704 667Q704 661 687 553T668 444Q668 437 649 437Q640 437 637 437T631 442L629 445Q629 451 635 490T641 551Q641 586 628 604T573 629Q568 630 515 631Q469 631 457 630T439 622Q438 621 368 343T298 60Q298 48 386 46Q418 46 427 45T436 36Q436 31 433 22Q429 4 424 1L422 0Q419 0 415 0Q410 0 363 1T228 2Q99 2 64 0H49Q43 6 43 9T45 27Q49 40 55 46H83H94Q174 46 189 55Q190 56 191 56Q196 59 201 76T241 233Q258 301 269 344Q339 619 339 625Q339 630 310 630H279Q212 630 191 624Q146 614 121 583T67 467Q60 445 57 441T43 437H40Z"></path>
+<path stroke-width="1" id="E4-MJMATHI-6E" d="M21 287Q22 293 24 303T36 341T56 388T89 425T135 442Q171 442 195 424T225 390T231 369Q231 367 232 367L243 378Q304 442 382 442Q436 442 469 415T503 336T465 179T427 52Q427 26 444 26Q450 26 453 27Q482 32 505 65T540 145Q542 153 560 153Q580 153 580 145Q580 144 576 130Q568 101 554 73T508 17T439 -10Q392 -10 371 17T350 73Q350 92 386 193T423 345Q423 404 379 404H374Q288 404 229 303L222 291L189 157Q156 26 151 16Q138 -11 108 -11Q95 -11 87 -5T76 7T74 17Q74 30 112 180T152 343Q153 348 153 366Q153 405 129 405Q91 405 66 305Q60 285 60 284Q58 278 41 278H27Q21 284 21 287Z"></path>
+<path stroke-width="1" id="E4-MJMATHI-65" d="M39 168Q39 225 58 272T107 350T174 402T244 433T307 442H310Q355 442 388 420T421 355Q421 265 310 237Q261 224 176 223Q139 223 138 221Q138 219 132 186T125 128Q125 81 146 54T209 26T302 45T394 111Q403 121 406 121Q410 121 419 112T429 98T420 82T390 55T344 24T281 -1T205 -11Q126 -11 83 42T39 168ZM373 353Q367 405 305 405Q272 405 244 391T199 357T170 316T154 280T149 261Q149 260 169 260Q282 260 327 284T373 353Z"></path>
+<path stroke-width="1" id="E4-MJMATHI-77" d="M580 385Q580 406 599 424T641 443Q659 443 674 425T690 368Q690 339 671 253Q656 197 644 161T609 80T554 12T482 -11Q438 -11 404 5T355 48Q354 47 352 44Q311 -11 252 -11Q226 -11 202 -5T155 14T118 53T104 116Q104 170 138 262T173 379Q173 380 173 381Q173 390 173 393T169 400T158 404H154Q131 404 112 385T82 344T65 302T57 280Q55 278 41 278H27Q21 284 21 287Q21 293 29 315T52 366T96 418T161 441Q204 441 227 416T250 358Q250 340 217 250T184 111Q184 65 205 46T258 26Q301 26 334 87L339 96V119Q339 122 339 128T340 136T341 143T342 152T345 165T348 182T354 206T362 238T373 281Q402 395 406 404Q419 431 449 431Q468 431 475 421T483 402Q483 389 454 274T422 142Q420 131 420 107V100Q420 85 423 71T442 42T487 26Q558 26 600 148Q609 171 620 213T632 273Q632 306 619 325T593 357T580 385Z"></path>
+<path stroke-width="1" id="E4-MJMAIN-3D" d="M56 347Q56 360 70 367H707Q722 359 722 347Q722 336 708 328L390 327H72Q56 332 56 347ZM56 153Q56 168 72 173H708Q722 163 722 153Q722 140 707 133H70Q56 140 56 153Z"></path>
+<path stroke-width="1" id="E4-MJMAIN-28" d="M94 250Q94 319 104 381T127 488T164 576T202 643T244 695T277 729T302 750H315H319Q333 750 333 741Q333 738 316 720T275 667T226 581T184 443T167 250T184 58T225 -81T274 -167T316 -220T333 -241Q333 -250 318 -250H315H302L274 -226Q180 -141 137 -14T94 250Z"></path>
+<path stroke-width="1" id="E4-MJMAIN-31" d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"></path>
+<path stroke-width="1" id="E4-MJMAIN-2212" d="M84 237T84 250T98 270H679Q694 262 694 250T679 230H98Q84 237 84 250Z"></path>
+<path stroke-width="1" id="E4-MJMATHI-3B1" d="M34 156Q34 270 120 356T309 442Q379 442 421 402T478 304Q484 275 485 237V208Q534 282 560 374Q564 388 566 390T582 393Q603 393 603 385Q603 376 594 346T558 261T497 161L486 147L487 123Q489 67 495 47T514 26Q528 28 540 37T557 60Q559 67 562 68T577 70Q597 70 597 62Q597 56 591 43Q579 19 556 5T512 -10H505Q438 -10 414 62L411 69L400 61Q390 53 370 41T325 18T267 -2T203 -11Q124 -11 79 39T34 156ZM208 26Q257 26 306 47T379 90L403 112Q401 255 396 290Q382 405 304 405Q235 405 183 332Q156 292 139 224T121 120Q121 71 146 49T208 26Z"></path>
+<path stroke-width="1" id="E4-MJMAIN-29" d="M60 749L64 750Q69 750 74 750H86L114 726Q208 641 251 514T294 250Q294 182 284 119T261 12T224 -76T186 -143T145 -194T113 -227T90 -246Q87 -249 86 -250H74Q66 -250 63 -250T58 -247T55 -238Q56 -237 66 -225Q221 -64 221 250T66 725Q56 737 55 738Q55 746 60 749Z"></path>
+<path stroke-width="1" id="E4-MJMATHI-6F" d="M201 -11Q126 -11 80 38T34 156Q34 221 64 279T146 380Q222 441 301 441Q333 441 341 440Q354 437 367 433T402 417T438 387T464 338T476 268Q476 161 390 75T201 -11ZM121 120Q121 70 147 48T206 26Q250 26 289 58T351 142Q360 163 374 216T388 308Q388 352 370 375Q346 405 306 405Q243 405 195 347Q158 303 140 230T121 120Z"></path>
+<path stroke-width="1" id="E4-MJMATHI-6C" d="M117 59Q117 26 142 26Q179 26 205 131Q211 151 215 152Q217 153 225 153H229Q238 153 241 153T246 151T248 144Q247 138 245 128T234 90T214 43T183 6T137 -11Q101 -11 70 11T38 85Q38 97 39 102L104 360Q167 615 167 623Q167 626 166 628T162 632T157 634T149 635T141 636T132 637T122 637Q112 637 109 637T101 638T95 641T94 647Q94 649 96 661Q101 680 107 682T179 688Q194 689 213 690T243 693T254 694Q266 694 266 686Q266 675 193 386T118 83Q118 81 118 75T117 65V59Z"></path>
+<path stroke-width="1" id="E4-MJMATHI-64" d="M366 683Q367 683 438 688T511 694Q523 694 523 686Q523 679 450 384T375 83T374 68Q374 26 402 26Q411 27 422 35Q443 55 463 131Q469 151 473 152Q475 153 483 153H487H491Q506 153 506 145Q506 140 503 129Q490 79 473 48T445 8T417 -8Q409 -10 393 -10Q359 -10 336 5T306 36L300 51Q299 52 296 50Q294 48 292 46Q233 -10 172 -10Q117 -10 75 30T33 157Q33 205 53 255T101 341Q148 398 195 420T280 442Q336 442 364 400Q369 394 369 396Q370 400 396 505T424 616Q424 629 417 632T378 637H357Q351 643 351 645T353 664Q358 683 366 683ZM352 326Q329 405 277 405Q242 405 210 374T160 293Q131 214 119 129Q119 126 119 118T118 106Q118 61 136 44T179 26Q233 26 290 98L298 109L352 326Z"></path>
+<path stroke-width="1" id="E4-MJMAIN-2B" d="M56 237T56 250T70 270H369V420L370 570Q380 583 389 583Q402 583 409 568V270H707Q722 262 722 250T707 230H409V-68Q401 -82 391 -82H389H387Q375 -82 369 -68V230H70Q56 237 56 250Z"></path>
+<path stroke-width="1" id="E4-MJMAIN-2F" d="M423 750Q432 750 438 744T444 730Q444 725 271 248T92 -240Q85 -250 75 -250Q68 -250 62 -245T56 -231Q56 -221 230 257T407 740Q411 750 423 750Z"></path>
+<path stroke-width="1" id="E4-MJMATHI-6B" d="M121 647Q121 657 125 670T137 683Q138 683 209 688T282 694Q294 694 294 686Q294 679 244 477Q194 279 194 272Q213 282 223 291Q247 309 292 354T362 415Q402 442 438 442Q468 442 485 423T503 369Q503 344 496 327T477 302T456 291T438 288Q418 288 406 299T394 328Q394 353 410 369T442 390L458 393Q446 405 434 405H430Q398 402 367 380T294 316T228 255Q230 254 243 252T267 246T293 238T320 224T342 206T359 180T365 147Q365 130 360 106T354 66Q354 26 381 26Q429 26 459 145Q461 153 479 153H483Q499 153 499 144Q499 139 496 130Q455 -11 378 -11Q333 -11 305 15T277 90Q277 108 280 121T283 145Q283 167 269 183T234 206T200 217T182 220H180Q168 178 159 139T145 81T136 44T129 20T122 7T111 -2Q98 -11 83 -11Q66 -11 57 -1T48 16Q48 26 85 176T158 471L195 616Q196 629 188 632T149 637H144Q134 637 131 637T124 640T121 647Z"></path>
+<path stroke-width="1" id="E4-MJMAIN-5B" d="M118 -250V750H255V710H158V-210H255V-250H118Z"></path>
+<path stroke-width="1" id="E4-MJMAIN-5D" d="M22 710V750H159V-250H22V-210H119V710H22Z"></path>
+</defs>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#E4-MJMATHI-54" x="0" y="0"></use>
+<g transform="translate(584,-150)">
+ <use transform="scale(0.707)" xlink:href="#E4-MJMATHI-6E" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#E4-MJMATHI-65" x="600" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#E4-MJMATHI-77" x="1067" y="0"></use>
+</g>
+ <use xlink:href="#E4-MJMAIN-3D" x="2223" y="0"></use>
+ <use xlink:href="#E4-MJMAIN-28" x="3279" y="0"></use>
+ <use xlink:href="#E4-MJMAIN-31" x="3669" y="0"></use>
+ <use xlink:href="#E4-MJMAIN-2212" x="4391" y="0"></use>
+ <use xlink:href="#E4-MJMATHI-3B1" x="5392" y="0"></use>
+ <use xlink:href="#E4-MJMAIN-29" x="6033" y="0"></use>
+<g transform="translate(6422,0)">
+ <use xlink:href="#E4-MJMATHI-54" x="0" y="0"></use>
+<g transform="translate(584,-150)">
+ <use transform="scale(0.707)" xlink:href="#E4-MJMATHI-6F" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#E4-MJMATHI-6C" x="485" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#E4-MJMATHI-64" x="784" y="0"></use>
+</g>
+</g>
+ <use xlink:href="#E4-MJMAIN-2B" x="8253" y="0"></use>
+ <use xlink:href="#E4-MJMAIN-28" x="9254" y="0"></use>
+ <use xlink:href="#E4-MJMATHI-3B1" x="9644" y="0"></use>
+<g transform="translate(10284,0)">
+ <use xlink:href="#E4-MJMATHI-54" x="0" y="0"></use>
+<g transform="translate(584,-150)">
+ <use transform="scale(0.707)" xlink:href="#E4-MJMATHI-6F" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#E4-MJMATHI-6C" x="485" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#E4-MJMATHI-64" x="784" y="0"></use>
+</g>
+</g>
+ <use xlink:href="#E4-MJMAIN-29" x="11893" y="0"></use>
+ <use xlink:href="#E4-MJMAIN-2F" x="12283" y="0"></use>
+ <use xlink:href="#E4-MJMATHI-6B" x="12783" y="0"></use>
+ <use xlink:href="#E4-MJMAIN-3D" x="13582" y="0"></use>
+<g transform="translate(14639,0)">
+ <use xlink:href="#E4-MJMATHI-54" x="0" y="0"></use>
+<g transform="translate(584,-150)">
+ <use transform="scale(0.707)" xlink:href="#E4-MJMATHI-6F" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#E4-MJMATHI-6C" x="485" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#E4-MJMATHI-64" x="784" y="0"></use>
+</g>
+</g>
+ <use xlink:href="#E4-MJMAIN-5B" x="16248" y="0"></use>
+ <use xlink:href="#E4-MJMAIN-28" x="16526" y="0"></use>
+ <use xlink:href="#E4-MJMAIN-31" x="16916" y="0"></use>
+ <use xlink:href="#E4-MJMAIN-2212" x="17638" y="0"></use>
+ <use xlink:href="#E4-MJMATHI-3B1" x="18639" y="0"></use>
+ <use xlink:href="#E4-MJMAIN-29" x="19280" y="0"></use>
+ <use xlink:href="#E4-MJMAIN-2B" x="19891" y="0"></use>
+ <use xlink:href="#E4-MJMATHI-3B1" x="20892" y="0"></use>
+ <use xlink:href="#E4-MJMAIN-2F" x="21533" y="0"></use>
+ <use xlink:href="#E4-MJMATHI-6B" x="22033" y="0"></use>
+ <use xlink:href="#E4-MJMAIN-5D" x="22555" y="0"></use>
+</g>
+</svg></span></p>
+<p>加速比 <span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="14.016ex" height="2.843ex" style="vertical-align: -0.838ex;" viewBox="0 -863.1 6034.7 1223.9" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-5-Title">
+<title id="MathJax-SVG-5-Title">S = T_{old} / T_{new}</title>
+<defs aria-hidden="true">
+<path stroke-width="1" id="E5-MJMATHI-53" d="M308 24Q367 24 416 76T466 197Q466 260 414 284Q308 311 278 321T236 341Q176 383 176 462Q176 523 208 573T273 648Q302 673 343 688T407 704H418H425Q521 704 564 640Q565 640 577 653T603 682T623 704Q624 704 627 704T632 705Q645 705 645 698T617 577T585 459T569 456Q549 456 549 465Q549 471 550 475Q550 478 551 494T553 520Q553 554 544 579T526 616T501 641Q465 662 419 662Q362 662 313 616T263 510Q263 480 278 458T319 427Q323 425 389 408T456 390Q490 379 522 342T554 242Q554 216 546 186Q541 164 528 137T492 78T426 18T332 -20Q320 -22 298 -22Q199 -22 144 33L134 44L106 13Q83 -14 78 -18T65 -22Q52 -22 52 -14Q52 -11 110 221Q112 227 130 227H143Q149 221 149 216Q149 214 148 207T144 186T142 153Q144 114 160 87T203 47T255 29T308 24Z"></path>
+<path stroke-width="1" id="E5-MJMAIN-3D" d="M56 347Q56 360 70 367H707Q722 359 722 347Q722 336 708 328L390 327H72Q56 332 56 347ZM56 153Q56 168 72 173H708Q722 163 722 153Q722 140 707 133H70Q56 140 56 153Z"></path>
+<path stroke-width="1" id="E5-MJMATHI-54" d="M40 437Q21 437 21 445Q21 450 37 501T71 602L88 651Q93 669 101 677H569H659Q691 677 697 676T704 667Q704 661 687 553T668 444Q668 437 649 437Q640 437 637 437T631 442L629 445Q629 451 635 490T641 551Q641 586 628 604T573 629Q568 630 515 631Q469 631 457 630T439 622Q438 621 368 343T298 60Q298 48 386 46Q418 46 427 45T436 36Q436 31 433 22Q429 4 424 1L422 0Q419 0 415 0Q410 0 363 1T228 2Q99 2 64 0H49Q43 6 43 9T45 27Q49 40 55 46H83H94Q174 46 189 55Q190 56 191 56Q196 59 201 76T241 233Q258 301 269 344Q339 619 339 625Q339 630 310 630H279Q212 630 191 624Q146 614 121 583T67 467Q60 445 57 441T43 437H40Z"></path>
+<path stroke-width="1" id="E5-MJMATHI-6F" d="M201 -11Q126 -11 80 38T34 156Q34 221 64 279T146 380Q222 441 301 441Q333 441 341 440Q354 437 367 433T402 417T438 387T464 338T476 268Q476 161 390 75T201 -11ZM121 120Q121 70 147 48T206 26Q250 26 289 58T351 142Q360 163 374 216T388 308Q388 352 370 375Q346 405 306 405Q243 405 195 347Q158 303 140 230T121 120Z"></path>
+<path stroke-width="1" id="E5-MJMATHI-6C" d="M117 59Q117 26 142 26Q179 26 205 131Q211 151 215 152Q217 153 225 153H229Q238 153 241 153T246 151T248 144Q247 138 245 128T234 90T214 43T183 6T137 -11Q101 -11 70 11T38 85Q38 97 39 102L104 360Q167 615 167 623Q167 626 166 628T162 632T157 634T149 635T141 636T132 637T122 637Q112 637 109 637T101 638T95 641T94 647Q94 649 96 661Q101 680 107 682T179 688Q194 689 213 690T243 693T254 694Q266 694 266 686Q266 675 193 386T118 83Q118 81 118 75T117 65V59Z"></path>
+<path stroke-width="1" id="E5-MJMATHI-64" d="M366 683Q367 683 438 688T511 694Q523 694 523 686Q523 679 450 384T375 83T374 68Q374 26 402 26Q411 27 422 35Q443 55 463 131Q469 151 473 152Q475 153 483 153H487H491Q506 153 506 145Q506 140 503 129Q490 79 473 48T445 8T417 -8Q409 -10 393 -10Q359 -10 336 5T306 36L300 51Q299 52 296 50Q294 48 292 46Q233 -10 172 -10Q117 -10 75 30T33 157Q33 205 53 255T101 341Q148 398 195 420T280 442Q336 442 364 400Q369 394 369 396Q370 400 396 505T424 616Q424 629 417 632T378 637H357Q351 643 351 645T353 664Q358 683 366 683ZM352 326Q329 405 277 405Q242 405 210 374T160 293Q131 214 119 129Q119 126 119 118T118 106Q118 61 136 44T179 26Q233 26 290 98L298 109L352 326Z"></path>
+<path stroke-width="1" id="E5-MJMAIN-2F" d="M423 750Q432 750 438 744T444 730Q444 725 271 248T92 -240Q85 -250 75 -250Q68 -250 62 -245T56 -231Q56 -221 230 257T407 740Q411 750 423 750Z"></path>
+<path stroke-width="1" id="E5-MJMATHI-6E" d="M21 287Q22 293 24 303T36 341T56 388T89 425T135 442Q171 442 195 424T225 390T231 369Q231 367 232 367L243 378Q304 442 382 442Q436 442 469 415T503 336T465 179T427 52Q427 26 444 26Q450 26 453 27Q482 32 505 65T540 145Q542 153 560 153Q580 153 580 145Q580 144 576 130Q568 101 554 73T508 17T439 -10Q392 -10 371 17T350 73Q350 92 386 193T423 345Q423 404 379 404H374Q288 404 229 303L222 291L189 157Q156 26 151 16Q138 -11 108 -11Q95 -11 87 -5T76 7T74 17Q74 30 112 180T152 343Q153 348 153 366Q153 405 129 405Q91 405 66 305Q60 285 60 284Q58 278 41 278H27Q21 284 21 287Z"></path>
+<path stroke-width="1" id="E5-MJMATHI-65" d="M39 168Q39 225 58 272T107 350T174 402T244 433T307 442H310Q355 442 388 420T421 355Q421 265 310 237Q261 224 176 223Q139 223 138 221Q138 219 132 186T125 128Q125 81 146 54T209 26T302 45T394 111Q403 121 406 121Q410 121 419 112T429 98T420 82T390 55T344 24T281 -1T205 -11Q126 -11 83 42T39 168ZM373 353Q367 405 305 405Q272 405 244 391T199 357T170 316T154 280T149 261Q149 260 169 260Q282 260 327 284T373 353Z"></path>
+<path stroke-width="1" id="E5-MJMATHI-77" d="M580 385Q580 406 599 424T641 443Q659 443 674 425T690 368Q690 339 671 253Q656 197 644 161T609 80T554 12T482 -11Q438 -11 404 5T355 48Q354 47 352 44Q311 -11 252 -11Q226 -11 202 -5T155 14T118 53T104 116Q104 170 138 262T173 379Q173 380 173 381Q173 390 173 393T169 400T158 404H154Q131 404 112 385T82 344T65 302T57 280Q55 278 41 278H27Q21 284 21 287Q21 293 29 315T52 366T96 418T161 441Q204 441 227 416T250 358Q250 340 217 250T184 111Q184 65 205 46T258 26Q301 26 334 87L339 96V119Q339 122 339 128T340 136T341 143T342 152T345 165T348 182T354 206T362 238T373 281Q402 395 406 404Q419 431 449 431Q468 431 475 421T483 402Q483 389 454 274T422 142Q420 131 420 107V100Q420 85 423 71T442 42T487 26Q558 26 600 148Q609 171 620 213T632 273Q632 306 619 325T593 357T580 385Z"></path>
+</defs>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#E5-MJMATHI-53" x="0" y="0"></use>
+ <use xlink:href="#E5-MJMAIN-3D" x="923" y="0"></use>
+<g transform="translate(1979,0)">
+ <use xlink:href="#E5-MJMATHI-54" x="0" y="0"></use>
+<g transform="translate(584,-150)">
+ <use transform="scale(0.707)" xlink:href="#E5-MJMATHI-6F" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#E5-MJMATHI-6C" x="485" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#E5-MJMATHI-64" x="784" y="0"></use>
+</g>
+</g>
+ <use xlink:href="#E5-MJMAIN-2F" x="3588" y="0"></use>
+<g transform="translate(4089,0)">
+ <use xlink:href="#E5-MJMATHI-54" x="0" y="0"></use>
+<g transform="translate(584,-150)">
+ <use transform="scale(0.707)" xlink:href="#E5-MJMATHI-6E" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#E5-MJMATHI-65" x="600" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#E5-MJMATHI-77" x="1067" y="0"></use>
+</g>
+</g>
+</g>
+</svg></span> 为</p>
+<p><span class="mjpage mjpage__block"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="19.435ex" height="6.009ex" style="vertical-align: -2.671ex;" viewBox="0 -1437.2 8367.9 2587.3" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-6-Title">
+<title id="MathJax-SVG-6-Title">S = \frac{1}{(1 - \alpha) + \alpha / k}</title>
+<defs aria-hidden="true">
+<path stroke-width="1" id="E6-MJMATHI-53" d="M308 24Q367 24 416 76T466 197Q466 260 414 284Q308 311 278 321T236 341Q176 383 176 462Q176 523 208 573T273 648Q302 673 343 688T407 704H418H425Q521 704 564 640Q565 640 577 653T603 682T623 704Q624 704 627 704T632 705Q645 705 645 698T617 577T585 459T569 456Q549 456 549 465Q549 471 550 475Q550 478 551 494T553 520Q553 554 544 579T526 616T501 641Q465 662 419 662Q362 662 313 616T263 510Q263 480 278 458T319 427Q323 425 389 408T456 390Q490 379 522 342T554 242Q554 216 546 186Q541 164 528 137T492 78T426 18T332 -20Q320 -22 298 -22Q199 -22 144 33L134 44L106 13Q83 -14 78 -18T65 -22Q52 -22 52 -14Q52 -11 110 221Q112 227 130 227H143Q149 221 149 216Q149 214 148 207T144 186T142 153Q144 114 160 87T203 47T255 29T308 24Z"></path>
+<path stroke-width="1" id="E6-MJMAIN-3D" d="M56 347Q56 360 70 367H707Q722 359 722 347Q722 336 708 328L390 327H72Q56 332 56 347ZM56 153Q56 168 72 173H708Q722 163 722 153Q722 140 707 133H70Q56 140 56 153Z"></path>
+<path stroke-width="1" id="E6-MJMAIN-31" d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"></path>
+<path stroke-width="1" id="E6-MJMAIN-28" d="M94 250Q94 319 104 381T127 488T164 576T202 643T244 695T277 729T302 750H315H319Q333 750 333 741Q333 738 316 720T275 667T226 581T184 443T167 250T184 58T225 -81T274 -167T316 -220T333 -241Q333 -250 318 -250H315H302L274 -226Q180 -141 137 -14T94 250Z"></path>
+<path stroke-width="1" id="E6-MJMAIN-2212" d="M84 237T84 250T98 270H679Q694 262 694 250T679 230H98Q84 237 84 250Z"></path>
+<path stroke-width="1" id="E6-MJMATHI-3B1" d="M34 156Q34 270 120 356T309 442Q379 442 421 402T478 304Q484 275 485 237V208Q534 282 560 374Q564 388 566 390T582 393Q603 393 603 385Q603 376 594 346T558 261T497 161L486 147L487 123Q489 67 495 47T514 26Q528 28 540 37T557 60Q559 67 562 68T577 70Q597 70 597 62Q597 56 591 43Q579 19 556 5T512 -10H505Q438 -10 414 62L411 69L400 61Q390 53 370 41T325 18T267 -2T203 -11Q124 -11 79 39T34 156ZM208 26Q257 26 306 47T379 90L403 112Q401 255 396 290Q382 405 304 405Q235 405 183 332Q156 292 139 224T121 120Q121 71 146 49T208 26Z"></path>
+<path stroke-width="1" id="E6-MJMAIN-29" d="M60 749L64 750Q69 750 74 750H86L114 726Q208 641 251 514T294 250Q294 182 284 119T261 12T224 -76T186 -143T145 -194T113 -227T90 -246Q87 -249 86 -250H74Q66 -250 63 -250T58 -247T55 -238Q56 -237 66 -225Q221 -64 221 250T66 725Q56 737 55 738Q55 746 60 749Z"></path>
+<path stroke-width="1" id="E6-MJMAIN-2B" d="M56 237T56 250T70 270H369V420L370 570Q380 583 389 583Q402 583 409 568V270H707Q722 262 722 250T707 230H409V-68Q401 -82 391 -82H389H387Q375 -82 369 -68V230H70Q56 237 56 250Z"></path>
+<path stroke-width="1" id="E6-MJMAIN-2F" d="M423 750Q432 750 438 744T444 730Q444 725 271 248T92 -240Q85 -250 75 -250Q68 -250 62 -245T56 -231Q56 -221 230 257T407 740Q411 750 423 750Z"></path>
+<path stroke-width="1" id="E6-MJMATHI-6B" d="M121 647Q121 657 125 670T137 683Q138 683 209 688T282 694Q294 694 294 686Q294 679 244 477Q194 279 194 272Q213 282 223 291Q247 309 292 354T362 415Q402 442 438 442Q468 442 485 423T503 369Q503 344 496 327T477 302T456 291T438 288Q418 288 406 299T394 328Q394 353 410 369T442 390L458 393Q446 405 434 405H430Q398 402 367 380T294 316T228 255Q230 254 243 252T267 246T293 238T320 224T342 206T359 180T365 147Q365 130 360 106T354 66Q354 26 381 26Q429 26 459 145Q461 153 479 153H483Q499 153 499 144Q499 139 496 130Q455 -11 378 -11Q333 -11 305 15T277 90Q277 108 280 121T283 145Q283 167 269 183T234 206T200 217T182 220H180Q168 178 159 139T145 81T136 44T129 20T122 7T111 -2Q98 -11 83 -11Q66 -11 57 -1T48 16Q48 26 85 176T158 471L195 616Q196 629 188 632T149 637H144Q134 637 131 637T124 640T121 647Z"></path>
+</defs>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#E6-MJMATHI-53" x="0" y="0"></use>
+ <use xlink:href="#E6-MJMAIN-3D" x="923" y="0"></use>
+<g transform="translate(1701,0)">
+<g transform="translate(397,0)">
+<rect stroke="none" width="6148" height="60" x="0" y="220"></rect>
+ <use xlink:href="#E6-MJMAIN-31" x="2823" y="676"></use>
+<g transform="translate(60,-771)">
+ <use xlink:href="#E6-MJMAIN-28" x="0" y="0"></use>
+ <use xlink:href="#E6-MJMAIN-31" x="389" y="0"></use>
+ <use xlink:href="#E6-MJMAIN-2212" x="1112" y="0"></use>
+ <use xlink:href="#E6-MJMATHI-3B1" x="2112" y="0"></use>
+ <use xlink:href="#E6-MJMAIN-29" x="2753" y="0"></use>
+ <use xlink:href="#E6-MJMAIN-2B" x="3365" y="0"></use>
+ <use xlink:href="#E6-MJMATHI-3B1" x="4365" y="0"></use>
+ <use xlink:href="#E6-MJMAIN-2F" x="5006" y="0"></use>
+ <use xlink:href="#E6-MJMATHI-6B" x="5506" y="0"></use>
+</g>
+</g>
+</g>
+</g>
+</svg></span></p>
+<p>Amdahl 定律说明，要想显著加速整个系统，必须提升全系统中相当大的部分。假设我们可以将系统某一部分加速到时间可以忽略不计，即 <span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="1.211ex" height="2.176ex" style="vertical-align: -0.338ex;" viewBox="0 -791.3 521.5 936.9" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-7-Title">
+<title id="MathJax-SVG-7-Title">k</title>
+<defs aria-hidden="true">
+<path stroke-width="1" id="E7-MJMATHI-6B" d="M121 647Q121 657 125 670T137 683Q138 683 209 688T282 694Q294 694 294 686Q294 679 244 477Q194 279 194 272Q213 282 223 291Q247 309 292 354T362 415Q402 442 438 442Q468 442 485 423T503 369Q503 344 496 327T477 302T456 291T438 288Q418 288 406 299T394 328Q394 353 410 369T442 390L458 393Q446 405 434 405H430Q398 402 367 380T294 316T228 255Q230 254 243 252T267 246T293 238T320 224T342 206T359 180T365 147Q365 130 360 106T354 66Q354 26 381 26Q429 26 459 145Q461 153 479 153H483Q499 153 499 144Q499 139 496 130Q455 -11 378 -11Q333 -11 305 15T277 90Q277 108 280 121T283 145Q283 167 269 183T234 206T200 217T182 220H180Q168 178 159 139T145 81T136 44T129 20T122 7T111 -2Q98 -11 83 -11Q66 -11 57 -1T48 16Q48 26 85 176T158 471L195 616Q196 629 188 632T149 637H144Q134 637 131 637T124 640T121 647Z"></path>
+</defs>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#E7-MJMATHI-6B" x="0" y="0"></use>
+</g>
+</svg></span> 趋向于 <span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="2.324ex" height="1.676ex" style="vertical-align: -0.338ex;" viewBox="0 -576.1 1000.5 721.6" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-8-Title">
+<title id="MathJax-SVG-8-Title">\infty</title>
+<defs aria-hidden="true">
+<path stroke-width="1" id="E8-MJMAIN-221E" d="M55 217Q55 305 111 373T254 442Q342 442 419 381Q457 350 493 303L507 284L514 294Q618 442 747 442Q833 442 888 374T944 214Q944 128 889 59T743 -11Q657 -11 580 50Q542 81 506 128L492 147L485 137Q381 -11 252 -11Q166 -11 111 57T55 217ZM907 217Q907 285 869 341T761 397Q740 397 720 392T682 378T648 359T619 335T594 310T574 285T559 263T548 246L543 238L574 198Q605 158 622 138T664 94T714 61T765 51Q827 51 867 100T907 217ZM92 214Q92 145 131 89T239 33Q357 33 456 193L425 233Q364 312 334 337Q285 380 233 380Q171 380 132 331T92 214Z"></path>
+</defs>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#E8-MJMAIN-221E" x="0" y="0"></use>
+</g>
+</svg></span>，则</p>
+<p><span class="mjpage mjpage__block"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="12.725ex" height="5.343ex" style="vertical-align: -2.005ex;" viewBox="0 -1437.2 5479 2300.3" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-9-Title">
+<title id="MathJax-SVG-9-Title">S_\infty = \frac{1}{1 - \alpha}</title>
+<defs aria-hidden="true">
+<path stroke-width="1" id="E9-MJMATHI-53" d="M308 24Q367 24 416 76T466 197Q466 260 414 284Q308 311 278 321T236 341Q176 383 176 462Q176 523 208 573T273 648Q302 673 343 688T407 704H418H425Q521 704 564 640Q565 640 577 653T603 682T623 704Q624 704 627 704T632 705Q645 705 645 698T617 577T585 459T569 456Q549 456 549 465Q549 471 550 475Q550 478 551 494T553 520Q553 554 544 579T526 616T501 641Q465 662 419 662Q362 662 313 616T263 510Q263 480 278 458T319 427Q323 425 389 408T456 390Q490 379 522 342T554 242Q554 216 546 186Q541 164 528 137T492 78T426 18T332 -20Q320 -22 298 -22Q199 -22 144 33L134 44L106 13Q83 -14 78 -18T65 -22Q52 -22 52 -14Q52 -11 110 221Q112 227 130 227H143Q149 221 149 216Q149 214 148 207T144 186T142 153Q144 114 160 87T203 47T255 29T308 24Z"></path>
+<path stroke-width="1" id="E9-MJMAIN-221E" d="M55 217Q55 305 111 373T254 442Q342 442 419 381Q457 350 493 303L507 284L514 294Q618 442 747 442Q833 442 888 374T944 214Q944 128 889 59T743 -11Q657 -11 580 50Q542 81 506 128L492 147L485 137Q381 -11 252 -11Q166 -11 111 57T55 217ZM907 217Q907 285 869 341T761 397Q740 397 720 392T682 378T648 359T619 335T594 310T574 285T559 263T548 246L543 238L574 198Q605 158 622 138T664 94T714 61T765 51Q827 51 867 100T907 217ZM92 214Q92 145 131 89T239 33Q357 33 456 193L425 233Q364 312 334 337Q285 380 233 380Q171 380 132 331T92 214Z"></path>
+<path stroke-width="1" id="E9-MJMAIN-3D" d="M56 347Q56 360 70 367H707Q722 359 722 347Q722 336 708 328L390 327H72Q56 332 56 347ZM56 153Q56 168 72 173H708Q722 163 722 153Q722 140 707 133H70Q56 140 56 153Z"></path>
+<path stroke-width="1" id="E9-MJMAIN-31" d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"></path>
+<path stroke-width="1" id="E9-MJMAIN-2212" d="M84 237T84 250T98 270H679Q694 262 694 250T679 230H98Q84 237 84 250Z"></path>
+<path stroke-width="1" id="E9-MJMATHI-3B1" d="M34 156Q34 270 120 356T309 442Q379 442 421 402T478 304Q484 275 485 237V208Q534 282 560 374Q564 388 566 390T582 393Q603 393 603 385Q603 376 594 346T558 261T497 161L486 147L487 123Q489 67 495 47T514 26Q528 28 540 37T557 60Q559 67 562 68T577 70Q597 70 597 62Q597 56 591 43Q579 19 556 5T512 -10H505Q438 -10 414 62L411 69L400 61Q390 53 370 41T325 18T267 -2T203 -11Q124 -11 79 39T34 156ZM208 26Q257 26 306 47T379 90L403 112Q401 255 396 290Q382 405 304 405Q235 405 183 332Q156 292 139 224T121 120Q121 71 146 49T208 26Z"></path>
+</defs>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#E9-MJMATHI-53" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#E9-MJMAIN-221E" x="867" y="-213"></use>
+ <use xlink:href="#E9-MJMAIN-3D" x="1698" y="0"></use>
+<g transform="translate(2477,0)">
+<g transform="translate(397,0)">
+<rect stroke="none" width="2483" height="60" x="0" y="220"></rect>
+ <use xlink:href="#E9-MJMAIN-31" x="991" y="676"></use>
+<g transform="translate(60,-687)">
+ <use xlink:href="#E9-MJMAIN-31" x="0" y="0"></use>
+ <use xlink:href="#E9-MJMAIN-2212" x="722" y="0"></use>
+ <use xlink:href="#E9-MJMATHI-3B1" x="1723" y="0"></use>
+</g>
+</g>
+</g>
+</g>
+</svg></span></p>
+<p>我们获得的加速比仍然是很有限的。</p>
+<h2 id="1-9-2-并发和并行"><a href="#1-9-2-并发和并行" class="headerlink" title="1.9.2 并发和并行"></a>1.9.2 并发和并行</h2><ol>
+<li><p>线程级并发</p>
+<p>多核处理器是将多个 CPU 集成到一个继承电路芯片上。</p>
+<p>超线程是允许一个 CPU 执行多个控制流的技术，涉及 CPU 某些硬件有多个备份，比如程序计数器和寄存器文件（寄存器堆），而其他硬件只有一份，比如执行复电算数运算的单元。</p>
+</li>
+<li><p>指令级并行</p>
+<p>同时执行多条指令的属性称为指令级并行。流水线技术的使用。如果处理器执行速率可以达到比每个时钟周期一条指令更快，称为超标量处理器。</p>
+</li>
+<li><p>单指令、多数据并行</p>
+<p>SIMD 并行，现代处理器拥有特殊的硬件，允许一条指令产生多个可以并行执行的操作，例如并行地对 8 对单精度浮点数（float）做加法。</p>
+</li>
+</ol>
+
+  </div>
+</article>
+
+    <div class="blog-post-comments">
+        <div id="disqus_thread">
+            <noscript>加载评论需要在浏览器启用 JavaScript 脚本支持。</noscript>
+        </div>
+    </div>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/tags/">标签</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1-1-信息就是二进制位-上下文"><span class="toc-number">1.</span> <span class="toc-text">1.1 信息就是二进制位+上下文</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#1-2-程序被其他程序翻译成不同的格式"><span class="toc-number">2.</span> <span class="toc-text">1.2 程序被其他程序翻译成不同的格式</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#1-7-操作系统管理硬件"><span class="toc-number">3.</span> <span class="toc-text">1.7 操作系统管理硬件</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-7-3-虚拟内存"><span class="toc-number">3.1.</span> <span class="toc-text">1.7.3 虚拟内存</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-7-4-文件"><span class="toc-number">3.2.</span> <span class="toc-text">1.7.4 文件</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#1-9-重要主题"><span class="toc-number">4.</span> <span class="toc-text">1.9 重要主题</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-9-1-Amdahl-定律"><span class="toc-number">4.1.</span> <span class="toc-text">1.9.1 Amdahl 定律</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-9-2-并发和并行"><span class="toc-number">4.2.</span> <span class="toc-text">1.9.2 并发和并行</span></a></li></ol></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=https://binac.io/2018/12/24/csapp-notes-chapter01/" target="_blank" rel="noopener"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=https://binac.io/2018/12/24/csapp-notes-chapter01/&text=CSAPP 计算机系统漫游" target="_blank" rel="noopener"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=https://binac.io/2018/12/24/csapp-notes-chapter01/&title=CSAPP 计算机系统漫游" target="_blank" rel="noopener"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=https://binac.io/2018/12/24/csapp-notes-chapter01/&is_video=false&description=CSAPP 计算机系统漫游" target="_blank" rel="noopener"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=CSAPP 计算机系统漫游&body=Check out this article: https://binac.io/2018/12/24/csapp-notes-chapter01/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=https://binac.io/2018/12/24/csapp-notes-chapter01/&title=CSAPP 计算机系统漫游" target="_blank" rel="noopener"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=https://binac.io/2018/12/24/csapp-notes-chapter01/&title=CSAPP 计算机系统漫游" target="_blank" rel="noopener"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=https://binac.io/2018/12/24/csapp-notes-chapter01/&title=CSAPP 计算机系统漫游" target="_blank" rel="noopener"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=https://binac.io/2018/12/24/csapp-notes-chapter01/&title=CSAPP 计算机系统漫游" target="_blank" rel="noopener"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=https://binac.io/2018/12/24/csapp-notes-chapter01/&name=CSAPP 计算机系统漫游&description=" target="_blank" rel="noopener"><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=https://binac.io/2018/12/24/csapp-notes-chapter01/&t=CSAPP 计算机系统漫游" target="_blank" rel="noopener"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2020 Binac
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/tags/">标签</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+
+    <!-- jquery -->
+
+<script src="/lib/jquery/jquery.min.js"></script>
+
+
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+
+<!-- clipboard -->
+
+  
+<script src="/lib/clipboard/clipboard.min.js"></script>
+
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+    <script type="text/javascript">
+        var disqus_shortname = 'binac';
+
+        (function(){
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        }());
+    </script>
+
+
+</body>
+</html>

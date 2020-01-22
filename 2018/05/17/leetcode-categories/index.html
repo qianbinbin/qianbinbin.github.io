@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="数组11. Container With Most Water15. 3Sum16. 3Sum Closest26. Remove Duplicates from Sorted Array27. Remove Element31. Next Permutation42. Trapping Rain Water48. Rotate Image54. Spiral Matrix59. Spiral M">
+<meta property="og:type" content="article">
+<meta property="og:title" content="LeetCode 个人分类">
+<meta property="og:url" content="https://binac.io/2018/05/17/leetcode-categories/index.html">
+<meta property="og:site_name" content="Binac">
+<meta property="og:description" content="数组11. Container With Most Water15. 3Sum16. 3Sum Closest26. Remove Duplicates from Sorted Array27. Remove Element31. Next Permutation42. Trapping Rain Water48. Rotate Image54. Spiral Matrix59. Spiral M">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2018-05-17T12:09:22.000Z">
+<meta property="article:modified_time" content="2020-01-22T06:44:21.794Z">
+<meta property="article:author" content="Binac">
+<meta property="article:tag" content="LeetCode">
+<meta property="article:tag" content="算法">
+<meta name="twitter:card" content="summary">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>LeetCode 个人分类</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+      
+<link rel="stylesheet" href="/css/rtl.css">
+
+    
+    <!-- rss -->
+    
+    
+<meta name="generator" content="Hexo 4.2.0"><style>.mjpage .MJX-monospace {
+  font-family: monospace;
+}
+
+.mjpage .MJX-sans-serif {
+  font-family: sans-serif;
+}
+
+.mjpage {
+  display: inline;
+  font-style: normal;
+  font-weight: normal;
+  line-height: normal;
+  font-size: 100%;
+  font-size-adjust: none;
+  text-indent: 0;
+  text-align: left;
+  text-transform: none;
+  letter-spacing: normal;
+  word-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+  float: none;
+  direction: ltr;
+  max-width: none;
+  max-height: none;
+  min-width: 0;
+  min-height: 0;
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.mjpage * {
+  transition: none;
+  -webkit-transition: none;
+  -moz-transition: none;
+  -ms-transition: none;
+  -o-transition: none;
+}
+
+.mjx-svg-href {
+  fill: blue;
+  stroke: blue;
+}
+
+.MathJax_SVG_LineBox {
+  display: table !important;
+}
+
+.MathJax_SVG_LineBox span {
+  display: table-cell !important;
+  width: 10000em !important;
+  min-width: 0;
+  max-width: none;
+  padding: 0;
+  border: 0;
+  margin: 0;
+}
+
+.mjpage__block {
+  text-align: center;
+  margin: 1em 0em;
+  position: relative;
+  display: block !important;
+  text-indent: 0;
+  max-width: none;
+  max-height: none;
+  min-width: 0;
+  min-height: 0;
+  width: 100%;
+}
+</style><style>.mjpage .MJX-monospace {
+  font-family: monospace;
+}
+
+.mjpage .MJX-sans-serif {
+  font-family: sans-serif;
+}
+
+.mjpage {
+  display: inline;
+  font-style: normal;
+  font-weight: normal;
+  line-height: normal;
+  font-size: 100%;
+  font-size-adjust: none;
+  text-indent: 0;
+  text-align: left;
+  text-transform: none;
+  letter-spacing: normal;
+  word-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+  float: none;
+  direction: ltr;
+  max-width: none;
+  max-height: none;
+  min-width: 0;
+  min-height: 0;
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.mjpage * {
+  transition: none;
+  -webkit-transition: none;
+  -moz-transition: none;
+  -ms-transition: none;
+  -o-transition: none;
+}
+
+.mjx-svg-href {
+  fill: blue;
+  stroke: blue;
+}
+
+.MathJax_SVG_LineBox {
+  display: table !important;
+}
+
+.MathJax_SVG_LineBox span {
+  display: table-cell !important;
+  width: 10000em !important;
+  min-width: 0;
+  max-width: none;
+  padding: 0;
+  border: 0;
+  margin: 0;
+}
+
+.mjpage__block {
+  text-align: center;
+  margin: 1em 0em;
+  position: relative;
+  display: block !important;
+  text-indent: 0;
+  max-width: none;
+  max-height: none;
+  min-width: 0;
+  min-height: 0;
+  width: 100%;
+}
+</style></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/tags/">标签</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/2018/06/02/use-map-to-count-in-java/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/2018/05/04/best-time-to-buy-and-sell-stock-iii/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=https://binac.io/2018/05/17/leetcode-categories/" target="_blank" rel="noopener"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=https://binac.io/2018/05/17/leetcode-categories/&text=LeetCode 个人分类" target="_blank" rel="noopener"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=https://binac.io/2018/05/17/leetcode-categories/&title=LeetCode 个人分类" target="_blank" rel="noopener"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=https://binac.io/2018/05/17/leetcode-categories/&is_video=false&description=LeetCode 个人分类" target="_blank" rel="noopener"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=LeetCode 个人分类&body=Check out this article: https://binac.io/2018/05/17/leetcode-categories/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=https://binac.io/2018/05/17/leetcode-categories/&title=LeetCode 个人分类" target="_blank" rel="noopener"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=https://binac.io/2018/05/17/leetcode-categories/&title=LeetCode 个人分类" target="_blank" rel="noopener"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=https://binac.io/2018/05/17/leetcode-categories/&title=LeetCode 个人分类" target="_blank" rel="noopener"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=https://binac.io/2018/05/17/leetcode-categories/&title=LeetCode 个人分类" target="_blank" rel="noopener"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=https://binac.io/2018/05/17/leetcode-categories/&name=LeetCode 个人分类&description=&lt;h1 id=&#34;数组&#34;&gt;&lt;a href=&#34;#数组&#34; class=&#34;headerlink&#34; title=&#34;数组&#34;&gt;&lt;/a&gt;数组&lt;/h1&gt;&lt;p&gt;&lt;a href=&#34;https://leetcode.com/problems/container-with-most-water/description/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;11. Container With Most Water&lt;/a&gt;&lt;br&gt;&lt;a href=&#34;https://leetcode.com/problems/3sum/description/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;15. 3Sum&lt;/a&gt;&lt;br&gt;&lt;a href=&#34;https://leetcode.com/problems/3sum-closest/description/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;16. 3Sum Closest&lt;/a&gt;&lt;br&gt;&lt;a href=&#34;https://leetcode.com/problems/remove-duplicates-from-sorted-array/description/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;26. Remove Duplicates from Sorted Array&lt;/a&gt;&lt;br&gt;&lt;a href=&#34;https://leetcode.com/problems/remove-element/description/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;27. Remove Element&lt;/a&gt;&lt;br&gt;&lt;a href=&#34;https://leetcode.com/problems/next-permutation/description/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;31. Next Permutation&lt;/a&gt;&lt;br&gt;&lt;a href=&#34;https://leetcode.com/problems/trapping-rain-water/description/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;42. Trapping Rain Water&lt;/a&gt;&lt;br&gt;&lt;a href=&#34;https://leetcode.com/problems/rotate-image/description/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;48. Rotate Image&lt;/a&gt;&lt;br&gt;&lt;a href=&#34;https://leetcode.com/problems/spiral-matrix/description/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;54. Spiral Matrix&lt;/a&gt;&lt;br&gt;&lt;a href=&#34;https://leetcode.com/problems/spiral-matrix-ii/description/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;59. Spiral Matrix II&lt;/a&gt;&lt;br&gt;&lt;a href=&#34;https://leetcode.com/problems/permutation-sequence/description/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;60. Permutation Sequence&lt;/a&gt;&lt;br&gt;&lt;a href=&#34;https://leetcode.com/problems/set-matrix-zeroes/description/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;73. Set Matrix Zeroes&lt;/a&gt;&lt;br&gt;&lt;a href=&#34;https://leetcode.com/problems/sort-colors/description/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;75. Sort Colors&lt;/a&gt;&lt;br&gt;&lt;a href=&#34;https://leetcode.com/problems/remove-duplicates-from-sorted-array-ii/description/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;80. Remove Duplicates from Sorted Array II&lt;/a&gt;&lt;br&gt;&lt;a href=&#34;https://leetcode.com/problems/merge-sorted-array/description/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;88. Merge Sorted Array&lt;/a&gt;&lt;br&gt;&lt;a href=&#34;https://leetcode.com/problems/pascals-triangle/description/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;118. Pascal’s Triangle&lt;/a&gt;&lt;br&gt;&lt;a href=&#34;https://leetcode.com/problems/pascals-triangle-ii/description/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;119. Pascal’s Triangle II&lt;/a&gt;&lt;/p&gt;"><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=https://binac.io/2018/05/17/leetcode-categories/&t=LeetCode 个人分类" target="_blank" rel="noopener"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#数组"><span class="toc-number">1.</span> <span class="toc-text">数组</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#链表"><span class="toc-number">2.</span> <span class="toc-text">链表</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#栈"><span class="toc-number">3.</span> <span class="toc-text">栈</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#队列"><span class="toc-number">4.</span> <span class="toc-text">队列</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#字符串"><span class="toc-number">5.</span> <span class="toc-text">字符串</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#树"><span class="toc-number">6.</span> <span class="toc-text">树</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#图"><span class="toc-number">7.</span> <span class="toc-text">图</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#二分搜索"><span class="toc-number">8.</span> <span class="toc-text">二分搜索</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#哈希表"><span class="toc-number">9.</span> <span class="toc-text">哈希表</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#并查集"><span class="toc-number">10.</span> <span class="toc-text">并查集</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#排序"><span class="toc-number">11.</span> <span class="toc-text">排序</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#深度优先搜索"><span class="toc-number">12.</span> <span class="toc-text">深度优先搜索</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#广度优先搜索"><span class="toc-number">13.</span> <span class="toc-text">广度优先搜索</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#分治"><span class="toc-number">14.</span> <span class="toc-text">分治</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#贪心"><span class="toc-number">15.</span> <span class="toc-text">贪心</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#动态规划"><span class="toc-number">16.</span> <span class="toc-text">动态规划</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#数学"><span class="toc-number">17.</span> <span class="toc-text">数学</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#位操作"><span class="toc-number">18.</span> <span class="toc-text">位操作</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        LeetCode 个人分类
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Binac</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2018-05-17T12:09:22.000Z" itemprop="datePublished">2018-05-17</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/LeetCode/" rel="tag">LeetCode</a>, <a class="tag-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h1 id="数组"><a href="#数组" class="headerlink" title="数组"></a>数组</h1><p><a href="https://leetcode.com/problems/container-with-most-water/description/" target="_blank" rel="noopener">11. Container With Most Water</a><br><a href="https://leetcode.com/problems/3sum/description/" target="_blank" rel="noopener">15. 3Sum</a><br><a href="https://leetcode.com/problems/3sum-closest/description/" target="_blank" rel="noopener">16. 3Sum Closest</a><br><a href="https://leetcode.com/problems/remove-duplicates-from-sorted-array/description/" target="_blank" rel="noopener">26. Remove Duplicates from Sorted Array</a><br><a href="https://leetcode.com/problems/remove-element/description/" target="_blank" rel="noopener">27. Remove Element</a><br><a href="https://leetcode.com/problems/next-permutation/description/" target="_blank" rel="noopener">31. Next Permutation</a><br><a href="https://leetcode.com/problems/trapping-rain-water/description/" target="_blank" rel="noopener">42. Trapping Rain Water</a><br><a href="https://leetcode.com/problems/rotate-image/description/" target="_blank" rel="noopener">48. Rotate Image</a><br><a href="https://leetcode.com/problems/spiral-matrix/description/" target="_blank" rel="noopener">54. Spiral Matrix</a><br><a href="https://leetcode.com/problems/spiral-matrix-ii/description/" target="_blank" rel="noopener">59. Spiral Matrix II</a><br><a href="https://leetcode.com/problems/permutation-sequence/description/" target="_blank" rel="noopener">60. Permutation Sequence</a><br><a href="https://leetcode.com/problems/set-matrix-zeroes/description/" target="_blank" rel="noopener">73. Set Matrix Zeroes</a><br><a href="https://leetcode.com/problems/sort-colors/description/" target="_blank" rel="noopener">75. Sort Colors</a><br><a href="https://leetcode.com/problems/remove-duplicates-from-sorted-array-ii/description/" target="_blank" rel="noopener">80. Remove Duplicates from Sorted Array II</a><br><a href="https://leetcode.com/problems/merge-sorted-array/description/" target="_blank" rel="noopener">88. Merge Sorted Array</a><br><a href="https://leetcode.com/problems/pascals-triangle/description/" target="_blank" rel="noopener">118. Pascal’s Triangle</a><br><a href="https://leetcode.com/problems/pascals-triangle-ii/description/" target="_blank" rel="noopener">119. Pascal’s Triangle II</a></p>
+<a id="more"></a>
+
+<h1 id="链表"><a href="#链表" class="headerlink" title="链表"></a>链表</h1><p><a href="https://leetcode.com/problems/add-two-numbers/description/" target="_blank" rel="noopener">2. Add Two Numbers</a><br><a href="https://leetcode.com/problems/remove-nth-node-from-end-of-list/description/" target="_blank" rel="noopener">19. Remove Nth Node From End of List</a><br><a href="https://leetcode.com/problems/merge-two-sorted-lists/description/" target="_blank" rel="noopener">21. Merge Two Sorted Lists</a><br><a href="https://leetcode.com/problems/swap-nodes-in-pairs/description/" target="_blank" rel="noopener">24. Swap Nodes in Pairs</a><br><a href="https://leetcode.com/problems/reverse-nodes-in-k-group/description/" target="_blank" rel="noopener">25. Reverse Nodes in k-Group</a><br><a href="https://leetcode.com/problems/rotate-list/description/" target="_blank" rel="noopener">61. Rotate List</a><br><a href="https://leetcode.com/problems/remove-duplicates-from-sorted-list-ii/description/" target="_blank" rel="noopener">82. Remove Duplicates from Sorted List II</a><br><a href="https://leetcode.com/problems/remove-duplicates-from-sorted-list/description/" target="_blank" rel="noopener">83. Remove Duplicates from Sorted List</a><br><a href="https://leetcode.com/problems/partition-list/description/" target="_blank" rel="noopener">86. Partition List</a><br><a href="https://leetcode.com/problems/reverse-linked-list-ii/description/" target="_blank" rel="noopener">92. Reverse Linked List II</a><br><a href="https://leetcode.com/problems/copy-list-with-random-pointer/description/" target="_blank" rel="noopener">138. Copy List with Random Pointer</a><br><a href="https://leetcode.com/problems/linked-list-cycle/description/" target="_blank" rel="noopener">141. Linked List Cycle</a><br><a href="https://leetcode.com/problems/linked-list-cycle-ii/description/" target="_blank" rel="noopener">142. Linked List Cycle II</a><br><a href="https://leetcode.com/problems/reorder-list/description/" target="_blank" rel="noopener">143. Reorder List</a></p>
+<h1 id="栈"><a href="#栈" class="headerlink" title="栈"></a>栈</h1><p><a href="https://leetcode.com/problems/valid-parentheses/description/" target="_blank" rel="noopener">20. Valid Parentheses</a><br><a href="https://leetcode.com/problems/longest-valid-parentheses/description/" target="_blank" rel="noopener">32. Longest Valid Parentheses</a><br><a href="https://leetcode.com/problems/simplify-path/description/" target="_blank" rel="noopener">71. Simplify Path</a><br><a href="https://leetcode.com/problems/largest-rectangle-in-histogram/description/" target="_blank" rel="noopener">84. Largest Rectangle in Histogram</a><br><a href="https://leetcode.com/problems/maximal-rectangle/description/" target="_blank" rel="noopener">85. Maximal Rectangle</a><br><a href="https://leetcode.com/problems/evaluate-reverse-polish-notation/description/" target="_blank" rel="noopener">150. Evaluate Reverse Polish Notation</a><br><a href="https://leetcode.com/problems/min-stack/description/" target="_blank" rel="noopener">155. Min Stack</a></p>
+<h1 id="队列"><a href="#队列" class="headerlink" title="队列"></a>队列</h1><br>
+
+<h1 id="字符串"><a href="#字符串" class="headerlink" title="字符串"></a>字符串</h1><p><a href="https://leetcode.com/problems/zigzag-conversion/description/" target="_blank" rel="noopener">6. ZigZag Conversion</a><br><a href="https://leetcode.com/problems/string-to-integer-atoi/description/" target="_blank" rel="noopener">8. String to Integer (atoi)</a><br><a href="https://leetcode.com/problems/longest-common-prefix/description/" target="_blank" rel="noopener">14. Longest Common Prefix</a><br><a href="https://leetcode.com/problems/implement-strstr/description/" target="_blank" rel="noopener">28. Implement strStr()</a><br><a href="https://leetcode.com/problems/count-and-say/description/" target="_blank" rel="noopener">38. Count and Say</a><br><a href="https://leetcode.com/problems/length-of-last-word/description/" target="_blank" rel="noopener">58. Length of Last Word</a><br><a href="https://leetcode.com/problems/valid-number/description/" target="_blank" rel="noopener">65. Valid Number</a><br><a href="https://leetcode.com/problems/add-binary/description/" target="_blank" rel="noopener">67. Add Binary</a><br><a href="https://leetcode.com/problems/text-justification/description/" target="_blank" rel="noopener">68. Text Justification</a><br><a href="https://leetcode.com/problems/valid-palindrome/description/" target="_blank" rel="noopener">125. Valid Palindrome</a><br><a href="https://leetcode.com/problems/reverse-words-in-a-string/description/" target="_blank" rel="noopener">151. Reverse Words in a String</a></p>
+<h1 id="树"><a href="#树" class="headerlink" title="树"></a>树</h1><p><a href="https://leetcode.com/problems/binary-tree-inorder-traversal/description/" target="_blank" rel="noopener">94. Binary Tree Inorder Traversal</a><br><a href="https://leetcode.com/problems/unique-binary-search-trees-ii/description/" target="_blank" rel="noopener">95. Unique Binary Search Trees II</a><br><a href="https://leetcode.com/problems/unique-binary-search-trees/description/" target="_blank" rel="noopener">96. Unique Binary Search Trees</a><br><a href="https://leetcode.com/problems/validate-binary-search-tree/description/" target="_blank" rel="noopener">98. Validate Binary Search Tree</a><br><a href="https://leetcode.com/problems/recover-binary-search-tree/description/" target="_blank" rel="noopener">99. Recover Binary Search Tree</a><br><a href="https://leetcode.com/problems/same-tree/description/" target="_blank" rel="noopener">100. Same Tree</a><br><a href="https://leetcode.com/problems/symmetric-tree/description/" target="_blank" rel="noopener">101. Symmetric Tree</a><br><a href="https://leetcode.com/problems/binary-tree-level-order-traversal/description/" target="_blank" rel="noopener">102. Binary Tree Level Order Traversal</a><br><a href="https://leetcode.com/problems/binary-tree-zigzag-level-order-traversal/description/" target="_blank" rel="noopener">103. Binary Tree Zigzag Level Order Traversal</a><br><a href="https://leetcode.com/problems/maximum-depth-of-binary-tree/description/" target="_blank" rel="noopener">104. Maximum Depth of Binary Tree</a><br><a href="https://leetcode.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal/description/" target="_blank" rel="noopener">105. Construct Binary Tree from Preorder and Inorder Traversal</a><br><a href="https://leetcode.com/problems/construct-binary-tree-from-inorder-and-postorder-traversal/description/" target="_blank" rel="noopener">106. Construct Binary Tree from Inorder and Postorder Traversal</a><br><a href="https://leetcode.com/problems/binary-tree-level-order-traversal-ii/description/" target="_blank" rel="noopener">107. Binary Tree Level Order Traversal II</a><br><a href="https://leetcode.com/problems/convert-sorted-array-to-binary-search-tree/description/" target="_blank" rel="noopener">108. Convert Sorted Array to Binary Search Tree</a><br><a href="https://leetcode.com/problems/convert-sorted-list-to-binary-search-tree/description/" target="_blank" rel="noopener">109. Convert Sorted List to Binary Search Tree</a><br><a href="https://leetcode.com/problems/balanced-binary-tree/description/" target="_blank" rel="noopener">110. Balanced Binary Tree</a><br><a href="https://leetcode.com/problems/minimum-depth-of-binary-tree/description/" target="_blank" rel="noopener">111. Minimum Depth of Binary Tree</a><br><a href="https://leetcode.com/problems/path-sum/description/" target="_blank" rel="noopener">112. Path Sum</a><br><a href="https://leetcode.com/problems/path-sum-ii/description/" target="_blank" rel="noopener">113. Path Sum II</a><br><a href="https://leetcode.com/problems/flatten-binary-tree-to-linked-list/description/" target="_blank" rel="noopener">114. Flatten Binary Tree to Linked List</a><br><a href="https://leetcode.com/problems/populating-next-right-pointers-in-each-node/description/" target="_blank" rel="noopener">116. Populating Next Right Pointers in Each Node</a><br><a href="https://leetcode.com/problems/populating-next-right-pointers-in-each-node-ii/description/" target="_blank" rel="noopener">117. Populating Next Right Pointers in Each Node II</a><br><a href="https://leetcode.com/problems/binary-tree-maximum-path-sum/description/" target="_blank" rel="noopener">124. Binary Tree Maximum Path Sum</a><br><a href="https://leetcode.com/problems/sum-root-to-leaf-numbers/description/" target="_blank" rel="noopener">129. Sum Root to Leaf Numbers</a><br><a href="https://leetcode.com/problems/binary-tree-preorder-traversal/description/" target="_blank" rel="noopener">144. Binary Tree Preorder Traversal</a><br><a href="https://leetcode.com/problems/binary-tree-postorder-traversal/description/" target="_blank" rel="noopener">145. Binary Tree Postorder Traversal</a></p>
+<h1 id="图"><a href="#图" class="headerlink" title="图"></a>图</h1><p><a href="https://leetcode.com/problems/clone-graph/description/" target="_blank" rel="noopener">133. Clone Graph</a></p>
+<h1 id="二分搜索"><a href="#二分搜索" class="headerlink" title="二分搜索"></a>二分搜索</h1><p><a href="https://leetcode.com/problems/median-of-two-sorted-arrays/description/" target="_blank" rel="noopener">4. Median of Two Sorted Arrays</a><br><a href="https://leetcode.com/problems/search-in-rotated-sorted-array/description/" target="_blank" rel="noopener">33. Search in Rotated Sorted Array</a><br><a href="https://leetcode.com/problems/find-first-and-last-position-of-element-in-sorted-array/description/" target="_blank" rel="noopener">34. Find First and Last Position of Element in Sorted Array</a><br><a href="https://leetcode.com/problems/search-insert-position/description/" target="_blank" rel="noopener">35. Search Insert Position</a><br><a href="https://leetcode.com/problems/sqrtx/description/" target="_blank" rel="noopener">69. Sqrt(x)</a><br><a href="https://leetcode.com/problems/search-a-2d-matrix/description/" target="_blank" rel="noopener">74. Search a 2D Matrix</a><br><a href="https://leetcode.com/problems/search-in-rotated-sorted-array-ii/description/" target="_blank" rel="noopener">81. Search in Rotated Sorted Array II</a><br><a href="https://leetcode.com/problems/find-minimum-in-rotated-sorted-array/description/" target="_blank" rel="noopener">153. Find Minimum in Rotated Sorted Array</a><br><a href="https://leetcode.com/problems/find-minimum-in-rotated-sorted-array-ii/description/" target="_blank" rel="noopener">154. Find Minimum in Rotated Sorted Array II</a></p>
+<h1 id="哈希表"><a href="#哈希表" class="headerlink" title="哈希表"></a>哈希表</h1><p><a href="https://leetcode.com/problems/two-sum/description/" target="_blank" rel="noopener">1. Two Sum</a><br><a href="https://leetcode.com/problems/longest-substring-without-repeating-characters/description/" target="_blank" rel="noopener">3. Longest Substring Without Repeating Characters</a><br><a href="https://leetcode.com/problems/4sum/description/" target="_blank" rel="noopener">18. 4Sum</a><br><a href="https://leetcode.com/problems/substring-with-concatenation-of-all-words/description/" target="_blank" rel="noopener">30. Substring with Concatenation of All Words</a><br><a href="https://leetcode.com/problems/valid-sudoku/description/" target="_blank" rel="noopener">36. Valid Sudoku</a><br><a href="https://leetcode.com/problems/group-anagrams/description/" target="_blank" rel="noopener">49. Group Anagrams</a><br><a href="https://leetcode.com/problems/minimum-window-substring/description/" target="_blank" rel="noopener">76. Minimum Window Substring</a><br><a href="https://leetcode.com/problems/lru-cache/description/" target="_blank" rel="noopener">146. LRU Cache</a><br><a href="https://leetcode.com/problems/max-points-on-a-line/description/" target="_blank" rel="noopener">149. Max Points on a Line</a></p>
+<h1 id="并查集"><a href="#并查集" class="headerlink" title="并查集"></a>并查集</h1><p><a href="https://leetcode.com/problems/longest-consecutive-sequence/description/" target="_blank" rel="noopener">128. Longest Consecutive Sequence</a></p>
+<h1 id="排序"><a href="#排序" class="headerlink" title="排序"></a>排序</h1><p><a href="https://leetcode.com/problems/first-missing-positive/description/" target="_blank" rel="noopener">41. First Missing Positive</a><br><a href="https://leetcode.com/problems/merge-intervals/description/" target="_blank" rel="noopener">56. Merge Intervals</a><br><a href="https://leetcode.com/problems/insert-interval/description/" target="_blank" rel="noopener">57. Insert Interval</a><br><a href="https://leetcode.com/problems/insertion-sort-list/description/" target="_blank" rel="noopener">147. Insertion Sort List</a><br><a href="https://leetcode.com/problems/sort-list/description/" target="_blank" rel="noopener">148. Sort List</a></p>
+<h1 id="深度优先搜索"><a href="#深度优先搜索" class="headerlink" title="深度优先搜索"></a>深度优先搜索</h1><p><a href="https://leetcode.com/problems/letter-combinations-of-a-phone-number/description/" target="_blank" rel="noopener">17. Letter Combinations of a Phone Number</a><br><a href="https://leetcode.com/problems/generate-parentheses/description/" target="_blank" rel="noopener">22. Generate Parentheses</a><br><a href="https://leetcode.com/problems/sudoku-solver/description/" target="_blank" rel="noopener">37. Sudoku Solver</a><br><a href="https://leetcode.com/problems/combination-sum/description/" target="_blank" rel="noopener">39. Combination Sum</a><br><a href="https://leetcode.com/problems/combination-sum-ii/description/" target="_blank" rel="noopener">40. Combination Sum II</a><br><a href="https://leetcode.com/problems/permutations/description/" target="_blank" rel="noopener">46. Permutations</a><br><a href="https://leetcode.com/problems/permutations-ii/description/" target="_blank" rel="noopener">47. Permutations II</a><br><a href="https://leetcode.com/problems/n-queens/description/" target="_blank" rel="noopener">51. N-Queens</a><br><a href="https://leetcode.com/problems/n-queens-ii/description/" target="_blank" rel="noopener">52. N-Queens II</a><br><a href="https://leetcode.com/problems/combinations/description/" target="_blank" rel="noopener">77. Combinations</a><br><a href="https://leetcode.com/problems/subsets/description/" target="_blank" rel="noopener">78. Subsets</a><br><a href="https://leetcode.com/problems/word-search/description/" target="_blank" rel="noopener">79. Word Search</a><br><a href="https://leetcode.com/problems/subsets-ii/description/" target="_blank" rel="noopener">90. Subsets II</a><br><a href="https://leetcode.com/problems/restore-ip-addresses/description/" target="_blank" rel="noopener">93. Restore IP Addresses</a><br><a href="https://leetcode.com/problems/surrounded-regions/description/" target="_blank" rel="noopener">130. Surrounded Regions</a></p>
+<h1 id="广度优先搜索"><a href="#广度优先搜索" class="headerlink" title="广度优先搜索"></a>广度优先搜索</h1><p><a href="https://leetcode.com/problems/word-ladder-ii/description/" target="_blank" rel="noopener">126. Word Ladder II</a><br><a href="https://leetcode.com/problems/word-ladder/description/" target="_blank" rel="noopener">127. Word Ladder</a></p>
+<h1 id="分治"><a href="#分治" class="headerlink" title="分治"></a>分治</h1><p><a href="https://leetcode.com/problems/merge-k-sorted-lists/description/" target="_blank" rel="noopener">23. Merge k Sorted Lists</a></p>
+<h1 id="贪心"><a href="#贪心" class="headerlink" title="贪心"></a>贪心</h1><p><a href="https://leetcode.com/problems/wildcard-matching/description/" target="_blank" rel="noopener">44. Wildcard Matching</a><br><a href="https://leetcode.com/problems/jump-game-ii/description/" target="_blank" rel="noopener">45. Jump Game II</a><br><a href="https://leetcode.com/problems/jump-game/description/" target="_blank" rel="noopener">55. Jump Game</a><br><a href="https://leetcode.com/problems/best-time-to-buy-and-sell-stock-ii/description/" target="_blank" rel="noopener">122. Best Time to Buy and Sell Stock II</a><br><a href="https://leetcode.com/problems/gas-station/description/" target="_blank" rel="noopener">134. Gas Station</a><br><a href="https://leetcode.com/problems/candy/description/" target="_blank" rel="noopener">135. Candy</a></p>
+<h1 id="动态规划"><a href="#动态规划" class="headerlink" title="动态规划"></a>动态规划</h1><p><a href="https://leetcode.com/problems/longest-palindromic-substring/description/" target="_blank" rel="noopener">5. Longest Palindromic Substring</a><br><a href="https://leetcode.com/problems/regular-expression-matching/description/" target="_blank" rel="noopener">10. Regular Expression Matching</a><br><a href="https://leetcode.com/problems/maximum-subarray/description/" target="_blank" rel="noopener">53. Maximum Subarray</a><br><a href="https://leetcode.com/problems/unique-paths/description/" target="_blank" rel="noopener">62. Unique Paths</a><br><a href="https://leetcode.com/problems/unique-paths-ii/description/" target="_blank" rel="noopener">63. Unique Paths II</a><br><a href="https://leetcode.com/problems/minimum-path-sum/description/" target="_blank" rel="noopener">64. Minimum Path Sum</a><br><a href="https://leetcode.com/problems/climbing-stairs/description/" target="_blank" rel="noopener">70. Climbing Stairs</a><br><a href="https://leetcode.com/problems/edit-distance/description/" target="_blank" rel="noopener">72. Edit Distance</a><br><a href="https://leetcode.com/problems/scramble-string/description/" target="_blank" rel="noopener">87. Scramble String</a><br><a href="https://leetcode.com/problems/decode-ways/description/" target="_blank" rel="noopener">91. Decode Ways</a><br><a href="https://leetcode.com/problems/interleaving-string/description/" target="_blank" rel="noopener">97. Interleaving String</a><br><a href="https://leetcode.com/problems/distinct-subsequences/description/" target="_blank" rel="noopener">115. Distinct Subsequences</a><br><a href="https://leetcode.com/problems/triangle/description/" target="_blank" rel="noopener">120. Triangle</a><br><a href="https://leetcode.com/problems/best-time-to-buy-and-sell-stock/description/" target="_blank" rel="noopener">121. Best Time to Buy and Sell Stock</a><br><a href="https://leetcode.com/problems/best-time-to-buy-and-sell-stock-iii/description/" target="_blank" rel="noopener">123. Best Time to Buy and Sell Stock III</a><br><a href="https://leetcode.com/problems/palindrome-partitioning/description/" target="_blank" rel="noopener">131. Palindrome Partitioning</a><br><a href="https://leetcode.com/problems/palindrome-partitioning-ii/description/" target="_blank" rel="noopener">132. Palindrome Partitioning II</a><br><a href="https://leetcode.com/problems/word-break/description/" target="_blank" rel="noopener">139. Word Break</a><br><a href="https://leetcode.com/problems/word-break-ii/description/" target="_blank" rel="noopener">140. Word Break II</a><br><a href="https://leetcode.com/problems/maximum-product-subarray/description/" target="_blank" rel="noopener">152. Maximum Product Subarray</a></p>
+<h1 id="数学"><a href="#数学" class="headerlink" title="数学"></a>数学</h1><p><a href="https://leetcode.com/problems/reverse-integer/description/" target="_blank" rel="noopener">7. Reverse Integer</a><br><a href="https://leetcode.com/problems/palindrome-number/description/" target="_blank" rel="noopener">9. Palindrome Number</a><br><a href="https://leetcode.com/problems/integer-to-roman/description/" target="_blank" rel="noopener">12. Integer to Roman</a><br><a href="https://leetcode.com/problems/roman-to-integer/description/" target="_blank" rel="noopener">13. Roman to Integer</a><br><a href="https://leetcode.com/problems/divide-two-integers/description/" target="_blank" rel="noopener">29. Divide Two Integers</a><br><a href="https://leetcode.com/problems/multiply-strings/description/" target="_blank" rel="noopener">43. Multiply Strings</a><br><a href="https://leetcode.com/problems/powx-n/description/" target="_blank" rel="noopener">50. Pow(x, n)</a><br><a href="https://leetcode.com/problems/plus-one/description/" target="_blank" rel="noopener">66. Plus One</a></p>
+<h1 id="位操作"><a href="#位操作" class="headerlink" title="位操作"></a>位操作</h1><p><a href="https://leetcode.com/problems/gray-code/description/" target="_blank" rel="noopener">89. Gray Code</a><br><a href="https://leetcode.com/problems/single-number/description/" target="_blank" rel="noopener">136. Single Number</a><br><a href="https://leetcode.com/problems/single-number-ii/description/" target="_blank" rel="noopener">137. Single Number II</a></p>
+
+  </div>
+</article>
+
+    <div class="blog-post-comments">
+        <div id="disqus_thread">
+            <noscript>加载评论需要在浏览器启用 JavaScript 脚本支持。</noscript>
+        </div>
+    </div>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/tags/">标签</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#数组"><span class="toc-number">1.</span> <span class="toc-text">数组</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#链表"><span class="toc-number">2.</span> <span class="toc-text">链表</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#栈"><span class="toc-number">3.</span> <span class="toc-text">栈</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#队列"><span class="toc-number">4.</span> <span class="toc-text">队列</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#字符串"><span class="toc-number">5.</span> <span class="toc-text">字符串</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#树"><span class="toc-number">6.</span> <span class="toc-text">树</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#图"><span class="toc-number">7.</span> <span class="toc-text">图</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#二分搜索"><span class="toc-number">8.</span> <span class="toc-text">二分搜索</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#哈希表"><span class="toc-number">9.</span> <span class="toc-text">哈希表</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#并查集"><span class="toc-number">10.</span> <span class="toc-text">并查集</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#排序"><span class="toc-number">11.</span> <span class="toc-text">排序</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#深度优先搜索"><span class="toc-number">12.</span> <span class="toc-text">深度优先搜索</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#广度优先搜索"><span class="toc-number">13.</span> <span class="toc-text">广度优先搜索</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#分治"><span class="toc-number">14.</span> <span class="toc-text">分治</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#贪心"><span class="toc-number">15.</span> <span class="toc-text">贪心</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#动态规划"><span class="toc-number">16.</span> <span class="toc-text">动态规划</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#数学"><span class="toc-number">17.</span> <span class="toc-text">数学</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#位操作"><span class="toc-number">18.</span> <span class="toc-text">位操作</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=https://binac.io/2018/05/17/leetcode-categories/" target="_blank" rel="noopener"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=https://binac.io/2018/05/17/leetcode-categories/&text=LeetCode 个人分类" target="_blank" rel="noopener"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=https://binac.io/2018/05/17/leetcode-categories/&title=LeetCode 个人分类" target="_blank" rel="noopener"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=https://binac.io/2018/05/17/leetcode-categories/&is_video=false&description=LeetCode 个人分类" target="_blank" rel="noopener"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=LeetCode 个人分类&body=Check out this article: https://binac.io/2018/05/17/leetcode-categories/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=https://binac.io/2018/05/17/leetcode-categories/&title=LeetCode 个人分类" target="_blank" rel="noopener"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=https://binac.io/2018/05/17/leetcode-categories/&title=LeetCode 个人分类" target="_blank" rel="noopener"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=https://binac.io/2018/05/17/leetcode-categories/&title=LeetCode 个人分类" target="_blank" rel="noopener"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=https://binac.io/2018/05/17/leetcode-categories/&title=LeetCode 个人分类" target="_blank" rel="noopener"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=https://binac.io/2018/05/17/leetcode-categories/&name=LeetCode 个人分类&description=&lt;h1 id=&#34;数组&#34;&gt;&lt;a href=&#34;#数组&#34; class=&#34;headerlink&#34; title=&#34;数组&#34;&gt;&lt;/a&gt;数组&lt;/h1&gt;&lt;p&gt;&lt;a href=&#34;https://leetcode.com/problems/container-with-most-water/description/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;11. Container With Most Water&lt;/a&gt;&lt;br&gt;&lt;a href=&#34;https://leetcode.com/problems/3sum/description/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;15. 3Sum&lt;/a&gt;&lt;br&gt;&lt;a href=&#34;https://leetcode.com/problems/3sum-closest/description/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;16. 3Sum Closest&lt;/a&gt;&lt;br&gt;&lt;a href=&#34;https://leetcode.com/problems/remove-duplicates-from-sorted-array/description/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;26. Remove Duplicates from Sorted Array&lt;/a&gt;&lt;br&gt;&lt;a href=&#34;https://leetcode.com/problems/remove-element/description/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;27. Remove Element&lt;/a&gt;&lt;br&gt;&lt;a href=&#34;https://leetcode.com/problems/next-permutation/description/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;31. Next Permutation&lt;/a&gt;&lt;br&gt;&lt;a href=&#34;https://leetcode.com/problems/trapping-rain-water/description/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;42. Trapping Rain Water&lt;/a&gt;&lt;br&gt;&lt;a href=&#34;https://leetcode.com/problems/rotate-image/description/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;48. Rotate Image&lt;/a&gt;&lt;br&gt;&lt;a href=&#34;https://leetcode.com/problems/spiral-matrix/description/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;54. Spiral Matrix&lt;/a&gt;&lt;br&gt;&lt;a href=&#34;https://leetcode.com/problems/spiral-matrix-ii/description/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;59. Spiral Matrix II&lt;/a&gt;&lt;br&gt;&lt;a href=&#34;https://leetcode.com/problems/permutation-sequence/description/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;60. Permutation Sequence&lt;/a&gt;&lt;br&gt;&lt;a href=&#34;https://leetcode.com/problems/set-matrix-zeroes/description/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;73. Set Matrix Zeroes&lt;/a&gt;&lt;br&gt;&lt;a href=&#34;https://leetcode.com/problems/sort-colors/description/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;75. Sort Colors&lt;/a&gt;&lt;br&gt;&lt;a href=&#34;https://leetcode.com/problems/remove-duplicates-from-sorted-array-ii/description/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;80. Remove Duplicates from Sorted Array II&lt;/a&gt;&lt;br&gt;&lt;a href=&#34;https://leetcode.com/problems/merge-sorted-array/description/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;88. Merge Sorted Array&lt;/a&gt;&lt;br&gt;&lt;a href=&#34;https://leetcode.com/problems/pascals-triangle/description/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;118. Pascal’s Triangle&lt;/a&gt;&lt;br&gt;&lt;a href=&#34;https://leetcode.com/problems/pascals-triangle-ii/description/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;119. Pascal’s Triangle II&lt;/a&gt;&lt;/p&gt;"><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=https://binac.io/2018/05/17/leetcode-categories/&t=LeetCode 个人分类" target="_blank" rel="noopener"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2020 Binac
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/tags/">标签</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+
+    <!-- jquery -->
+
+<script src="/lib/jquery/jquery.min.js"></script>
+
+
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+
+<!-- clipboard -->
+
+  
+<script src="/lib/clipboard/clipboard.min.js"></script>
+
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+    <script type="text/javascript">
+        var disqus_shortname = 'binac';
+
+        (function(){
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        }());
+    </script>
+
+
+</body>
+</html>

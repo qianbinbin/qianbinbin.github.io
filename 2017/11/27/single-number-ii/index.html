@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="LeetCode 的一道题，在一个 int 数组中，其余数值均出现了 3 次，只有一个数值出现了 1 次，求这个数：https:&#x2F;&#x2F;leetcode.com&#x2F;problems&#x2F;single-number-ii&#x2F;description&#x2F;  Given an array of integers, every element appears three times except for one, whi">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Single Number II">
+<meta property="og:url" content="https://binac.io/2017/11/27/single-number-ii/index.html">
+<meta property="og:site_name" content="Binac">
+<meta property="og:description" content="LeetCode 的一道题，在一个 int 数组中，其余数值均出现了 3 次，只有一个数值出现了 1 次，求这个数：https:&#x2F;&#x2F;leetcode.com&#x2F;problems&#x2F;single-number-ii&#x2F;description&#x2F;  Given an array of integers, every element appears three times except for one, whi">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2017-11-27T08:46:19.000Z">
+<meta property="article:modified_time" content="2020-01-22T13:11:02.588Z">
+<meta property="article:author" content="Binac">
+<meta property="article:tag" content="LeetCode">
+<meta property="article:tag" content="算法">
+<meta name="twitter:card" content="summary">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>Single Number II</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+      
+<link rel="stylesheet" href="/css/rtl.css">
+
+    
+    <!-- rss -->
+    
+    
+<meta name="generator" content="Hexo 4.2.0"><style>.mjpage .MJX-monospace {
+  font-family: monospace;
+}
+
+.mjpage .MJX-sans-serif {
+  font-family: sans-serif;
+}
+
+.mjpage {
+  display: inline;
+  font-style: normal;
+  font-weight: normal;
+  line-height: normal;
+  font-size: 100%;
+  font-size-adjust: none;
+  text-indent: 0;
+  text-align: left;
+  text-transform: none;
+  letter-spacing: normal;
+  word-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+  float: none;
+  direction: ltr;
+  max-width: none;
+  max-height: none;
+  min-width: 0;
+  min-height: 0;
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.mjpage * {
+  transition: none;
+  -webkit-transition: none;
+  -moz-transition: none;
+  -ms-transition: none;
+  -o-transition: none;
+}
+
+.mjx-svg-href {
+  fill: blue;
+  stroke: blue;
+}
+
+.MathJax_SVG_LineBox {
+  display: table !important;
+}
+
+.MathJax_SVG_LineBox span {
+  display: table-cell !important;
+  width: 10000em !important;
+  min-width: 0;
+  max-width: none;
+  padding: 0;
+  border: 0;
+  margin: 0;
+}
+
+.mjpage__block {
+  text-align: center;
+  margin: 1em 0em;
+  position: relative;
+  display: block !important;
+  text-indent: 0;
+  max-width: none;
+  max-height: none;
+  min-width: 0;
+  min-height: 0;
+  width: 100%;
+}
+</style><style>.mjpage .MJX-monospace {
+  font-family: monospace;
+}
+
+.mjpage .MJX-sans-serif {
+  font-family: sans-serif;
+}
+
+.mjpage {
+  display: inline;
+  font-style: normal;
+  font-weight: normal;
+  line-height: normal;
+  font-size: 100%;
+  font-size-adjust: none;
+  text-indent: 0;
+  text-align: left;
+  text-transform: none;
+  letter-spacing: normal;
+  word-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+  float: none;
+  direction: ltr;
+  max-width: none;
+  max-height: none;
+  min-width: 0;
+  min-height: 0;
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.mjpage * {
+  transition: none;
+  -webkit-transition: none;
+  -moz-transition: none;
+  -ms-transition: none;
+  -o-transition: none;
+}
+
+.mjx-svg-href {
+  fill: blue;
+  stroke: blue;
+}
+
+.MathJax_SVG_LineBox {
+  display: table !important;
+}
+
+.MathJax_SVG_LineBox span {
+  display: table-cell !important;
+  width: 10000em !important;
+  min-width: 0;
+  max-width: none;
+  padding: 0;
+  border: 0;
+  margin: 0;
+}
+
+.mjpage__block {
+  text-align: center;
+  margin: 1em 0em;
+  position: relative;
+  display: block !important;
+  text-indent: 0;
+  max-width: none;
+  max-height: none;
+  min-width: 0;
+  min-height: 0;
+  width: 100%;
+}
+</style></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/tags/">标签</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/2017/12/01/cycle-detection/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/2017/10/14/gas-station/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=https://binac.io/2017/11/27/single-number-ii/" target="_blank" rel="noopener"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=https://binac.io/2017/11/27/single-number-ii/&text=Single Number II" target="_blank" rel="noopener"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=https://binac.io/2017/11/27/single-number-ii/&title=Single Number II" target="_blank" rel="noopener"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=https://binac.io/2017/11/27/single-number-ii/&is_video=false&description=Single Number II" target="_blank" rel="noopener"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Single Number II&body=Check out this article: https://binac.io/2017/11/27/single-number-ii/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=https://binac.io/2017/11/27/single-number-ii/&title=Single Number II" target="_blank" rel="noopener"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=https://binac.io/2017/11/27/single-number-ii/&title=Single Number II" target="_blank" rel="noopener"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=https://binac.io/2017/11/27/single-number-ii/&title=Single Number II" target="_blank" rel="noopener"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=https://binac.io/2017/11/27/single-number-ii/&title=Single Number II" target="_blank" rel="noopener"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=https://binac.io/2017/11/27/single-number-ii/&name=Single Number II&description=&lt;p&gt;LeetCode 的一道题，在一个 int 数组中，其余数值均出现了 3 次，只有一个数值出现了 1 次，求这个数：&lt;br&gt;&lt;a href=&#34;https://leetcode.com/problems/single-number-ii/description/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;https://leetcode.com/problems/single-number-ii/description/&lt;/a&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Given an array of integers, every element appears three times except for one, which appears exactly once. Find that single one.&lt;/p&gt;
+&lt;p&gt;Note:&lt;br&gt;Your algorithm should have a linear runtime complexity. Could you implement it without using extra memory?&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;要求时间复杂度为 &lt;span class=&#34;mjpage&#34;&gt;&lt;svg xmlns:xlink=&#34;http://www.w3.org/1999/xlink&#34; width=&#34;4.977ex&#34; height=&#34;2.843ex&#34; style=&#34;vertical-align: -0.838ex;&#34; viewBox=&#34;0 -863.1 2143 1223.9&#34; role=&#34;img&#34; focusable=&#34;false&#34; xmlns=&#34;http://www.w3.org/2000/svg&#34; aria-labelledby=&#34;MathJax-SVG-1-Title&#34;&gt;
+&lt;title id=&#34;MathJax-SVG-1-Title&#34;&gt;O(n)&lt;/title&gt;
+&lt;defs aria-hidden=&#34;true&#34;&gt;
+&lt;path stroke-width=&#34;1&#34; id=&#34;E1-MJMATHI-4F&#34; d=&#34;M740 435Q740 320 676 213T511 42T304 -22Q207 -22 138 35T51 201Q50 209 50 244Q50 346 98 438T227 601Q351 704 476 704Q514 704 524 703Q621 689 680 617T740 435ZM637 476Q637 565 591 615T476 665Q396 665 322 605Q242 542 200 428T157 216Q157 126 200 73T314 19Q404 19 485 98T608 313Q637 408 637 476Z&#34;&gt;&lt;/path&gt;
+&lt;path stroke-width=&#34;1&#34; id=&#34;E1-MJMAIN-28&#34; d=&#34;M94 250Q94 319 104 381T127 488T164 576T202 643T244 695T277 729T302 750H315H319Q333 750 333 741Q333 738 316 720T275 667T226 581T184 443T167 250T184 58T225 -81T274 -167T316 -220T333 -241Q333 -250 318 -250H315H302L274 -226Q180 -141 137 -14T94 250Z&#34;&gt;&lt;/path&gt;
+&lt;path stroke-width=&#34;1&#34; id=&#34;E1-MJMATHI-6E&#34; d=&#34;M21 287Q22 293 24 303T36 341T56 388T89 425T135 442Q171 442 195 424T225 390T231 369Q231 367 232 367L243 378Q304 442 382 442Q436 442 469 415T503 336T465 179T427 52Q427 26 444 26Q450 26 453 27Q482 32 505 65T540 145Q542 153 560 153Q580 153 580 145Q580 144 576 130Q568 101 554 73T508 17T439 -10Q392 -10 371 17T350 73Q350 92 386 193T423 345Q423 404 379 404H374Q288 404 229 303L222 291L189 157Q156 26 151 16Q138 -11 108 -11Q95 -11 87 -5T76 7T74 17Q74 30 112 180T152 343Q153 348 153 366Q153 405 129 405Q91 405 66 305Q60 285 60 284Q58 278 41 278H27Q21 284 21 287Z&#34;&gt;&lt;/path&gt;
+&lt;path stroke-width=&#34;1&#34; id=&#34;E1-MJMAIN-29&#34; d=&#34;M60 749L64 750Q69 750 74 750H86L114 726Q208 641 251 514T294 250Q294 182 284 119T261 12T224 -76T186 -143T145 -194T113 -227T90 -246Q87 -249 86 -250H74Q66 -250 63 -250T58 -247T55 -238Q56 -237 66 -225Q221 -64 221 250T66 725Q56 737 55 738Q55 746 60 749Z&#34;&gt;&lt;/path&gt;
+&lt;/defs&gt;
+&lt;g stroke=&#34;currentColor&#34; fill=&#34;currentColor&#34; stroke-width=&#34;0&#34; transform=&#34;matrix(1 0 0 -1 0 0)&#34; aria-hidden=&#34;true&#34;&gt;
+ &lt;use xlink:href=&#34;#E1-MJMATHI-4F&#34; x=&#34;0&#34; y=&#34;0&#34;&gt;&lt;/use&gt;
+ &lt;use xlink:href=&#34;#E1-MJMAIN-28&#34; x=&#34;763&#34; y=&#34;0&#34;&gt;&lt;/use&gt;
+ &lt;use xlink:href=&#34;#E1-MJMATHI-6E&#34; x=&#34;1153&#34; y=&#34;0&#34;&gt;&lt;/use&gt;
+ &lt;use xlink:href=&#34;#E1-MJMAIN-29&#34; x=&#34;1753&#34; y=&#34;0&#34;&gt;&lt;/use&gt;
+&lt;/g&gt;
+&lt;/svg&gt;&lt;/span&gt;，并挑战读者是否能在空间复杂度 &lt;span class=&#34;mjpage&#34;&gt;&lt;svg xmlns:xlink=&#34;http://www.w3.org/1999/xlink&#34; width=&#34;4.745ex&#34; height=&#34;2.843ex&#34; style=&#34;vertical-align: -0.838ex;&#34; viewBox=&#34;0 -863.1 2043 1223.9&#34; role=&#34;img&#34; focusable=&#34;false&#34; xmlns=&#34;http://www.w3.org/2000/svg&#34; aria-labelledby=&#34;MathJax-SVG-2-Title&#34;&gt;
+&lt;title id=&#34;MathJax-SVG-2-Title&#34;&gt;O(1)&lt;/title&gt;
+&lt;defs aria-hidden=&#34;true&#34;&gt;
+&lt;path stroke-width=&#34;1&#34; id=&#34;E2-MJMATHI-4F&#34; d=&#34;M740 435Q740 320 676 213T511 42T304 -22Q207 -22 138 35T51 201Q50 209 50 244Q50 346 98 438T227 601Q351 704 476 704Q514 704 524 703Q621 689 680 617T740 435ZM637 476Q637 565 591 615T476 665Q396 665 322 605Q242 542 200 428T157 216Q157 126 200 73T314 19Q404 19 485 98T608 313Q637 408 637 476Z&#34;&gt;&lt;/path&gt;
+&lt;path stroke-width=&#34;1&#34; id=&#34;E2-MJMAIN-28&#34; d=&#34;M94 250Q94 319 104 381T127 488T164 576T202 643T244 695T277 729T302 750H315H319Q333 750 333 741Q333 738 316 720T275 667T226 581T184 443T167 250T184 58T225 -81T274 -167T316 -220T333 -241Q333 -250 318 -250H315H302L274 -226Q180 -141 137 -14T94 250Z&#34;&gt;&lt;/path&gt;
+&lt;path stroke-width=&#34;1&#34; id=&#34;E2-MJMAIN-31&#34; d=&#34;M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z&#34;&gt;&lt;/path&gt;
+&lt;path stroke-width=&#34;1&#34; id=&#34;E2-MJMAIN-29&#34; d=&#34;M60 749L64 750Q69 750 74 750H86L114 726Q208 641 251 514T294 250Q294 182 284 119T261 12T224 -76T186 -143T145 -194T113 -227T90 -246Q87 -249 86 -250H74Q66 -250 63 -250T58 -247T55 -238Q56 -237 66 -225Q221 -64 221 250T66 725Q56 737 55 738Q55 746 60 749Z&#34;&gt;&lt;/path&gt;
+&lt;/defs&gt;
+&lt;g stroke=&#34;currentColor&#34; fill=&#34;currentColor&#34; stroke-width=&#34;0&#34; transform=&#34;matrix(1 0 0 -1 0 0)&#34; aria-hidden=&#34;true&#34;&gt;
+ &lt;use xlink:href=&#34;#E2-MJMATHI-4F&#34; x=&#34;0&#34; y=&#34;0&#34;&gt;&lt;/use&gt;
+ &lt;use xlink:href=&#34;#E2-MJMAIN-28&#34; x=&#34;763&#34; y=&#34;0&#34;&gt;&lt;/use&gt;
+ &lt;use xlink:href=&#34;#E2-MJMAIN-31&#34; x=&#34;1153&#34; y=&#34;0&#34;&gt;&lt;/use&gt;
+ &lt;use xlink:href=&#34;#E2-MJMAIN-29&#34; x=&#34;1653&#34; y=&#34;0&#34;&gt;&lt;/use&gt;
+&lt;/g&gt;
+&lt;/svg&gt;&lt;/span&gt; 的条件下解决。&lt;/p&gt;"><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=https://binac.io/2017/11/27/single-number-ii/&t=Single Number II" target="_blank" rel="noopener"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#哈希表法"><span class="toc-number">1.</span> <span class="toc-text">哈希表法</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#统计二进制位出现次数"><span class="toc-number">2.</span> <span class="toc-text">统计二进制位出现次数</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#位操作法"><span class="toc-number">3.</span> <span class="toc-text">位操作法</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#通过真值表写出逻辑表达式"><span class="toc-number">3.1.</span> <span class="toc-text">通过真值表写出逻辑表达式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#复杂度"><span class="toc-number">3.2.</span> <span class="toc-text">复杂度</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#实现源码"><span class="toc-number">4.</span> <span class="toc-text">实现源码</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#参考资料"><span class="toc-number">5.</span> <span class="toc-text">参考资料</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Single Number II
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Binac</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2017-11-27T08:46:19.000Z" itemprop="datePublished">2017-11-27</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/LeetCode/" rel="tag">LeetCode</a>, <a class="tag-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <p>LeetCode 的一道题，在一个 int 数组中，其余数值均出现了 3 次，只有一个数值出现了 1 次，求这个数：<br><a href="https://leetcode.com/problems/single-number-ii/description/" target="_blank" rel="noopener">https://leetcode.com/problems/single-number-ii/description/</a></p>
+<blockquote>
+<p>Given an array of integers, every element appears three times except for one, which appears exactly once. Find that single one.</p>
+<p>Note:<br>Your algorithm should have a linear runtime complexity. Could you implement it without using extra memory?</p>
+</blockquote>
+<p>要求时间复杂度为 <span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="4.977ex" height="2.843ex" style="vertical-align: -0.838ex;" viewBox="0 -863.1 2143 1223.9" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-1-Title">
+<title id="MathJax-SVG-1-Title">O(n)</title>
+<defs aria-hidden="true">
+<path stroke-width="1" id="E1-MJMATHI-4F" d="M740 435Q740 320 676 213T511 42T304 -22Q207 -22 138 35T51 201Q50 209 50 244Q50 346 98 438T227 601Q351 704 476 704Q514 704 524 703Q621 689 680 617T740 435ZM637 476Q637 565 591 615T476 665Q396 665 322 605Q242 542 200 428T157 216Q157 126 200 73T314 19Q404 19 485 98T608 313Q637 408 637 476Z"></path>
+<path stroke-width="1" id="E1-MJMAIN-28" d="M94 250Q94 319 104 381T127 488T164 576T202 643T244 695T277 729T302 750H315H319Q333 750 333 741Q333 738 316 720T275 667T226 581T184 443T167 250T184 58T225 -81T274 -167T316 -220T333 -241Q333 -250 318 -250H315H302L274 -226Q180 -141 137 -14T94 250Z"></path>
+<path stroke-width="1" id="E1-MJMATHI-6E" d="M21 287Q22 293 24 303T36 341T56 388T89 425T135 442Q171 442 195 424T225 390T231 369Q231 367 232 367L243 378Q304 442 382 442Q436 442 469 415T503 336T465 179T427 52Q427 26 444 26Q450 26 453 27Q482 32 505 65T540 145Q542 153 560 153Q580 153 580 145Q580 144 576 130Q568 101 554 73T508 17T439 -10Q392 -10 371 17T350 73Q350 92 386 193T423 345Q423 404 379 404H374Q288 404 229 303L222 291L189 157Q156 26 151 16Q138 -11 108 -11Q95 -11 87 -5T76 7T74 17Q74 30 112 180T152 343Q153 348 153 366Q153 405 129 405Q91 405 66 305Q60 285 60 284Q58 278 41 278H27Q21 284 21 287Z"></path>
+<path stroke-width="1" id="E1-MJMAIN-29" d="M60 749L64 750Q69 750 74 750H86L114 726Q208 641 251 514T294 250Q294 182 284 119T261 12T224 -76T186 -143T145 -194T113 -227T90 -246Q87 -249 86 -250H74Q66 -250 63 -250T58 -247T55 -238Q56 -237 66 -225Q221 -64 221 250T66 725Q56 737 55 738Q55 746 60 749Z"></path>
+</defs>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#E1-MJMATHI-4F" x="0" y="0"></use>
+ <use xlink:href="#E1-MJMAIN-28" x="763" y="0"></use>
+ <use xlink:href="#E1-MJMATHI-6E" x="1153" y="0"></use>
+ <use xlink:href="#E1-MJMAIN-29" x="1753" y="0"></use>
+</g>
+</svg></span>，并挑战读者是否能在空间复杂度 <span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="4.745ex" height="2.843ex" style="vertical-align: -0.838ex;" viewBox="0 -863.1 2043 1223.9" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-2-Title">
+<title id="MathJax-SVG-2-Title">O(1)</title>
+<defs aria-hidden="true">
+<path stroke-width="1" id="E2-MJMATHI-4F" d="M740 435Q740 320 676 213T511 42T304 -22Q207 -22 138 35T51 201Q50 209 50 244Q50 346 98 438T227 601Q351 704 476 704Q514 704 524 703Q621 689 680 617T740 435ZM637 476Q637 565 591 615T476 665Q396 665 322 605Q242 542 200 428T157 216Q157 126 200 73T314 19Q404 19 485 98T608 313Q637 408 637 476Z"></path>
+<path stroke-width="1" id="E2-MJMAIN-28" d="M94 250Q94 319 104 381T127 488T164 576T202 643T244 695T277 729T302 750H315H319Q333 750 333 741Q333 738 316 720T275 667T226 581T184 443T167 250T184 58T225 -81T274 -167T316 -220T333 -241Q333 -250 318 -250H315H302L274 -226Q180 -141 137 -14T94 250Z"></path>
+<path stroke-width="1" id="E2-MJMAIN-31" d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"></path>
+<path stroke-width="1" id="E2-MJMAIN-29" d="M60 749L64 750Q69 750 74 750H86L114 726Q208 641 251 514T294 250Q294 182 284 119T261 12T224 -76T186 -143T145 -194T113 -227T90 -246Q87 -249 86 -250H74Q66 -250 63 -250T58 -247T55 -238Q56 -237 66 -225Q221 -64 221 250T66 725Q56 737 55 738Q55 746 60 749Z"></path>
+</defs>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#E2-MJMATHI-4F" x="0" y="0"></use>
+ <use xlink:href="#E2-MJMAIN-28" x="763" y="0"></use>
+ <use xlink:href="#E2-MJMAIN-31" x="1153" y="0"></use>
+ <use xlink:href="#E2-MJMAIN-29" x="1653" y="0"></use>
+</g>
+</svg></span> 的条件下解决。</p>
+<a id="more"></a>
+
+<h1 id="哈希表法"><a href="#哈希表法" class="headerlink" title="哈希表法"></a>哈希表法</h1><p>一种显而易见的方法就是用哈希表，但是空间复杂度为 <span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="4.977ex" height="2.843ex" style="vertical-align: -0.838ex;" viewBox="0 -863.1 2143 1223.9" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-3-Title">
+<title id="MathJax-SVG-3-Title">O(n)</title>
+<defs aria-hidden="true">
+<path stroke-width="1" id="E3-MJMATHI-4F" d="M740 435Q740 320 676 213T511 42T304 -22Q207 -22 138 35T51 201Q50 209 50 244Q50 346 98 438T227 601Q351 704 476 704Q514 704 524 703Q621 689 680 617T740 435ZM637 476Q637 565 591 615T476 665Q396 665 322 605Q242 542 200 428T157 216Q157 126 200 73T314 19Q404 19 485 98T608 313Q637 408 637 476Z"></path>
+<path stroke-width="1" id="E3-MJMAIN-28" d="M94 250Q94 319 104 381T127 488T164 576T202 643T244 695T277 729T302 750H315H319Q333 750 333 741Q333 738 316 720T275 667T226 581T184 443T167 250T184 58T225 -81T274 -167T316 -220T333 -241Q333 -250 318 -250H315H302L274 -226Q180 -141 137 -14T94 250Z"></path>
+<path stroke-width="1" id="E3-MJMATHI-6E" d="M21 287Q22 293 24 303T36 341T56 388T89 425T135 442Q171 442 195 424T225 390T231 369Q231 367 232 367L243 378Q304 442 382 442Q436 442 469 415T503 336T465 179T427 52Q427 26 444 26Q450 26 453 27Q482 32 505 65T540 145Q542 153 560 153Q580 153 580 145Q580 144 576 130Q568 101 554 73T508 17T439 -10Q392 -10 371 17T350 73Q350 92 386 193T423 345Q423 404 379 404H374Q288 404 229 303L222 291L189 157Q156 26 151 16Q138 -11 108 -11Q95 -11 87 -5T76 7T74 17Q74 30 112 180T152 343Q153 348 153 366Q153 405 129 405Q91 405 66 305Q60 285 60 284Q58 278 41 278H27Q21 284 21 287Z"></path>
+<path stroke-width="1" id="E3-MJMAIN-29" d="M60 749L64 750Q69 750 74 750H86L114 726Q208 641 251 514T294 250Q294 182 284 119T261 12T224 -76T186 -143T145 -194T113 -227T90 -246Q87 -249 86 -250H74Q66 -250 63 -250T58 -247T55 -238Q56 -237 66 -225Q221 -64 221 250T66 725Q56 737 55 738Q55 746 60 749Z"></path>
+</defs>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#E3-MJMATHI-4F" x="0" y="0"></use>
+ <use xlink:href="#E3-MJMAIN-28" x="763" y="0"></use>
+ <use xlink:href="#E3-MJMATHI-6E" x="1153" y="0"></use>
+ <use xlink:href="#E3-MJMAIN-29" x="1753" y="0"></use>
+</g>
+</svg></span>。这里不做赘述。</p>
+<h1 id="统计二进制位出现次数"><a href="#统计二进制位出现次数" class="headerlink" title="统计二进制位出现次数"></a>统计二进制位出现次数</h1><p>对 int 整型数的每个二进制位，统计其在所有元素中出现的次数。出现次数有 3 种情况：</p>
+<ol>
+<li><p>为 0</p>
+</li>
+<li><p>为 3 的倍数</p>
+</li>
+<li><p>为 1</p>
+</li>
+</ol>
+<p>我们只需要把出现次数模 3 后为 1 的位重新组合，就得到所求数值。</p>
+<p>为此，我们可以定义一个长度为 int 类型比特位数，也就是<code>sizeof(int) * 8</code>长度的 int 数组，用来统计每个二进制位出现次数。</p>
+<p>数组长度在特定机器上是固定的，因此空间复杂度为 <span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="4.745ex" height="2.843ex" style="vertical-align: -0.838ex;" viewBox="0 -863.1 2043 1223.9" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-4-Title">
+<title id="MathJax-SVG-4-Title">O(1)</title>
+<defs aria-hidden="true">
+<path stroke-width="1" id="E4-MJMATHI-4F" d="M740 435Q740 320 676 213T511 42T304 -22Q207 -22 138 35T51 201Q50 209 50 244Q50 346 98 438T227 601Q351 704 476 704Q514 704 524 703Q621 689 680 617T740 435ZM637 476Q637 565 591 615T476 665Q396 665 322 605Q242 542 200 428T157 216Q157 126 200 73T314 19Q404 19 485 98T608 313Q637 408 637 476Z"></path>
+<path stroke-width="1" id="E4-MJMAIN-28" d="M94 250Q94 319 104 381T127 488T164 576T202 643T244 695T277 729T302 750H315H319Q333 750 333 741Q333 738 316 720T275 667T226 581T184 443T167 250T184 58T225 -81T274 -167T316 -220T333 -241Q333 -250 318 -250H315H302L274 -226Q180 -141 137 -14T94 250Z"></path>
+<path stroke-width="1" id="E4-MJMAIN-31" d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"></path>
+<path stroke-width="1" id="E4-MJMAIN-29" d="M60 749L64 750Q69 750 74 750H86L114 726Q208 641 251 514T294 250Q294 182 284 119T261 12T224 -76T186 -143T145 -194T113 -227T90 -246Q87 -249 86 -250H74Q66 -250 63 -250T58 -247T55 -238Q56 -237 66 -225Q221 -64 221 250T66 725Q56 737 55 738Q55 746 60 749Z"></path>
+</defs>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#E4-MJMATHI-4F" x="0" y="0"></use>
+ <use xlink:href="#E4-MJMAIN-28" x="763" y="0"></use>
+ <use xlink:href="#E4-MJMAIN-31" x="1153" y="0"></use>
+ <use xlink:href="#E4-MJMAIN-29" x="1653" y="0"></use>
+</g>
+</svg></span>。C 语言实现参考上面的链接。</p>
+<h1 id="位操作法"><a href="#位操作法" class="headerlink" title="位操作法"></a>位操作法</h1><p>在上面的方法中，用一个 int 数组来统计二进制位出现次数有点浪费，事实上在统计次数时，只需要考虑 3 种情况：0、1、2，当次数到达 3 时，将其重置为 0 即可，这其实是 3 进制运算。</p>
+<p>要保存 3 种状态，只需要 2 个比特：</p>
+<table>
+<thead>
+<tr>
+<th>0</th>
+<th>1</th>
+<th>2</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>00</td>
+<td>01</td>
+<td>10</td>
+</tr>
+</tbody></table>
+<p>int 类型的每个比特需要 2 个比特保存状态，一个保存低位比特，一个保存高位比特，那么总共只需要 2 个 int 来保存。接下来要做的就是用 2 个比特模拟 3 进制运算。</p>
+<h2 id="通过真值表写出逻辑表达式"><a href="#通过真值表写出逻辑表达式" class="headerlink" title="通过真值表写出逻辑表达式"></a>通过真值表写出逻辑表达式</h2><p>设 A 表示低位，B 表示高位，C 表示当前统计的比特，列出真值表：</p>
+<table>
+<thead>
+<tr>
+<th>B A</th>
+<th>C</th>
+<th>B’A’</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0 0</td>
+<td>0</td>
+<td>0 0</td>
+</tr>
+<tr>
+<td>0 0</td>
+<td>1</td>
+<td>0 1</td>
+</tr>
+<tr>
+<td>0 1</td>
+<td>0</td>
+<td>0 1</td>
+</tr>
+<tr>
+<td>0 1</td>
+<td>1</td>
+<td>1 0</td>
+</tr>
+<tr>
+<td>1 0</td>
+<td>0</td>
+<td>1 0</td>
+</tr>
+<tr>
+<td>1 0</td>
+<td>1</td>
+<td>0 0</td>
+</tr>
+</tbody></table>
+<p>先计算新的低位，逻辑表达式为</p>
+<p><span class="mjpage mjpage__block"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="37.748ex" height="3.509ex" style="vertical-align: -0.838ex;" viewBox="0 -1150.1 16252.4 1510.9" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-5-Title">
+<title id="MathJax-SVG-5-Title">A’=\overline{B} , \overline{A} , C + \overline{B} , A , \overline{C}     =(A\oplus{C}) , \overline{B}</title>
+<defs aria-hidden="true">
+<path stroke-width="1" id="E5-MJMATHI-41" d="M208 74Q208 50 254 46Q272 46 272 35Q272 34 270 22Q267 8 264 4T251 0Q249 0 239 0T205 1T141 2Q70 2 50 0H42Q35 7 35 11Q37 38 48 46H62Q132 49 164 96Q170 102 345 401T523 704Q530 716 547 716H555H572Q578 707 578 706L606 383Q634 60 636 57Q641 46 701 46Q726 46 726 36Q726 34 723 22Q720 7 718 4T704 0Q701 0 690 0T651 1T578 2Q484 2 455 0H443Q437 6 437 9T439 27Q443 40 445 43L449 46H469Q523 49 533 63L521 213H283L249 155Q208 86 208 74ZM516 260Q516 271 504 416T490 562L463 519Q447 492 400 412L310 260L413 259Q516 259 516 260Z"></path>
+<path stroke-width="1" id="E5-MJMAIN-2032" d="M79 43Q73 43 52 49T30 61Q30 68 85 293T146 528Q161 560 198 560Q218 560 240 545T262 501Q262 496 260 486Q259 479 173 263T84 45T79 43Z"></path>
+<path stroke-width="1" id="E5-MJMAIN-3D" d="M56 347Q56 360 70 367H707Q722 359 722 347Q722 336 708 328L390 327H72Q56 332 56 347ZM56 153Q56 168 72 173H708Q722 163 722 153Q722 140 707 133H70Q56 140 56 153Z"></path>
+<path stroke-width="1" id="E5-MJMATHI-42" d="M231 637Q204 637 199 638T194 649Q194 676 205 682Q206 683 335 683Q594 683 608 681Q671 671 713 636T756 544Q756 480 698 429T565 360L555 357Q619 348 660 311T702 219Q702 146 630 78T453 1Q446 0 242 0Q42 0 39 2Q35 5 35 10Q35 17 37 24Q42 43 47 45Q51 46 62 46H68Q95 46 128 49Q142 52 147 61Q150 65 219 339T288 628Q288 635 231 637ZM649 544Q649 574 634 600T585 634Q578 636 493 637Q473 637 451 637T416 636H403Q388 635 384 626Q382 622 352 506Q352 503 351 500L320 374H401Q482 374 494 376Q554 386 601 434T649 544ZM595 229Q595 273 572 302T512 336Q506 337 429 337Q311 337 310 336Q310 334 293 263T258 122L240 52Q240 48 252 48T333 46Q422 46 429 47Q491 54 543 105T595 229Z"></path>
+<path stroke-width="1" id="E5-MJMAIN-AF" d="M69 544V590H430V544H69Z"></path>
+<path stroke-width="1" id="E5-MJMAIN-2C" d="M78 35T78 60T94 103T137 121Q165 121 187 96T210 8Q210 -27 201 -60T180 -117T154 -158T130 -185T117 -194Q113 -194 104 -185T95 -172Q95 -168 106 -156T131 -126T157 -76T173 -3V9L172 8Q170 7 167 6T161 3T152 1T140 0Q113 0 96 17Z"></path>
+<path stroke-width="1" id="E5-MJMATHI-43" d="M50 252Q50 367 117 473T286 641T490 704Q580 704 633 653Q642 643 648 636T656 626L657 623Q660 623 684 649Q691 655 699 663T715 679T725 690L740 705H746Q760 705 760 698Q760 694 728 561Q692 422 692 421Q690 416 687 415T669 413H653Q647 419 647 422Q647 423 648 429T650 449T651 481Q651 552 619 605T510 659Q484 659 454 652T382 628T299 572T226 479Q194 422 175 346T156 222Q156 108 232 58Q280 24 350 24Q441 24 512 92T606 240Q610 253 612 255T628 257Q648 257 648 248Q648 243 647 239Q618 132 523 55T319 -22Q206 -22 128 53T50 252Z"></path>
+<path stroke-width="1" id="E5-MJMAIN-2B" d="M56 237T56 250T70 270H369V420L370 570Q380 583 389 583Q402 583 409 568V270H707Q722 262 722 250T707 230H409V-68Q401 -82 391 -82H389H387Q375 -82 369 -68V230H70Q56 237 56 250Z"></path>
+<path stroke-width="1" id="E5-MJMAIN-28" d="M94 250Q94 319 104 381T127 488T164 576T202 643T244 695T277 729T302 750H315H319Q333 750 333 741Q333 738 316 720T275 667T226 581T184 443T167 250T184 58T225 -81T274 -167T316 -220T333 -241Q333 -250 318 -250H315H302L274 -226Q180 -141 137 -14T94 250Z"></path>
+<path stroke-width="1" id="E5-MJMAIN-2295" d="M56 250Q56 394 156 488T384 583Q530 583 626 485T722 250Q722 110 625 14T390 -83Q249 -83 153 14T56 250ZM364 542Q308 539 251 509T148 418T96 278V270H369V542H364ZM681 278Q675 338 650 386T592 462T522 509T458 535T412 542H409V270H681V278ZM96 222Q104 150 139 95T219 12T302 -29T366 -42H369V230H96V222ZM681 222V230H409V-42H412Q429 -42 456 -36T521 -10T590 37T649 113T681 222Z"></path>
+<path stroke-width="1" id="E5-MJMAIN-29" d="M60 749L64 750Q69 750 74 750H86L114 726Q208 641 251 514T294 250Q294 182 284 119T261 12T224 -76T186 -143T145 -194T113 -227T90 -246Q87 -249 86 -250H74Q66 -250 63 -250T58 -247T55 -238Q56 -237 66 -225Q221 -64 221 250T66 725Q56 737 55 738Q55 746 60 749Z"></path>
+</defs>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#E5-MJMATHI-41" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#E5-MJMAIN-2032" x="1061" y="583"></use>
+ <use xlink:href="#E5-MJMAIN-3D" x="1323" y="0"></use>
+<g transform="translate(2379,0)">
+ <use xlink:href="#E5-MJMATHI-42" x="24" y="0"></use>
+<g transform="translate(0,500)">
+ <use transform="scale(0.707)" xlink:href="#E5-MJMAIN-AF" x="-70" y="0"></use>
+<g transform="translate(207.3338615074012,0) scale(0.9753329657129242,1)">
+ <use transform="scale(0.707)" xlink:href="#E5-MJMAIN-AF"></use>
+</g>
+ <use transform="scale(0.707)" xlink:href="#E5-MJMAIN-AF" x="643" y="0"></use>
+</g>
+</g>
+ <use xlink:href="#E5-MJMAIN-2C" x="3188" y="0"></use>
+<g transform="translate(3633,0)">
+ <use xlink:href="#E5-MJMATHI-41" x="24" y="0"></use>
+<g transform="translate(0,533)">
+ <use transform="scale(0.707)" xlink:href="#E5-MJMAIN-AF" x="-70" y="0"></use>
+<g transform="translate(209.06654848801062,0) scale(0.940075563880908,1)">
+ <use transform="scale(0.707)" xlink:href="#E5-MJMAIN-AF"></use>
+</g>
+ <use transform="scale(0.707)" xlink:href="#E5-MJMAIN-AF" x="630" y="0"></use>
+</g>
+</g>
+ <use xlink:href="#E5-MJMAIN-2C" x="4433" y="0"></use>
+ <use xlink:href="#E5-MJMATHI-43" x="4878" y="0"></use>
+ <use xlink:href="#E5-MJMAIN-2B" x="5861" y="0"></use>
+<g transform="translate(6862,0)">
+ <use xlink:href="#E5-MJMATHI-42" x="24" y="0"></use>
+<g transform="translate(0,500)">
+ <use transform="scale(0.707)" xlink:href="#E5-MJMAIN-AF" x="-70" y="0"></use>
+<g transform="translate(207.3338615074012,0) scale(0.9753329657129242,1)">
+ <use transform="scale(0.707)" xlink:href="#E5-MJMAIN-AF"></use>
+</g>
+ <use transform="scale(0.707)" xlink:href="#E5-MJMAIN-AF" x="643" y="0"></use>
+</g>
+</g>
+ <use xlink:href="#E5-MJMAIN-2C" x="7671" y="0"></use>
+ <use xlink:href="#E5-MJMATHI-41" x="8116" y="0"></use>
+ <use xlink:href="#E5-MJMAIN-2C" x="8866" y="0"></use>
+<g transform="translate(9311,0)">
+ <use xlink:href="#E5-MJMATHI-43" x="24" y="0"></use>
+<g transform="translate(29,522)">
+ <use transform="scale(0.707)" xlink:href="#E5-MJMAIN-AF" x="-70" y="0"></use>
+<g transform="translate(207.14134073177794,0) scale(0.9792504548053704,1)">
+ <use transform="scale(0.707)" xlink:href="#E5-MJMAIN-AF"></use>
+</g>
+ <use transform="scale(0.707)" xlink:href="#E5-MJMAIN-AF" x="645" y="0"></use>
+</g>
+</g>
+ <use xlink:href="#E5-MJMAIN-3D" x="10429" y="0"></use>
+ <use xlink:href="#E5-MJMAIN-28" x="11485" y="0"></use>
+ <use xlink:href="#E5-MJMATHI-41" x="11874" y="0"></use>
+ <use xlink:href="#E5-MJMAIN-2295" x="12847" y="0"></use>
+ <use xlink:href="#E5-MJMATHI-43" x="13848" y="0"></use>
+ <use xlink:href="#E5-MJMAIN-29" x="14608" y="0"></use>
+ <use xlink:href="#E5-MJMAIN-2C" x="14998" y="0"></use>
+<g transform="translate(15443,0)">
+ <use xlink:href="#E5-MJMATHI-42" x="24" y="0"></use>
+<g transform="translate(0,500)">
+ <use transform="scale(0.707)" xlink:href="#E5-MJMAIN-AF" x="-70" y="0"></use>
+<g transform="translate(207.3338615074012,0) scale(0.9753329657129242,1)">
+ <use transform="scale(0.707)" xlink:href="#E5-MJMAIN-AF"></use>
+</g>
+ <use transform="scale(0.707)" xlink:href="#E5-MJMAIN-AF" x="643" y="0"></use>
+</g>
+</g>
+</g>
+</svg></span></p>
+<p>在编码实现时，计算 A’ 覆盖了原先的 A，再计算 B’ 时就需要用 A’ 计算：</p>
+<p><span class="mjpage mjpage__block"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="39.823ex" height="3.676ex" style="vertical-align: -0.838ex;" viewBox="0 -1221.9 17145.8 1582.7" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-6-Title">
+<title id="MathJax-SVG-6-Title">B’=\overline{B} , C , \overline{A’} + B , \overline{C} , \overline{A’}     =(B\oplus{C}) , \overline{A’}</title>
+<defs aria-hidden="true">
+<path stroke-width="1" id="E6-MJMATHI-42" d="M231 637Q204 637 199 638T194 649Q194 676 205 682Q206 683 335 683Q594 683 608 681Q671 671 713 636T756 544Q756 480 698 429T565 360L555 357Q619 348 660 311T702 219Q702 146 630 78T453 1Q446 0 242 0Q42 0 39 2Q35 5 35 10Q35 17 37 24Q42 43 47 45Q51 46 62 46H68Q95 46 128 49Q142 52 147 61Q150 65 219 339T288 628Q288 635 231 637ZM649 544Q649 574 634 600T585 634Q578 636 493 637Q473 637 451 637T416 636H403Q388 635 384 626Q382 622 352 506Q352 503 351 500L320 374H401Q482 374 494 376Q554 386 601 434T649 544ZM595 229Q595 273 572 302T512 336Q506 337 429 337Q311 337 310 336Q310 334 293 263T258 122L240 52Q240 48 252 48T333 46Q422 46 429 47Q491 54 543 105T595 229Z"></path>
+<path stroke-width="1" id="E6-MJMAIN-2032" d="M79 43Q73 43 52 49T30 61Q30 68 85 293T146 528Q161 560 198 560Q218 560 240 545T262 501Q262 496 260 486Q259 479 173 263T84 45T79 43Z"></path>
+<path stroke-width="1" id="E6-MJMAIN-3D" d="M56 347Q56 360 70 367H707Q722 359 722 347Q722 336 708 328L390 327H72Q56 332 56 347ZM56 153Q56 168 72 173H708Q722 163 722 153Q722 140 707 133H70Q56 140 56 153Z"></path>
+<path stroke-width="1" id="E6-MJMAIN-AF" d="M69 544V590H430V544H69Z"></path>
+<path stroke-width="1" id="E6-MJMAIN-2C" d="M78 35T78 60T94 103T137 121Q165 121 187 96T210 8Q210 -27 201 -60T180 -117T154 -158T130 -185T117 -194Q113 -194 104 -185T95 -172Q95 -168 106 -156T131 -126T157 -76T173 -3V9L172 8Q170 7 167 6T161 3T152 1T140 0Q113 0 96 17Z"></path>
+<path stroke-width="1" id="E6-MJMATHI-43" d="M50 252Q50 367 117 473T286 641T490 704Q580 704 633 653Q642 643 648 636T656 626L657 623Q660 623 684 649Q691 655 699 663T715 679T725 690L740 705H746Q760 705 760 698Q760 694 728 561Q692 422 692 421Q690 416 687 415T669 413H653Q647 419 647 422Q647 423 648 429T650 449T651 481Q651 552 619 605T510 659Q484 659 454 652T382 628T299 572T226 479Q194 422 175 346T156 222Q156 108 232 58Q280 24 350 24Q441 24 512 92T606 240Q610 253 612 255T628 257Q648 257 648 248Q648 243 647 239Q618 132 523 55T319 -22Q206 -22 128 53T50 252Z"></path>
+<path stroke-width="1" id="E6-MJMATHI-41" d="M208 74Q208 50 254 46Q272 46 272 35Q272 34 270 22Q267 8 264 4T251 0Q249 0 239 0T205 1T141 2Q70 2 50 0H42Q35 7 35 11Q37 38 48 46H62Q132 49 164 96Q170 102 345 401T523 704Q530 716 547 716H555H572Q578 707 578 706L606 383Q634 60 636 57Q641 46 701 46Q726 46 726 36Q726 34 723 22Q720 7 718 4T704 0Q701 0 690 0T651 1T578 2Q484 2 455 0H443Q437 6 437 9T439 27Q443 40 445 43L449 46H469Q523 49 533 63L521 213H283L249 155Q208 86 208 74ZM516 260Q516 271 504 416T490 562L463 519Q447 492 400 412L310 260L413 259Q516 259 516 260Z"></path>
+<path stroke-width="1" id="E6-MJMAIN-2B" d="M56 237T56 250T70 270H369V420L370 570Q380 583 389 583Q402 583 409 568V270H707Q722 262 722 250T707 230H409V-68Q401 -82 391 -82H389H387Q375 -82 369 -68V230H70Q56 237 56 250Z"></path>
+<path stroke-width="1" id="E6-MJMAIN-28" d="M94 250Q94 319 104 381T127 488T164 576T202 643T244 695T277 729T302 750H315H319Q333 750 333 741Q333 738 316 720T275 667T226 581T184 443T167 250T184 58T225 -81T274 -167T316 -220T333 -241Q333 -250 318 -250H315H302L274 -226Q180 -141 137 -14T94 250Z"></path>
+<path stroke-width="1" id="E6-MJMAIN-2295" d="M56 250Q56 394 156 488T384 583Q530 583 626 485T722 250Q722 110 625 14T390 -83Q249 -83 153 14T56 250ZM364 542Q308 539 251 509T148 418T96 278V270H369V542H364ZM681 278Q675 338 650 386T592 462T522 509T458 535T412 542H409V270H681V278ZM96 222Q104 150 139 95T219 12T302 -29T366 -42H369V230H96V222ZM681 222V230H409V-42H412Q429 -42 456 -36T521 -10T590 37T649 113T681 222Z"></path>
+<path stroke-width="1" id="E6-MJMAIN-29" d="M60 749L64 750Q69 750 74 750H86L114 726Q208 641 251 514T294 250Q294 182 284 119T261 12T224 -76T186 -143T145 -194T113 -227T90 -246Q87 -249 86 -250H74Q66 -250 63 -250T58 -247T55 -238Q56 -237 66 -225Q221 -64 221 250T66 725Q56 737 55 738Q55 746 60 749Z"></path>
+</defs>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#E6-MJMATHI-42" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#E6-MJMAIN-2032" x="1074" y="583"></use>
+ <use xlink:href="#E6-MJMAIN-3D" x="1332" y="0"></use>
+<g transform="translate(2388,0)">
+ <use xlink:href="#E6-MJMATHI-42" x="24" y="0"></use>
+<g transform="translate(0,500)">
+ <use transform="scale(0.707)" xlink:href="#E6-MJMAIN-AF" x="-70" y="0"></use>
+<g transform="translate(207.3338615074012,0) scale(0.9753329657129242,1)">
+ <use transform="scale(0.707)" xlink:href="#E6-MJMAIN-AF"></use>
+</g>
+ <use transform="scale(0.707)" xlink:href="#E6-MJMAIN-AF" x="643" y="0"></use>
+</g>
+</g>
+ <use xlink:href="#E6-MJMAIN-2C" x="3197" y="0"></use>
+ <use xlink:href="#E6-MJMATHI-43" x="3642" y="0"></use>
+ <use xlink:href="#E6-MJMAIN-2C" x="4403" y="0"></use>
+<g transform="translate(4848,0)">
+<g transform="translate(24,0)">
+ <use xlink:href="#E6-MJMATHI-41" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#E6-MJMAIN-2032" x="1061" y="583"></use>
+</g>
+<g transform="translate(0,625)">
+ <use transform="scale(0.707)" xlink:href="#E6-MJMAIN-AF" x="-70" y="0"></use>
+<g transform="translate(152.30989941301303,0) scale(2.094982367862375,1)">
+ <use transform="scale(0.707)" xlink:href="#E6-MJMAIN-AF"></use>
+</g>
+ <use transform="scale(0.707)" xlink:href="#E6-MJMAIN-AF" x="1047" y="0"></use>
+</g>
+</g>
+ <use xlink:href="#E6-MJMAIN-2B" x="6165" y="0"></use>
+ <use xlink:href="#E6-MJMATHI-42" x="7165" y="0"></use>
+ <use xlink:href="#E6-MJMAIN-2C" x="7925" y="0"></use>
+<g transform="translate(8370,0)">
+ <use xlink:href="#E6-MJMATHI-43" x="24" y="0"></use>
+<g transform="translate(29,522)">
+ <use transform="scale(0.707)" xlink:href="#E6-MJMAIN-AF" x="-70" y="0"></use>
+<g transform="translate(207.14134073177794,0) scale(0.9792504548053704,1)">
+ <use transform="scale(0.707)" xlink:href="#E6-MJMAIN-AF"></use>
+</g>
+ <use transform="scale(0.707)" xlink:href="#E6-MJMAIN-AF" x="645" y="0"></use>
+</g>
+</g>
+ <use xlink:href="#E6-MJMAIN-2C" x="9209" y="0"></use>
+<g transform="translate(9655,0)">
+<g transform="translate(24,0)">
+ <use xlink:href="#E6-MJMATHI-41" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#E6-MJMAIN-2032" x="1061" y="583"></use>
+</g>
+<g transform="translate(0,625)">
+ <use transform="scale(0.707)" xlink:href="#E6-MJMAIN-AF" x="-70" y="0"></use>
+<g transform="translate(152.30989941301303,0) scale(2.094982367862375,1)">
+ <use transform="scale(0.707)" xlink:href="#E6-MJMAIN-AF"></use>
+</g>
+ <use transform="scale(0.707)" xlink:href="#E6-MJMAIN-AF" x="1047" y="0"></use>
+</g>
+</g>
+ <use xlink:href="#E6-MJMAIN-3D" x="11027" y="0"></use>
+ <use xlink:href="#E6-MJMAIN-28" x="12083" y="0"></use>
+ <use xlink:href="#E6-MJMATHI-42" x="12473" y="0"></use>
+ <use xlink:href="#E6-MJMAIN-2295" x="13455" y="0"></use>
+ <use xlink:href="#E6-MJMATHI-43" x="14455" y="0"></use>
+ <use xlink:href="#E6-MJMAIN-29" x="15216" y="0"></use>
+ <use xlink:href="#E6-MJMAIN-2C" x="15605" y="0"></use>
+<g transform="translate(16051,0)">
+<g transform="translate(24,0)">
+ <use xlink:href="#E6-MJMATHI-41" x="0" y="0"></use>
+ <use transform="scale(0.707)" xlink:href="#E6-MJMAIN-2032" x="1061" y="583"></use>
+</g>
+<g transform="translate(0,625)">
+ <use transform="scale(0.707)" xlink:href="#E6-MJMAIN-AF" x="-70" y="0"></use>
+<g transform="translate(152.30989941301303,0) scale(2.094982367862375,1)">
+ <use transform="scale(0.707)" xlink:href="#E6-MJMAIN-AF"></use>
+</g>
+ <use transform="scale(0.707)" xlink:href="#E6-MJMAIN-AF" x="1047" y="0"></use>
+</g>
+</g>
+</g>
+</svg></span></p>
+<p>用 C 语言编码为：</p>
+<figure class="highlight c"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> one = <span class="number">0</span>, two = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; numsSize; ++i) {</span><br><span class="line">    one = (one ^ nums[i]) &amp; ~two;</span><br><span class="line">    two = (two ^ nums[i]) &amp; ~one;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<p>最终的<code>one</code>恰好就是所求的数值，而<code>two</code>理论上为 0，因为根据题中条件不会有出现 2 次的情况。</p>
+<h2 id="复杂度"><a href="#复杂度" class="headerlink" title="复杂度"></a>复杂度</h2><p>时间复杂度为 <span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="4.977ex" height="2.843ex" style="vertical-align: -0.838ex;" viewBox="0 -863.1 2143 1223.9" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-7-Title">
+<title id="MathJax-SVG-7-Title">O(n)</title>
+<defs aria-hidden="true">
+<path stroke-width="1" id="E7-MJMATHI-4F" d="M740 435Q740 320 676 213T511 42T304 -22Q207 -22 138 35T51 201Q50 209 50 244Q50 346 98 438T227 601Q351 704 476 704Q514 704 524 703Q621 689 680 617T740 435ZM637 476Q637 565 591 615T476 665Q396 665 322 605Q242 542 200 428T157 216Q157 126 200 73T314 19Q404 19 485 98T608 313Q637 408 637 476Z"></path>
+<path stroke-width="1" id="E7-MJMAIN-28" d="M94 250Q94 319 104 381T127 488T164 576T202 643T244 695T277 729T302 750H315H319Q333 750 333 741Q333 738 316 720T275 667T226 581T184 443T167 250T184 58T225 -81T274 -167T316 -220T333 -241Q333 -250 318 -250H315H302L274 -226Q180 -141 137 -14T94 250Z"></path>
+<path stroke-width="1" id="E7-MJMATHI-6E" d="M21 287Q22 293 24 303T36 341T56 388T89 425T135 442Q171 442 195 424T225 390T231 369Q231 367 232 367L243 378Q304 442 382 442Q436 442 469 415T503 336T465 179T427 52Q427 26 444 26Q450 26 453 27Q482 32 505 65T540 145Q542 153 560 153Q580 153 580 145Q580 144 576 130Q568 101 554 73T508 17T439 -10Q392 -10 371 17T350 73Q350 92 386 193T423 345Q423 404 379 404H374Q288 404 229 303L222 291L189 157Q156 26 151 16Q138 -11 108 -11Q95 -11 87 -5T76 7T74 17Q74 30 112 180T152 343Q153 348 153 366Q153 405 129 405Q91 405 66 305Q60 285 60 284Q58 278 41 278H27Q21 284 21 287Z"></path>
+<path stroke-width="1" id="E7-MJMAIN-29" d="M60 749L64 750Q69 750 74 750H86L114 726Q208 641 251 514T294 250Q294 182 284 119T261 12T224 -76T186 -143T145 -194T113 -227T90 -246Q87 -249 86 -250H74Q66 -250 63 -250T58 -247T55 -238Q56 -237 66 -225Q221 -64 221 250T66 725Q56 737 55 738Q55 746 60 749Z"></path>
+</defs>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#E7-MJMATHI-4F" x="0" y="0"></use>
+ <use xlink:href="#E7-MJMAIN-28" x="763" y="0"></use>
+ <use xlink:href="#E7-MJMATHI-6E" x="1153" y="0"></use>
+ <use xlink:href="#E7-MJMAIN-29" x="1753" y="0"></use>
+</g>
+</svg></span>，空间复杂度为 <span class="mjpage"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="4.745ex" height="2.843ex" style="vertical-align: -0.838ex;" viewBox="0 -863.1 2043 1223.9" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" aria-labelledby="MathJax-SVG-8-Title">
+<title id="MathJax-SVG-8-Title">O(1)</title>
+<defs aria-hidden="true">
+<path stroke-width="1" id="E8-MJMATHI-4F" d="M740 435Q740 320 676 213T511 42T304 -22Q207 -22 138 35T51 201Q50 209 50 244Q50 346 98 438T227 601Q351 704 476 704Q514 704 524 703Q621 689 680 617T740 435ZM637 476Q637 565 591 615T476 665Q396 665 322 605Q242 542 200 428T157 216Q157 126 200 73T314 19Q404 19 485 98T608 313Q637 408 637 476Z"></path>
+<path stroke-width="1" id="E8-MJMAIN-28" d="M94 250Q94 319 104 381T127 488T164 576T202 643T244 695T277 729T302 750H315H319Q333 750 333 741Q333 738 316 720T275 667T226 581T184 443T167 250T184 58T225 -81T274 -167T316 -220T333 -241Q333 -250 318 -250H315H302L274 -226Q180 -141 137 -14T94 250Z"></path>
+<path stroke-width="1" id="E8-MJMAIN-31" d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"></path>
+<path stroke-width="1" id="E8-MJMAIN-29" d="M60 749L64 750Q69 750 74 750H86L114 726Q208 641 251 514T294 250Q294 182 284 119T261 12T224 -76T186 -143T145 -194T113 -227T90 -246Q87 -249 86 -250H74Q66 -250 63 -250T58 -247T55 -238Q56 -237 66 -225Q221 -64 221 250T66 725Q56 737 55 738Q55 746 60 749Z"></path>
+</defs>
+<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)" aria-hidden="true">
+ <use xlink:href="#E8-MJMATHI-4F" x="0" y="0"></use>
+ <use xlink:href="#E8-MJMAIN-28" x="763" y="0"></use>
+ <use xlink:href="#E8-MJMAIN-31" x="1153" y="0"></use>
+ <use xlink:href="#E8-MJMAIN-29" x="1653" y="0"></use>
+</g>
+</svg></span>，只用了两个<code>int</code>。</p>
+<h1 id="实现源码"><a href="#实现源码" class="headerlink" title="实现源码"></a>实现源码</h1><p><a href="https://github.com/qianbinbin/leetcode" target="_blank" rel="noopener">https://github.com/qianbinbin/leetcode</a></p>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><p><a href="https://leetcode.com/problems/single-number-ii/discuss/43294/Challenge-me-thx" target="_blank" rel="noopener">Single Number II - LeetCode</a></p>
+
+  </div>
+</article>
+
+    <div class="blog-post-comments">
+        <div id="disqus_thread">
+            <noscript>加载评论需要在浏览器启用 JavaScript 脚本支持。</noscript>
+        </div>
+    </div>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/tags/">标签</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#哈希表法"><span class="toc-number">1.</span> <span class="toc-text">哈希表法</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#统计二进制位出现次数"><span class="toc-number">2.</span> <span class="toc-text">统计二进制位出现次数</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#位操作法"><span class="toc-number">3.</span> <span class="toc-text">位操作法</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#通过真值表写出逻辑表达式"><span class="toc-number">3.1.</span> <span class="toc-text">通过真值表写出逻辑表达式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#复杂度"><span class="toc-number">3.2.</span> <span class="toc-text">复杂度</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#实现源码"><span class="toc-number">4.</span> <span class="toc-text">实现源码</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#参考资料"><span class="toc-number">5.</span> <span class="toc-text">参考资料</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=https://binac.io/2017/11/27/single-number-ii/" target="_blank" rel="noopener"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=https://binac.io/2017/11/27/single-number-ii/&text=Single Number II" target="_blank" rel="noopener"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=https://binac.io/2017/11/27/single-number-ii/&title=Single Number II" target="_blank" rel="noopener"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=https://binac.io/2017/11/27/single-number-ii/&is_video=false&description=Single Number II" target="_blank" rel="noopener"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Single Number II&body=Check out this article: https://binac.io/2017/11/27/single-number-ii/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=https://binac.io/2017/11/27/single-number-ii/&title=Single Number II" target="_blank" rel="noopener"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=https://binac.io/2017/11/27/single-number-ii/&title=Single Number II" target="_blank" rel="noopener"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=https://binac.io/2017/11/27/single-number-ii/&title=Single Number II" target="_blank" rel="noopener"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=https://binac.io/2017/11/27/single-number-ii/&title=Single Number II" target="_blank" rel="noopener"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=https://binac.io/2017/11/27/single-number-ii/&name=Single Number II&description=&lt;p&gt;LeetCode 的一道题，在一个 int 数组中，其余数值均出现了 3 次，只有一个数值出现了 1 次，求这个数：&lt;br&gt;&lt;a href=&#34;https://leetcode.com/problems/single-number-ii/description/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;https://leetcode.com/problems/single-number-ii/description/&lt;/a&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Given an array of integers, every element appears three times except for one, which appears exactly once. Find that single one.&lt;/p&gt;
+&lt;p&gt;Note:&lt;br&gt;Your algorithm should have a linear runtime complexity. Could you implement it without using extra memory?&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;要求时间复杂度为 &lt;span class=&#34;mjpage&#34;&gt;&lt;svg xmlns:xlink=&#34;http://www.w3.org/1999/xlink&#34; width=&#34;4.977ex&#34; height=&#34;2.843ex&#34; style=&#34;vertical-align: -0.838ex;&#34; viewBox=&#34;0 -863.1 2143 1223.9&#34; role=&#34;img&#34; focusable=&#34;false&#34; xmlns=&#34;http://www.w3.org/2000/svg&#34; aria-labelledby=&#34;MathJax-SVG-1-Title&#34;&gt;
+&lt;title id=&#34;MathJax-SVG-1-Title&#34;&gt;O(n)&lt;/title&gt;
+&lt;defs aria-hidden=&#34;true&#34;&gt;
+&lt;path stroke-width=&#34;1&#34; id=&#34;E1-MJMATHI-4F&#34; d=&#34;M740 435Q740 320 676 213T511 42T304 -22Q207 -22 138 35T51 201Q50 209 50 244Q50 346 98 438T227 601Q351 704 476 704Q514 704 524 703Q621 689 680 617T740 435ZM637 476Q637 565 591 615T476 665Q396 665 322 605Q242 542 200 428T157 216Q157 126 200 73T314 19Q404 19 485 98T608 313Q637 408 637 476Z&#34;&gt;&lt;/path&gt;
+&lt;path stroke-width=&#34;1&#34; id=&#34;E1-MJMAIN-28&#34; d=&#34;M94 250Q94 319 104 381T127 488T164 576T202 643T244 695T277 729T302 750H315H319Q333 750 333 741Q333 738 316 720T275 667T226 581T184 443T167 250T184 58T225 -81T274 -167T316 -220T333 -241Q333 -250 318 -250H315H302L274 -226Q180 -141 137 -14T94 250Z&#34;&gt;&lt;/path&gt;
+&lt;path stroke-width=&#34;1&#34; id=&#34;E1-MJMATHI-6E&#34; d=&#34;M21 287Q22 293 24 303T36 341T56 388T89 425T135 442Q171 442 195 424T225 390T231 369Q231 367 232 367L243 378Q304 442 382 442Q436 442 469 415T503 336T465 179T427 52Q427 26 444 26Q450 26 453 27Q482 32 505 65T540 145Q542 153 560 153Q580 153 580 145Q580 144 576 130Q568 101 554 73T508 17T439 -10Q392 -10 371 17T350 73Q350 92 386 193T423 345Q423 404 379 404H374Q288 404 229 303L222 291L189 157Q156 26 151 16Q138 -11 108 -11Q95 -11 87 -5T76 7T74 17Q74 30 112 180T152 343Q153 348 153 366Q153 405 129 405Q91 405 66 305Q60 285 60 284Q58 278 41 278H27Q21 284 21 287Z&#34;&gt;&lt;/path&gt;
+&lt;path stroke-width=&#34;1&#34; id=&#34;E1-MJMAIN-29&#34; d=&#34;M60 749L64 750Q69 750 74 750H86L114 726Q208 641 251 514T294 250Q294 182 284 119T261 12T224 -76T186 -143T145 -194T113 -227T90 -246Q87 -249 86 -250H74Q66 -250 63 -250T58 -247T55 -238Q56 -237 66 -225Q221 -64 221 250T66 725Q56 737 55 738Q55 746 60 749Z&#34;&gt;&lt;/path&gt;
+&lt;/defs&gt;
+&lt;g stroke=&#34;currentColor&#34; fill=&#34;currentColor&#34; stroke-width=&#34;0&#34; transform=&#34;matrix(1 0 0 -1 0 0)&#34; aria-hidden=&#34;true&#34;&gt;
+ &lt;use xlink:href=&#34;#E1-MJMATHI-4F&#34; x=&#34;0&#34; y=&#34;0&#34;&gt;&lt;/use&gt;
+ &lt;use xlink:href=&#34;#E1-MJMAIN-28&#34; x=&#34;763&#34; y=&#34;0&#34;&gt;&lt;/use&gt;
+ &lt;use xlink:href=&#34;#E1-MJMATHI-6E&#34; x=&#34;1153&#34; y=&#34;0&#34;&gt;&lt;/use&gt;
+ &lt;use xlink:href=&#34;#E1-MJMAIN-29&#34; x=&#34;1753&#34; y=&#34;0&#34;&gt;&lt;/use&gt;
+&lt;/g&gt;
+&lt;/svg&gt;&lt;/span&gt;，并挑战读者是否能在空间复杂度 &lt;span class=&#34;mjpage&#34;&gt;&lt;svg xmlns:xlink=&#34;http://www.w3.org/1999/xlink&#34; width=&#34;4.745ex&#34; height=&#34;2.843ex&#34; style=&#34;vertical-align: -0.838ex;&#34; viewBox=&#34;0 -863.1 2043 1223.9&#34; role=&#34;img&#34; focusable=&#34;false&#34; xmlns=&#34;http://www.w3.org/2000/svg&#34; aria-labelledby=&#34;MathJax-SVG-2-Title&#34;&gt;
+&lt;title id=&#34;MathJax-SVG-2-Title&#34;&gt;O(1)&lt;/title&gt;
+&lt;defs aria-hidden=&#34;true&#34;&gt;
+&lt;path stroke-width=&#34;1&#34; id=&#34;E2-MJMATHI-4F&#34; d=&#34;M740 435Q740 320 676 213T511 42T304 -22Q207 -22 138 35T51 201Q50 209 50 244Q50 346 98 438T227 601Q351 704 476 704Q514 704 524 703Q621 689 680 617T740 435ZM637 476Q637 565 591 615T476 665Q396 665 322 605Q242 542 200 428T157 216Q157 126 200 73T314 19Q404 19 485 98T608 313Q637 408 637 476Z&#34;&gt;&lt;/path&gt;
+&lt;path stroke-width=&#34;1&#34; id=&#34;E2-MJMAIN-28&#34; d=&#34;M94 250Q94 319 104 381T127 488T164 576T202 643T244 695T277 729T302 750H315H319Q333 750 333 741Q333 738 316 720T275 667T226 581T184 443T167 250T184 58T225 -81T274 -167T316 -220T333 -241Q333 -250 318 -250H315H302L274 -226Q180 -141 137 -14T94 250Z&#34;&gt;&lt;/path&gt;
+&lt;path stroke-width=&#34;1&#34; id=&#34;E2-MJMAIN-31&#34; d=&#34;M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z&#34;&gt;&lt;/path&gt;
+&lt;path stroke-width=&#34;1&#34; id=&#34;E2-MJMAIN-29&#34; d=&#34;M60 749L64 750Q69 750 74 750H86L114 726Q208 641 251 514T294 250Q294 182 284 119T261 12T224 -76T186 -143T145 -194T113 -227T90 -246Q87 -249 86 -250H74Q66 -250 63 -250T58 -247T55 -238Q56 -237 66 -225Q221 -64 221 250T66 725Q56 737 55 738Q55 746 60 749Z&#34;&gt;&lt;/path&gt;
+&lt;/defs&gt;
+&lt;g stroke=&#34;currentColor&#34; fill=&#34;currentColor&#34; stroke-width=&#34;0&#34; transform=&#34;matrix(1 0 0 -1 0 0)&#34; aria-hidden=&#34;true&#34;&gt;
+ &lt;use xlink:href=&#34;#E2-MJMATHI-4F&#34; x=&#34;0&#34; y=&#34;0&#34;&gt;&lt;/use&gt;
+ &lt;use xlink:href=&#34;#E2-MJMAIN-28&#34; x=&#34;763&#34; y=&#34;0&#34;&gt;&lt;/use&gt;
+ &lt;use xlink:href=&#34;#E2-MJMAIN-31&#34; x=&#34;1153&#34; y=&#34;0&#34;&gt;&lt;/use&gt;
+ &lt;use xlink:href=&#34;#E2-MJMAIN-29&#34; x=&#34;1653&#34; y=&#34;0&#34;&gt;&lt;/use&gt;
+&lt;/g&gt;
+&lt;/svg&gt;&lt;/span&gt; 的条件下解决。&lt;/p&gt;"><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=https://binac.io/2017/11/27/single-number-ii/&t=Single Number II" target="_blank" rel="noopener"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2020 Binac
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/tags/">标签</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+
+    <!-- jquery -->
+
+<script src="/lib/jquery/jquery.min.js"></script>
+
+
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+
+<!-- clipboard -->
+
+  
+<script src="/lib/clipboard/clipboard.min.js"></script>
+
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+    <script type="text/javascript">
+        var disqus_shortname = 'binac';
+
+        (function(){
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        }());
+    </script>
+
+
+</body>
+</html>

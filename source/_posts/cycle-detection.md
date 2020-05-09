@@ -1,7 +1,6 @@
 ---
 title: Floyd 判圈算法
 date: 2017-12-01 22:34:49
-mathjax: true
 tags:
 - LeetCode
 - 算法

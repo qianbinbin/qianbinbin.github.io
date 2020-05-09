@@ -1,7 +1,6 @@
 ---
 title: B 树与红黑树
 date: 2020-03-22 18:48:20
-mathjax: true
 tags:
 - 算法
 - 二叉树

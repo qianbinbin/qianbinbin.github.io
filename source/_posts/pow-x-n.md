@@ -1,7 +1,6 @@
 ---
 title: 幂运算 pow(x, n) 的一个迭代实现
 date: 2018-08-24 03:49:03
-mathjax: true
 tags:
 - LeetCode
 - 算法

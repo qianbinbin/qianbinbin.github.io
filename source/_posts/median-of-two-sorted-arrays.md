@@ -1,7 +1,6 @@
 ---
 title: 求两个有序数组的中位数 Median of Two Sorted Arrays
 date: 2017-07-24 22:47:04
-mathjax: true
 tags:
 - LeetCode
 - 算法
@@ -27,7 +26,7 @@ tags:
 
 这道题初看并不复杂，很容易想到时间复杂度为 $O(m+n)$ 的方法，但是要求的复杂度为 $O(\log(m+n))$，而且边缘情况很繁杂，所以难度为 hard。
 
-很多中文博客都是用的寻找第 $k$ 小的数来实现的，这里我介绍另一种方法，时间复杂度为 $O(\log(\min\\{m, n\\}))$。
+很多中文博客都是用的寻找第 $k$ 小的数来实现的，这里我介绍另一种方法，时间复杂度为 $O(\log(\min\{m, n\}))$。
 
 <!-- more -->
 
@@ -37,12 +36,12 @@ tags:
 
 设两个数组中位数为 $x$，$x$ 可将两个数组分别划分为两半：
 
-$$A[0], A[1], ..., A[i - 1] \quad \mid \quad A[i], A[i + 1], ..., A[m - 1]\\\\
+$$A[0], A[1], ..., A[i - 1] \quad \mid \quad A[i], A[i + 1], ..., A[m - 1]\\
 B[0], B[1], ..., B[j - 1] \quad \mid \quad B[j], B[j + 1], ..., B[n - 1]$$
 
 其中
 
-$$i = 0, 1, ..., m\\\\
+$$i = 0, 1, ..., m\\
 j = 0, 1, ..., n$$
 
 这里先不关注 $i$、$j$ 在边缘情况的取值问题，稍后再详细说明。
@@ -51,7 +50,7 @@ j = 0, 1, ..., n$$
 
 1. $i + j =
 \begin{cases}
-m - i + n - j& \text{$m + n$ 为偶数}\\\\
+m - i + n - j& \text{$m + n$ 为偶数}\\
 m - i + n - j + 1& \text{$m + n$ 为奇数}
 \end{cases}$
 
@@ -60,8 +59,8 @@ m - i + n - j + 1& \text{$m + n$ 为奇数}
 则找到了划分位置，并且
 
 $$x = \begin{cases}
-\frac{(\max\\{A[i - 1], B[j - 1]\\} + \min\\{A[i + 1], B[j + 1]\\})}{2}& \text{$m + n$ 为偶数}\\\\
-(\max\\{A[i - 1], B[j - 1]\\}& \text{$m + n$ 为奇数}
+\frac{\max\{A[i - 1], B[j - 1]\} + \min\{A[i + 1], B[j + 1]\}}{2}& \text{$m + n$ 为偶数}\\
+\max\{A[i - 1], B[j - 1]\}& \text{$m + n$ 为奇数}
 \end{cases}$$
 
 由此，问题转化为：查找这样的 $i$，且同时满足以上两个条件，即可得出中位数 $x$。
@@ -77,12 +76,12 @@ j = (m + n + 1) / 2 - i;
 第二个条件等价于：
 
 $$\begin{cases}
-A[i - 1] \leq x \leq A[i]&\\\\
+A[i - 1] \leq x \leq A[i]&\\
 B[j - 1] \leq x \leq B[j]
 \end{cases}
 \iff
 \begin{cases}
-A[i - 1] \leq B[j]&\\\\
+A[i - 1] \leq B[j]&\\
 B[j - 1] \leq A[i]
 \end{cases}$$
 
@@ -93,17 +92,17 @@ B[j - 1] \leq A[i]
 现考察 $j$ 的范围，先将 $j$ 表示为
 
 $$j = \frac{m + n + k}{2} - i，其中 k = \begin{cases}
-0& \text{$m + n$ 为偶数}\\\\
+0& \text{$m + n$ 为偶数}\\
 1& \text{$m + n$ 为奇数}
 \end{cases}$$
 
 显然 $j$ 随 $i$ 递增而递减，只需 $\begin{cases}
-j\_{max} \leq n&\\\\
-j\_{min} \geq 0\end{cases}$ 即可，又$0 \leq i \leq m$，则：
+j_{max} \leq n&\\
+j_{min} \geq 0\end{cases}$ 即可，又 $0 \leq i \leq m$，则：
 
 $$\begin{cases}
-j\_{max} = \frac{m + n + k}{2} \leq n&\\\\
-j\_{min} = \frac{m + n + k}{2} - m \geq 0
+j_{max} = \frac{m + n + k}{2} \leq n&\\
+j_{min} = \frac{m + n + k}{2} - m \geq 0
 \end{cases}
 \iff
 m \leq n - k$$
@@ -144,7 +143,7 @@ j = (m + n + 1) / 2 - i;
 如果`m != 0`，就要判断上面第二个条件是否成立，成立则找到所求划分位置，否则就舍去 $begin$ 到 $end$ 一半的元素，然后继续查找。
 
 但是在$\begin{cases}
-A[i - 1] \leq B[j]&\\\\
+A[i - 1] \leq B[j]&\\
 B[j - 1] \leq A[i]
 \end{cases}$的判断中可能会有 $A[i - 1]$、$A[i]$、$B[j - 1]$、$B[j]$ 不存在的情况，又需要进一步讨论。
 
@@ -167,7 +166,7 @@ B[j - 1] \leq A[i]
   - 否则说明找到 $i$
 
 
-- $0 < i < m$ 时，$j$ 在 $i\_{min} = 0$、$i\_{max} = m$ 处分别取 $j\_{max}$、$j\_{min}$，则 $0 \leq j\_{min} < j < j\_{max} \leq n$ 。
+- $0 < i < m$ 时，$j$ 在 $i_{min} = 0$、$i_{max} = m$ 处分别取 $j_{max}$、$j_{min}$，则 $0 \leq j_{min} < j < j_{max} \leq n$ 。
 
   此时两个不等式中的元素均存在，并且
 
@@ -187,7 +186,7 @@ B[j - 1] \leq A[i]
 
 - $i = m$ 时
 
-  $A[i]$ 不存在，只需判断 $A[i - 1] \leq B[j]$ 是否成立即可。显然 $A[i - 1]$ 必存在，又 $j = j\_{min} < j\_{max} \leq n$，故 $B[j]$ 也必存在。
+  $A[i]$ 不存在，只需判断 $A[i - 1] \leq B[j]$ 是否成立即可。显然 $A[i - 1]$ 必存在，又 $j = j_{min} < j_{max} \leq n$，故 $B[j]$ 也必存在。
 
   在这种情况下，
 
@@ -209,13 +208,13 @@ B[j - 1] \leq A[i]
 
 - 若 $B[j - 1]$ 不存在，即 $j = 0$，左边最大值即为 $A[i - 1]$（同样 $A[i - 1]$ 必定存在）
 
-- 若 $A[i - 1]$、$B[j - 1]$ 均存在时，左边最大值为 $\max\\{A[i - 1], B[j - 1]\\}$
+- 若 $A[i - 1]$、$B[j - 1]$ 均存在时，左边最大值为 $\max\{A[i - 1], B[j - 1]\}$
 
 如果 $m + n$ 为奇数，则直接返回左边最大值，否则同理求得右边最小值，返回它们的平均数。
 
 # 时间复杂度
 
-此算法相当于在长度为 $m$ 的数组 $A$ 中进行二分查找，由于保证了 $m \leq n$，因此时间复杂度为 $O(\log(\min\\{m, n\\}))$。
+此算法相当于在长度为 $m$ 的数组 $A$ 中进行二分查找，由于保证了 $m \leq n$，因此时间复杂度为 $O(\log(\min\{m, n\}))$。
 
 # 实现源码
 

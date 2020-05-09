@@ -1,7 +1,6 @@
 ---
 title: CSAPP 计算机系统漫游
 date: 2018-12-24 21:30:09
-mathjax: true
 tags:
 - CSAPP
 - 读书笔记
@@ -64,17 +63,17 @@ Linux 中，虚拟地址空间由大量区构成，从低到高有：
 
 ## 1.9.1 Amdahl 定律
 
-若某程序需要时间为 $T\_{old}$，某部分所需执行时间占比为 $\alpha$，该部分性能提升比例为 $k$，则总的执行时间变为
+若某程序需要时间为 $T_{old}$，某部分所需执行时间占比为 $\alpha$，该部分性能提升比例为 $k$，则总的执行时间变为
 
-$$T\_{new} = (1 - \alpha)T\_{old} + (\alpha T\_{old}) / k = T\_{old}[(1 - \alpha) + \alpha / k]$$
+$$T_{new} = (1 - \alpha)T_{old} + (\alpha T_{old}) / k = T_{old}[(1 - \alpha) + \alpha / k]$$
 
-加速比 $S = T\_{old} / T\_{new}$ 为
+加速比 $S = T_{old} / T_{new}$ 为
 
 $$S = \frac{1}{(1 - \alpha) + \alpha / k}$$
 
 Amdahl 定律说明，要想显著加速整个系统，必须提升全系统中相当大的部分。假设我们可以将系统某一部分加速到时间可以忽略不计，即 $k$ 趋向于 $\infty$，则
 
-$$S\_\infty = \frac{1}{1 - \alpha}$$
+$$S_\infty = \frac{1}{1 - \alpha}$$
 
 我们获得的加速比仍然是很有限的。
 

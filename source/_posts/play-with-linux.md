@@ -34,7 +34,7 @@ ssh user@ip -p 12345
 PermitRootLogin no
 ```
 
-其他可选值可参考：[sshd\_config 中 PermitRootLogin 的探讨](https://blog.csdn.net/huigher/article/details/52972013)
+其他可选值可参考：[sshd_config 中 PermitRootLogin 的探讨](https://blog.csdn.net/huigher/article/details/52972013)
 
 ### 公钥认证免密码登录
 

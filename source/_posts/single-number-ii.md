@@ -1,7 +1,6 @@
 ---
 title: Single Number II
 date: 2017-11-27 16:46:19
-mathjax: true
 tags:
 - LeetCode
 - 算法

@@ -1,7 +1,6 @@
 ---
 title: 将正整数表示为若干平方数之和 Perfect Squares
 date: 2019-05-08 22:23:01
-mathjax: true
 tags:
 - LeetCode
 - 算法
@@ -25,7 +24,7 @@ tags:
 
 # 动态规划
 
-$$ f(i) = \min\\{f(i - s)\\} + 1, 其中 s 为平方数且 1 \le s \le i$$
+$$ f(i) = \min\{f(i - s)\} + 1, 其中 s 为平方数且 1 \le s \le i$$
 
 ```cpp
 class Solution {

@@ -1,7 +1,6 @@
 ---
 title: 数组中首个缺失的正整数 First Missing Positive
 date: 2018-06-08 21:14:21
-mathjax: true
 tags:
 - LeetCode
 - 算法

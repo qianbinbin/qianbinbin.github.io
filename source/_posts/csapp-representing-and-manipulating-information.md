@@ -16,7 +16,7 @@ tags:
 
 ## 2.1.2 字数据大小
 
-大多数 64 位机器也可以运行 32 位机器变异的程序，这是一种向后兼容。例如 `prog.c` 用如下伪指令编译后
+大多数 64 位机器也可以运行 32 位机器编译的程序，这是一种向后兼容。例如 `prog.c` 用如下伪指令编译后
 
 ```sh
 $ gcc -m32 prog.c
@@ -165,20 +165,15 @@ x + y - 2^w, & 2^w \le x + y < 2^{w+1}
 
 **推导**：
 
-1. $s < x$ 和 $s < y$ 必定同时成立或同时不成立
+1. $s < x$ 和 $s < y$ 必定同时成立或同时不成立。
 
-2. 如果 $s < x$（或者等价地 $s < y$），那么显然发生溢出
+2. 如果 $s < x$（或者等价地 $s < y$），那么显然发生溢出。
 
-3. 如果发生了溢出，$s = x + y - 2^w$，由于 $y < 2^w$，则 $s < x$
+3. 如果发生了溢出，$s = x + y - 2^w$，由于 $y < 2^w$，则 $s < x$。
 
-[C 语言实现](https://github.com/qianbinbin/csapp/blob/master/ch02/uadd_check.c)：
+C 语言实现：
 
-```c
-int uadd_ok(unsigned x, unsigned y)
-{
-    return x + y >= x;
-}
-```
+{% include_code lang:c from:4 to:6 csapp-representing-and-manipulating-information/uadd_check.c %}
 
 **原理**：无符号数的非
 
@@ -209,13 +204,13 @@ $$x +_w^t y = U2T_w(T2U_w(x) +_w^u T2U_w(y))\\
 
 设 $z = x + y$，$z' = z \ mod\ 2^w$，$z'' = U2T_w(z') = x +_w^t y$，分 4 种情况讨论：
 
-1. $-2^w \le z < -2^{w-1}$。$z' = z + 2^w$，$0 \le z' < 2^{w-1}$，$z'' = z' = x + y + 2^w$。此时必定有 $x < 0$，$y < 0$，$0 \le z'' < 2^{w-1}$，两个负数相加，结果为非负，发生负溢出
+1. $-2^w \le z < -2^{w-1}$。$z' = z + 2^w$，$0 \le z' < 2^{w-1}$，$z'' = z' = x + y + 2^w$。此时必定有 $x < 0$，$y < 0$，$0 \le z'' < 2^{w-1}$，两个负数相加，结果为非负，发生负溢出。
 
-2. $-2^{w-1} \le z < 0$。$z' = z + 2^w$，$2^{w-1} \le z' < 2^w$，$z'' = z' - 2^w = x + y$
+2. $-2^{w-1} \le z < 0$。$z' = z + 2^w$，$2^{w-1} \le z' < 2^w$，$z'' = z' - 2^w = x + y$。
 
-3. $0 \le z < 2^{w-1}$。$z' = z$，$z'' = z' = x + y$
+3. $0 \le z < 2^{w-1}$。$z' = z$，$z'' = z' = x + y$。
 
-4. $2^{w-1} \le z < 2^w$。$z' = z$，$2^{w-1} \le z' < 2^w$，$z'' = z' - 2^w = x + y - 2^w$。此时必定有 $x > 0$，$y > 0$，$-2^{w-1} \le z'' < 0$，两个正数相加，结果为负，发生正溢出
+4. $2^{w-1} \le z < 2^w$。$z' = z$，$2^{w-1} \le z' < 2^w$，$z'' = z' - 2^w = x + y - 2^w$。此时必定有 $x > 0$，$y > 0$，$-2^{w-1} \le z'' < 0$，两个正数相加，结果为负，发生正溢出。
 
 
 **原理**：检测补码加法中的溢出：
@@ -226,23 +221,15 @@ $$x +_w^t y = U2T_w(T2U_w(x) +_w^u T2U_w(y))\\
 
 **推导**：
 
-1. 如果 $x > 0, y > 0$ 而 $s < 0$，那么显然发生了正溢出
+1. 如果 $x > 0, y > 0$ 而 $s < 0$，那么显然发生了正溢出。
 
-2. 如果发生了正溢出，必有 $x > 0, y > 0$（否则 $x + y < TMax_w$，就不可能发生正溢出了），且 $s = x + y - 2^w < 0$
+2. 如果发生了正溢出，必有 $x > 0, y > 0$（否则 $x + y < TMax_w$，就不可能发生正溢出了），且 $s = x + y - 2^w < 0$。
 
   同样的讨论也适用于负溢出的情况。
 
-[C 语言实现](https://github.com/qianbinbin/csapp/blob/master/ch02/tadd_check.c)：
+C 语言实现：
 
-```c
-int tadd_ok(int x, int y)
-{
-    int sum = x + y;
-    int pos_of = x >= 0 && y >= 0 && sum < 0,
-        neg_of = x < 0 && y < 0 && sum >= 0;
-    return !pos_of && !neg_of;
-}
-```
+{% include_code lang:c from:4 to:8 csapp-representing-and-manipulating-information/tadd_check.c %}
 
 这里只用 `>= 0` 和 `< 0`，只需取 `int` 符号位即可判断，不需要其他位。
 
@@ -295,7 +282,9 @@ $$T2B_w(x *_w^t y) = U2B_w(x' *_w^u y')$$
 
 $x' = x + x_{w-1}2^w, y' = y + x_{w-1}2^w$，则
 
-$$(x' \cdot y')\ mod \ 2^w = (x \cdot y)\ mod \ 2^w$$
+$$(x' \cdot y')\ mod\ 2^w = ((x + x_{w-1}2^w)(y + y_{w-1}2^w)\ mod\ 2^w\\
+= (x \cdot y + (xy_{w-1} + yx_{w-1})2^w + 2^{2w})\ mod\ 2^w\\
+= (x \cdot y)\ mod\ 2^w$$
 
 对补码乘法公式两边应用 $T2U_w$ 得
 
@@ -307,16 +296,9 @@ $$T2B_w(x *_w^t y) = U2B_w(x' *_w^u y')$$
 
 **判断补码乘法是否会溢出**
 
-[C 语言实现](https://github.com/qianbinbin/csapp/blob/master/ch02/tmult_check.c)
-
 - 方法一：
 
-  ```c
-  int tmult_ok(int x, int y)
-  {
-      return !x || x * y / x == y;
-  }
-  ```
+  {% include_code lang:c from:5 to:7 csapp-representing-and-manipulating-information/tmult_check.c %}
 
   证明：
 
@@ -352,13 +334,7 @@ $$T2B_w(x *_w^t y) = U2B_w(x' *_w^u y')$$
 
 - 方法二：
 
-  ```c
-  int tmult_ok1(int x, int y)
-  {
-      int64_t pll = (int64_t) x * y;
-      return pll == (int) pll;
-  }
-  ```
+  {% include_code lang:c from:9 to:12 csapp-representing-and-manipulating-information/tmult_check.c %}
 
 ## 2.3.6 乘以常数
 
@@ -383,6 +359,8 @@ $$T2B_w(x *_w^t y) = U2B_w(x' *_w^u y')$$
 选择用移位和加减法组合，还是乘法指令，取决于这些指令的相对速度。大多数编译器只在需要少量移位和加减法就足够时才使用这种优化。
 
 ## 2.3.7 除以 2 的幂
+
+整数除法总是舍入到零。
 
 **原理**：除以 2 的幂的无符号除法
 
@@ -409,6 +387,18 @@ $$[x_{w-1}, ..., x_{w-1}, x_{w-1}, x_{w-2}, ..., x_k]$$
 设 $x = qy + r$，其中 $0 \le r < y$，则 $\lfloor (x + y - 1) / y \rfloor = \lfloor (qy + r + y - 1) / y \rfloor = q + \lfloor (r + y - 1) / y \rfloor$。当 $x$ 能被 $y$ 整除时，$r = 0$，后面一项为 $0$，结果为 $q$，当不能整除时，$0 < r < y$，后面一项为 $1$，结果为 $q + 1$。综上得 $\lfloor (x + y - 1) / y \rfloor = \lceil y / x \rceil$。
 
 C 表达式 `x + (1 << k) - 1` 得到数值 $x + 2^k - 1$，再右移 $k$ 位，即除以 $2^k$，得 $\lceil x / 2^k \rceil$。
+
+以上分析表明，对于使用算数右移的补码机器，C 表达式
+
+```c
+(x < 0 ? x + (1 << k) - 1 : x) >> k
+```
+
+将会计算数值 $x/2^k$。
+
+## 2.3.8 关于整数运算的最后思考
+
+补码使用了与无符号运算相同的位级实现，包括加法、减法、乘法甚至除法。
 
 # 2.4 浮点数
 
@@ -529,7 +519,7 @@ public final class Float extends Number implements Comparable<Float> {
 }
 ```
 
-上面表格中的值，如果把浮点数的位表示解释为无符号整数，它们就是按升序排列的，就像它们表示的浮点数一样，以便使用整数排序函数进行排序。如果符号位为 1，就是降序排列的。之所以不直接用补码整数来解释，是因为 `-0.0` 的位表示用补码解释的话就是最小值，显然不合理。
+上面表格中的值，如果把浮点数的位表示解释为无符号整数，它们就是按升序排列的，就像它们表示的浮点数一样，以便使用整数排序函数进行排序。如果符号位为 1，就是降序排列的。
 
 ## 2.4.4 舍入
 
@@ -552,3 +542,173 @@ IEEE 浮点数规定了四种舍入方式：
 浮点加法具有单调性：如果 $a \ge b$，那么对于任何 $a$、$b$ 和 $x$ 的值，除 $NaN$ 外，都有 $x + a \ge x + b$。而无符号或补码加法则不具有。
 
 浮点乘法也是可交换但不可结合的，例如 `(1e20 * 1e20) * 1e-20` 结果为 `inf`，`1e20 * (1e20 * 1e-20)` 结果为 `1e20`。浮点乘法在加法上不具备分配性，例如 `1e20 * (1e20 - 1e20)` 的结果为 `0.0`，`1e20 * 1e20 - 1e20 * 1e20` 结果为 `nan`。
+
+# 家庭作业
+
+## 2.58
+
+判断是否为小端机器：
+
+{% include_code lang:c from:3 to:6 csapp-representing-and-manipulating-information/is_little_endian.c %}
+
+## 2.62
+
+判断是否为算数右移：
+
+{% include_code lang:c from:4 to:8 csapp-representing-and-manipulating-information/is_shifts_are_arithmetic.c %}
+
+## 2.63
+
+用算数右移模拟逻辑右移、用逻辑右移模拟算数右移：
+
+{% include_code lang:c from:5 to:22 csapp-representing-and-manipulating-information/right_shifts.c %}
+
+## 2.65
+
+判断无符号整数二进制形式中是否有奇数个 1：
+
+{% include_code lang:c from:4 to:14 csapp-representing-and-manipulating-information/odd_ones.c %}
+
+让所有二进制位做异或操作，即得到结果。
+
+## 2.66
+
+找到无符号整数二进制形式中最高位的 1：
+
+{% include_code lang:c from:4 to:17 csapp-representing-and-manipulating-information/leftmost_one.c %}
+
+## 2.67
+
+判断 `int` 类型是否为 32 位，可以在 16 位及以上的机器上运行：
+
+{% include_code lang:c from:3 to:7 csapp-representing-and-manipulating-information/int_size_is_32.c %}
+
+## 2.68
+
+生成低 n 位为 1 的掩码：
+
+{% include_code lang:c from:4 to:14 csapp-representing-and-manipulating-information/lower_one_mask.c %}
+
+## 2.69
+
+实现循环左移：
+
+{% include_code lang:c from:4 to:14 csapp-representing-and-manipulating-information/rotate_left.c %}
+
+## 2.70
+
+判断 x 能否用 n 位补码表示：
+
+{% include_code lang:c from:4 to:15 csapp-representing-and-manipulating-information/fits_bits.c %}
+
+## 2.73
+
+补码加法，溢出时返回最值：
+
+{% include_code lang:c from:4 to:12 csapp-representing-and-manipulating-information/saturating_add.c %}
+
+## 2.74
+
+判断补码减法是否溢出：
+
+{% include_code lang:c from:4 to:10 csapp-representing-and-manipulating-information/tsub_ok.c %}
+
+## 2.75
+
+已知补码乘法高 $w$ 位，求无符号整数乘法高 $w$ 位。
+
+在补码乘法与无符号乘法的位级等价性推导中，
+
+$$x' \cdot y' = (x + x_{w-1}2^w)(y + y_{w-1}2^w) = x \cdot y + (xy_{w-1} + yx_{w-1})2^w + 2^{2w}$$
+
+两边同时除以 $2^w$ 即可得到乘积的高 $w$ 位。
+
+{% include_code lang:c from:6 to:19 csapp-representing-and-manipulating-information/unsigned_high_prod.c %}
+
+## 2.76
+
+实现 `calloc` 函数：
+
+{% include_code lang:c from:7 to:17 csapp-representing-and-manipulating-information/calloc.c %}
+
+## 2.78
+
+用移位实现除以 2 的幂算法，由于除法是向零取整的，当 $x < 0$ 时需要加一个偏移量：
+
+{% include_code lang:c from:5 to:13 csapp-representing-and-manipulating-information/divide_power2.c %}
+
+## 2.79
+
+计算 $3x/4$，其中 $3x$ 可能溢出：
+
+{% include_code lang:c from:5 to:10 csapp-representing-and-manipulating-information/mul3div4.c %}
+
+## 2.80
+
+计算 $3x/4$，其中 $3x$ 不允许溢出，此时可把 $x$ 分为高 $w-2$ 位和低 $2$ 位两部分计算，其中高位无需考虑舍入，只有低位需要加入偏移量：
+
+{% include_code lang:c from:5 to:12 csapp-representing-and-manipulating-information/threefourths.c %}
+
+## 2.83
+
+A. 设 $x$ 的二进制表示为 $0.yyyy...$，其中 $y$ 是一个 $k$ 位序列，两边同时左移 $k$ 位得
+
+$$x << k = y.yyy...$$
+
+$$x \cdot 2^k = y + x$$
+
+$$x = \frac{y}{2^k-1}$$
+
+## 2.84
+
+比较浮点数大小：
+
+{% include_code lang:c from:4 to:20 csapp-representing-and-manipulating-information/float_le.c %}
+
+## 2.90
+
+求浮点数 $2^x$：
+
+{% include_code lang:c from:5 to:40 csapp-representing-and-manipulating-information/fpwr2.c %}
+
+## 2.92
+
+求浮点数相反数：
+
+{% include_code lang:c from:3 to:11 csapp-representing-and-manipulating-information/float_negate.c %}
+
+## 2.93
+
+求浮点数绝对值：
+
+{% include_code lang:c from:3 to:11 csapp-representing-and-manipulating-information/float_absval.c %}
+
+## 2.94
+
+求浮点数 $2x$：
+
+{% include_code lang:c from:3 to:16 csapp-representing-and-manipulating-information/float_twice.c %}
+
+IEEE 浮点数的设计很精妙，当浮点数为非规格化时，直接将除符号位外整体左移一位即可。
+
+## 2.95
+
+求浮点数 $0.5x$：
+
+{% include_code lang:c from:3 to:18 csapp-representing-and-manipulating-information/float_half.c %}
+
+比求 $2x$ 要复杂一些，因为当尾数右移时要考虑舍入的问题，如果最后两位为 `11`，则需要添加一个偏移量以向偶数舍入。
+
+## 2.96
+
+`float` 转换为 `int`：
+
+{% include_code lang:c from:3 to:21 csapp-representing-and-manipulating-information/float_f2i.c %}
+
+## 2.97
+
+`int` 转换为 `float`：
+
+{% include_code lang:c from:5 to:26 csapp-representing-and-manipulating-information/float_i2f.c %}
+
+比 `float` 转换为 `int` 复杂一些，因为要考虑舍入的问题。

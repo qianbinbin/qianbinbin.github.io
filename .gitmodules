@@ -1,3 +1,6 @@
 [submodule "themes/cactus"]
 	path = themes/cactus
 	url = git@github.com:qianbinbin/hexo-theme-cactus.git
+[submodule "source/downloads/code/csapp-labs"]
+	path = source/downloads/code/csapp-labs
+	url = git@github.com:qianbinbin/csapp-labs.git

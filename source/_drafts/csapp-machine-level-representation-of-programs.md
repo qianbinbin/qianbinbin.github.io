@@ -281,4 +281,106 @@ x86-64 中的内存引用总是用四字寄存器（64 位）给出。
 
 MOVZ 中没有把 4 字节源零扩展到 8 字节目的的指令，如果存在的话逻辑上应该命名为 `movzlq`。事实上这样的传送可以用 `movl` 来实现，因为它会将高 4 字节置为 0。而 MOVS 中是有 `movslq` 的。
 
-`cltq` 指令没有操作数，它会将 %eax 作为源，%rax 作为符号扩展结果的目的，其效果与 `movslq %eax, %rax` 完全一致。
+`cltq` 指令没有操作数，它会将 `%eax` 作为源，`%rax` 作为符号扩展结果的目的，其效果与 `movslq %eax, %rax` 完全一致。
+
+## 3.4.3 数据传送示例
+
+C 代码：
+
+{% include_code lang:c csapp-machine-level-representation-of-programs/exchange.c %}
+
+`gcc -Og -S exchange.c` 生成汇编文件 `exchange.s`：
+
+{% include_code lang:asm csapp-machine-level-representation-of-programs/exchange.s %}
+
+其核心代码为：
+
+```asm
+exchange:
+	movq	(%rdi), %rax
+	movq	%rsi, (%rdi)
+	ret
+```
+
+参数 `xp` 和 `y` 分别保存在 `%rdi` 和 `%rsi` 中。第一条指令将 `xp` 指向内存中的 8 字节传送到 `%rax` 中作为返回值。第二条指令将 `%rsi` 中的内容传送到 `%rdi` 指向的内存，实现了 `*xp = y`。最后 `%rax` 从函数返回一个值。
+
+## 3.4.4 压入和弹出栈数据
+
+在 x86-64 中，程序栈存放在内存中某个区域，栈顶元素地址最低，栈底元素地址最高。栈指针 `%rsp` 保存栈顶元素的地址。
+
+ 指令 | 效果 | 描述
+------|------|------
+pushq S | R[%rsp] ← R[%rsp]−8;<br> M[R[%rsp]] ← S | 将四字压入栈
+popq D | D ← M[R[%rsp]];<br> R[%rsp] ← R[%rsp]+8 | 将四字弹出栈
+
+`pushq` 和 `popq` 都只有一个操作数。
+
+`pushq %rbp` 等价于以下两条指令：
+
+```asm
+subq $8,%rsp
+movq %rbp,(%rsp)
+```
+
+但 `pushq` 指令编码只有一个字节，而上面两条指令需要 8 个字节。
+
+`popq %rax` 等价于以下两条指令：
+
+```asm
+movq (%rsp),%rax
+addq $8,%rsp
+```
+
+栈和程序代码以及其他形式的程序数据都是放在同一内存中，所以程序可以用标准的内存寻址方法访问栈内的任意位置。
+
+# 3.5 算术和逻辑操作
+
+![](/images/csapp-machine-level-representation-of-programs/integer-arithmetic-operations.png)
+
+这些操作分为四组：
+
+- 加载有效地址。
+
+- 一元操作：自增、自减、取负、取反。
+
+- 二元操作：加、减、乘、异或、或、与。
+
+- 移位：左移、算术右移、逻辑右移。
+
+## 3.5.1 加载有效地址
+
+`leaq` 实际上是 `movq` 的变形，作用是将有效地址写入到目的操作数，可以实现 C 语言中的取址 `&`。
+
+此外还可以实现简单的算术操作，例如，如果 `%rdx` 的值为 $x$，那么指令 `leaq 7(%rdx,%rdx,4),%rax` 就可以将寄存器 `%rax` 的值设置为 $5x + 7$。如果是 `movq 7(%rdx,%rdx,4),%rax` 的话，就是将该地址指向的内存中的 8 字节传送到 `%rax`。编译器经常会利用 `leaq` 的一些灵活用法。
+
+例如，有 C 程序：
+
+{% include_code lang:c csapp-machine-level-representation-of-programs/scale.c %}
+
+GCC 使用 `-O1` 及以上级别优化生成汇编时，得到：
+
+{% include_code lang:asm csapp-machine-level-representation-of-programs/scale.s %}
+
+其核心代码功能如下：
+
+```
+	leaq	(%rdi,%rsi,4), %rax	x + 4y
+	leaq	(%rdx,%rdx,2), %rdx	z + 2z = 3z
+	leaq	(%rax,%rdx,4), %rax	(x + 4y) + 4 * (3z) = x + 4y + 12z
+```
+
+`leaq` 能执行加法和有限形式的乘法，在编译如上简单的算术表达式时非常有用。
+
+## 3.5.2 一元和二元操作
+
+一元操作只有一个操作数，既是源又是目的，操作数可以为寄存器或内存位置。例如 `incq (%rsp)` 会使栈顶的 8 字节元素加 1。这种语法让人想起 C 语言中的 `++` 和 `--` 运算符。
+
+二元操作中的第二个操作数既是源又是目的，这种语法让人想起 C 语言中类似 `x -= y` 的运算。注意目的操作数是第二个，例如 `subq %rax,%rdx` 会使寄存器 `%rdx` 的值减去 `%rax` 的值。第一个操作数可以是立即数、寄存器或内存位置，第二个操作数可以是寄存器或内存位置。当第二个操作数为内存位置时，处理器必须从内存读出，执行操作，再把结果写回内存。
+
+## 3.5.3 移位操作
+
+第一个操作数是移位量，第二个操作数指定要移位的数。移位量要么为立即数，要么存放在 `%cl` 这个单字节寄存器中。
+
+x86-64 对 $w$ 位长的数据进行移位操作时，移位量是由 `%cl` 中的低 $m$ 位决定，其中 $2^m=w$。例如，如果 `%cl` 的内容为 `0xFF`，则 `salb` 会左移 7 位（$8=2^3$，取 `%cl` 低 3 位，则移位量为 7），`salw` 会左移 15 位，`sall` 会左移 31 位，`salq` 会左移 63 位。
+
+左移指令 SAL 和 SHL 的效果是一样的。右移指令，SAR 执行算术移位，SHR 执行逻辑移位。目的操作数可以为寄存器或内存位置。

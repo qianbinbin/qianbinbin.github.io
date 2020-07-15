@@ -196,15 +196,7 @@ multstore:
 
 Intel 用术语“字（word）”表示 16 位数据类型。
 
- C 声明 | Intel 数据类型 | 汇编代码后缀 | 大小（字节）
---------|----------------|--------------|------------
- char   | 字节           | b            | 1
- short  | 字             | w            | 2
- int    | 双字           | l            | 4
- long   | 四字           | q            | 8
- char\* | 四字           | q            | 8
- float  | 单精度         | s            | 4
- double | 双精度         | l            | 8
+![](/images/csapp-machine-level-representation-of-programs/sizes-of-c-data-types-in-x86-64.png)
 
 `l` 代表的是 `long`，可以同时用来表示 4 字节整数和 8 字节浮点数而不会产生歧义，因为它们使用的是完全不同的指令和寄存器。
 
@@ -308,10 +300,7 @@ exchange:
 
 在 x86-64 中，程序栈存放在内存中某个区域，栈顶元素地址最低，栈底元素地址最高。栈指针 `%rsp` 保存栈顶元素的地址。
 
- 指令 | 效果 | 描述
-------|------|------
-pushq S | R[%rsp] ← R[%rsp]−8;<br> M[R[%rsp]] ← S | 将四字压入栈
-popq D | D ← M[R[%rsp]];<br> R[%rsp] ← R[%rsp]+8 | 将四字弹出栈
+![](/images/csapp-machine-level-representation-of-programs/push-and-pop-instructions.png)
 
 `pushq` 和 `popq` 都只有一个操作数。
 
@@ -364,9 +353,9 @@ GCC 使用 `-O1` 及以上级别优化生成汇编时，得到：
 其核心代码功能如下：
 
 ```
-	leaq	(%rdi,%rsi,4), %rax	x + 4y
-	leaq	(%rdx,%rdx,2), %rdx	z + 2z = 3z
-	leaq	(%rax,%rdx,4), %rax	(x + 4y) + 4 * (3z) = x + 4y + 12z
+	leaq	(%rdi,%rsi,4), %rax	x + 4*y
+	leaq	(%rdx,%rdx,2), %rdx	z + 2*z = 3*z
+	leaq	(%rax,%rdx,4), %rax	(x+4*y) + 4*(3*z) = x + 4*y + 12*z
 ```
 
 `leaq` 能执行加法和有限形式的乘法，在编译如上简单的算术表达式时非常有用。
@@ -384,3 +373,31 @@ GCC 使用 `-O1` 及以上级别优化生成汇编时，得到：
 x86-64 对 $w$ 位长的数据进行移位操作时，移位量是由 `%cl` 中的低 $m$ 位决定，其中 $2^m=w$。例如，如果 `%cl` 的内容为 `0xFF`，则 `salb` 会左移 7 位（$8=2^3$，取 `%cl` 低 3 位，则移位量为 7），`salw` 会左移 15 位，`sall` 会左移 31 位，`salq` 会左移 63 位。
 
 左移指令 SAL 和 SHL 的效果是一样的。右移指令，SAR 执行算术移位，SHR 执行逻辑移位。目的操作数可以为寄存器或内存位置。
+
+## 3.5.4 讨论
+
+有 C 程序：
+
+{% include_code lang:c csapp-machine-level-representation-of-programs/arith.c %}
+
+汇编代码：
+
+{% include_code lang:asm csapp-machine-level-representation-of-programs/arith.s %}
+
+指令顺序和书中有区别，不影响结果。其核心代码功能如下：
+
+```
+arith:
+	leaq	(%rdx,%rdx,2), %rax	3*z
+	salq	$4, %rax		t2 = 16 * (3*z) = 48*z
+	xorq	%rsi, %rdi		t1 = x ^ y
+	andl	$252645135, %edi	t1 & 0x0F0F0F0F
+	subq	%rdi, %rax		返回 t2 - t3
+	ret
+```
+
+`t1` 重用了 `x` 的寄存器 `%rdi`。`%rax` 先后存放 `3*z`、`48*z`、`t4`（作为返回值）的值。通常编译器产生的代码中，会用一个寄存器存放多个程序值，还会在寄存器之间传送程序值。
+
+## 3.5.5 特殊的算术操作
+
+

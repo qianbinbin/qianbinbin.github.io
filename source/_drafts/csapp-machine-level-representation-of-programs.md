@@ -76,7 +76,7 @@ $ gcc -Og -S mstore.c
 $ gcc -Og -c mstore.c
 ```
 
-这回生成目标代码文件 [mstore.o](/downloads/code/csapp-machine-level-representation-of-programs/mstore.o)
+这会生成目标代码文件 [mstore.o](/downloads/code/csapp-machine-level-representation-of-programs/mstore.o)
 
 要查看机器代码文件的内容，可以使用反汇编器，根据机器代码产生一种类似汇编代码的格式。在 Linux 中，使用：
 
@@ -156,16 +156,13 @@ $ objdump -d prog
 其中所有以 `.` 开头的行都是指导汇编器和链接器工作的伪指令。省略这些伪指令，这些汇编代码及对应的解释如下：
 
 ```
-void multstore(long x, long y, long *dest)
-x 存放于 %rdi，y 存放于 %rsi，dest 存放于 %rdx
-
 multstore:
-	pushq	%rbx			保存 %rbx
-	movq	%rdx, %rbx		将 dest 复制到 %rbx
-	call	mult2@PLT		调用 mult2(x, y)
-	movq	%rax, (%rbx)		将结果保存到 *dest
-	popq	%rbx			恢复 %rbx
-	ret				返回
+	pushq	%rbx		; 保存 %rbx
+	movq	%rdx, %rbx	; 将 dest 复制到 %rbx
+	call	mult2@PLT	; 调用 mult2(x, y)
+	movq	%rax, (%rbx)	; 将结果保存到 *dest
+	popq	%rbx		; 恢复 %rbx
+	ret			; 返回
 ```
 
 之前的表述都是 ATT（根据运营贝尔实验室的 AT&T 公司名字而来）格式的汇编代码，这是 GCC、OBJDUMP 等工具的默认格式。
@@ -281,20 +278,14 @@ C 代码：
 
 {% include_code lang:c csapp-machine-level-representation-of-programs/exchange.c %}
 
-`gcc -Og -S exchange.c` 生成汇编文件 `exchange.s`：
-
-{% include_code lang:asm csapp-machine-level-representation-of-programs/exchange.s %}
-
-其核心代码为：
+其[汇编代码](/downloads/code/csapp-machine-level-representation-of-programs/exchange.s)的核心功能如下（参数 `xp` 和 `y` 分别保存在 `%rdi` 和 `%rsi` 中）：
 
 ```asm
 exchange:
-	movq	(%rdi), %rax
-	movq	%rsi, (%rdi)
-	ret
+	movq	(%rdi), %rax	; 将 xp 指向内存中的 8 字节传送到 %rax 中作为返回值
+	movq	%rsi, (%rdi)	; 将 %rsi 中的内容传送到 %rdi 指向的内存，实现了 *xp = y
+	ret			; `%rax` 从函数返回一个值
 ```
-
-参数 `xp` 和 `y` 分别保存在 `%rdi` 和 `%rsi` 中。第一条指令将 `xp` 指向内存中的 8 字节传送到 `%rax` 中作为返回值。第二条指令将 `%rsi` 中的内容传送到 `%rdi` 指向的内存，实现了 `*xp = y`。最后 `%rax` 从函数返回一个值。
 
 ## 3.4.4 压入和弹出栈数据
 
@@ -346,16 +337,14 @@ addq $8,%rsp
 
 {% include_code lang:c csapp-machine-level-representation-of-programs/scale.c %}
 
-GCC 使用 `-O1` 及以上级别优化生成汇编时，得到：
-
-{% include_code lang:asm csapp-machine-level-representation-of-programs/scale.s %}
-
-其核心代码功能如下：
+GCC 使用 `-O1` 及以上优化级别时，得到[汇编代码](/downloads/code/csapp-machine-level-representation-of-programs/scale.s)的核心功能如下：
 
 ```
-	leaq	(%rdi,%rsi,4), %rax	x + 4*y
-	leaq	(%rdx,%rdx,2), %rdx	z + 2*z = 3*z
-	leaq	(%rax,%rdx,4), %rax	(x+4*y) + 4*(3*z) = x + 4*y + 12*z
+scale:
+	leaq	(%rdi,%rsi,4), %rax	; x + 4*y
+	leaq	(%rdx,%rdx,2), %rdx	; z + 2*z = 3*z
+	leaq	(%rax,%rdx,4), %rax	; (x+4*y) + 4*(3*z) = x + 4*y + 12*z
+	ret
 ```
 
 `leaq` 能执行加法和有限形式的乘法，在编译如上简单的算术表达式时非常有用。
@@ -380,19 +369,15 @@ x86-64 对 $w$ 位长的数据进行移位操作时，移位量是由 `%cl` 中�
 
 {% include_code lang:c csapp-machine-level-representation-of-programs/arith.c %}
 
-汇编代码：
-
-{% include_code lang:asm csapp-machine-level-representation-of-programs/arith.s %}
-
-指令顺序和书中有区别，不影响结果。其核心代码功能如下：
+GCC 生成[汇编代码](/downloads/code/csapp-machine-level-representation-of-programs/arith.s)的指令顺序和书中有区别，不影响结果。其核心功能如下：
 
 ```
 arith:
-	leaq	(%rdx,%rdx,2), %rax	3*z
-	salq	$4, %rax		t2 = 16 * (3*z) = 48*z
-	xorq	%rsi, %rdi		t1 = x ^ y
-	andl	$252645135, %edi	t1 & 0x0F0F0F0F
-	subq	%rdi, %rax		返回 t2 - t3
+	leaq	(%rdx,%rdx,2), %rax	; 3*z
+	salq	$4, %rax		; t2 = 16 * (3*z) = 48*z
+	xorq	%rsi, %rdi		; t1 = x ^ y
+	andl	$252645135, %edi	; t1 & 0x0F0F0F0F
+	subq	%rdi, %rax		; 返回 t2 - t3
 	ret
 ```
 
@@ -400,4 +385,58 @@ arith:
 
 ## 3.5.5 特殊的算术操作
 
+两个 64 位整数相乘得到的乘积需要 128 位来表示。x86-64 对 128 位数的操作提供有限的支持。
 
+![](/images/csapp-machine-level-representation-of-programs/special-arithmetic-operations.png)
+
+`imulq` 指令有两种形式：
+
+- 当有两个操作数时，它从两个 64 位操作数产生 64 位乘积（第二章 2.3.5 中已经证明，截断乘法用于补码和无符号整数时产生乘积的位级表示完全相同），这就是 IMUL 指令类的一种。
+
+- 当只有一个操作数时，它可以计算两个 64 位值的全 128 位乘积，`imulq` 用于补码乘法，`mulq` 用于无符号乘法。它会将操作数与 `%rax` 中的值相乘，低位 64 位仍存放于 `%rax` 中，高 64 位存放于 `%rdx` 中。
+
+不存在 `mulq` 有两个操作数的情况，因为补码和无符号整数共用截断乘法指令 `imulq`。
+
+下面的 C 代码对 64 位无符号数产生 128 位全乘法：
+
+{% include_code lang:c csapp-machine-level-representation-of-programs/store_uprod.c %}
+
+C 标准不包括 128 位整数类型，但 GCC 提供了支持，使用 `__int128` 来声明。
+
+其[汇编代码](/downloads/code/csapp-machine-level-representation-of-programs/store_uprod.s)的核心功能如下：
+
+```asm
+store_uprod:
+	movq	%rsi, %rax	; 将 x 传送到 %rax
+	mulq	%rdx		; x 乘以 y
+	movq	%rax, (%rdi)	; 将乘积低 64 位保存到 dest
+	movq	%rdx, 8(%rdi)	; 将乘积高 64 位保存到 dest+8
+	ret
+```
+
+这里的环境是小端存储，因此低位保存在低地址，高位保存在高地址。
+
+除法和取模操作由单操作数除法指令提供，与单操作数乘法指令类似。
+
+有符号除法指令 `idivl` 将隐含的 128 位数作为被除数（高 64 位在 `%rdx` 中，低 64 位在 `%rax` 中），将操作数作为除数，将商保存在 `%rax` 中，将余数保存在 `%rdx` 中。
+
+如果被除数是 64 位，那么它保存在 `%rax` 中，`%rdx` 应该全部设置为 0（无符号运算）或 `%rax` 的符号位（有符号运算）。后者可以用 `cqto` 指令来完成（对应 Intel 的 `cqo`，这是两者名称不匹配的少数情况之一），`cqto` 会隐含地读出 `%rax` 符号位，并填充到 `%rdx` 中。`cqto` 意为 Convert to oct word，即符号扩展为 128 位。
+
+C 代码计算 64 位有符号数的商和余数：
+
+{% include_code lang:c csapp-machine-level-representation-of-programs/remdiv.c %}
+
+这里生成的[汇编代码](/downloads/code/csapp-machine-level-representation-of-programs/remdiv.s)与书中有区别，不影响结果。核心功能如下：
+
+```asm
+remdiv:
+	movq	%rdi, %rax	; 将 x 传送到 %rax 作为被除数低 64 位
+	movq	%rdx, %rdi	; 保存 qp
+	cqto			; 将 x 符号扩展到 %rdx
+	idivq	%rsi		; 除以 y
+	movq	%rax, (%rdi)	; 将商保存到 qp 位置
+	movq	%rdx, (%rcx)	; 将余数保存到 rp 位置
+	ret
+```
+
+类似地，无符号除法使用 `divq` 指令，通常 `%rdx` 会被提前置为 0，例如使用 `movl $0,%edx`。

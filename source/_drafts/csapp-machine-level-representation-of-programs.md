@@ -576,7 +576,7 @@ SET 指令的描述适用的情况是：执行比较指令，根据 $t = a - b$ 
 
 在汇编代码中，跳转目标用标签书写。汇编器和链接器会生成跳转目标的适当编码。
 
-跳转指令有几种不同的编码，最常用的是 PC 相对的，即将目标指令地址与紧跟在跳转指令后的指令地址之间的差作为编码，这些地址偏移量可以编码为 1、2 或 4 个字节。第二种编码方法是给出绝对地址，用 4 个字节之间指定目标。汇编器和连接器会选择适当的编码。
+跳转指令有几种不同的编码，最常用的是 PC 相对的，即将目标指令地址与紧跟在跳转指令后的指令地址之间的差作为编码，这些地址偏移量可以编码为 1、2 或 4 个字节。第二种编码方法是给出绝对地址，用 4 个字节之间指定目标。汇编器和链接器会选择适当的编码。
 
 下面是一个 PC 相对寻址的例子，C 程序：
 
@@ -608,7 +608,7 @@ SET 指令的描述适用的情况是：执行比较指令，根据 $t = a - b$ 
 
 第 2 行 `jmp` 指令中的目标编码为 `0x03`，将下一条指令的地址 `0x5` 与 `0x03` 相加，即得到跳转目标地址 `0x8`。
 
-第 5 行 `jg` 指令中的目标代码为 `0xf8`，即十进制 `-8`，将其与下一条指令的地址 `0xd` 相加，得到跳转目标地址 `0x5`。
+第 5 行 `jg` 指令中的目标代码为 `0xf8`（补码表示），将其与下一条指令的地址 `0xd` 相加，得到跳转目标地址 `0x5`。
 
 当执行 PC 相对寻址时，PC 的值是跳转指令后面的那条指令的地址（而不是跳转指令本身的地址）。
 
@@ -630,3 +630,137 @@ SET 指令的描述适用的情况是：执行比较指令，根据 $t = a - b$ 
 我在 Intel 处理器上生成的汇编没有出现这个指令。但这本书的作者似乎也是用的 Intel。
 
 跳转指令提供了一种实现条件执行（`if`）以及循环结构的方法。
+
+## 3.6.5 用条件控制来实现条件分支
+
+一个求绝对值的 C 程序，可能会溢出，仅作为演示：
+
+{% include_code lang:c csapp-machine-level-representation-of-programs/absdiff_se.c %}
+
+汇编代码：
+
+{% include_code lang:asm csapp-machine-level-representation-of-programs/absdiff_se.s %}
+
+将汇编代码再转换为 C 代码：
+
+{% include_code lang:c csapp-machine-level-representation-of-programs/gotodiff_se.c %}
+
+其中使用了 `goto` 语句，与汇编的实现逻辑相似。事实上如果对它再进行编译的话，产生的[汇编代码](/downloads/code/csapp-machine-level-representation-of-programs/gotodiff_se.s)与 `absdiff_se.s` 几乎是一样的。
+
+C 语言中的 `if-else` 语句通用形式模板如下：
+
+```c
+if (test-expr)
+    then-statement
+else
+    else-statement
+```
+
+`test-expr` 是一个整数表达式，它的取值为 0（解释为“假”）或者非 0（解释为“真”）。
+
+汇编通常会实现为（使用 C 语法描述）：
+
+```c
+    t = test-expr;
+    if (!t)
+        goto false;
+    then-statement
+    goto done;
+false:
+    else-statement
+done:
+```
+
+## 3.6.6 用条件传送来实现条件分支
+
+实现条件操作的传统方法是使用控制的条件转移，即满足条件时，程序走一条直线路径，不满足时就走另一条路径。但这在现代处理器上可能会非常低效。
+
+数据的条件转移能够计算一个条件操作的两种结果，然后根据条件是否满足从中选取一个。这只有在一种受限的情况才可行，而一旦可行，就可以用一条简单的条件传送指令来实现。
+
+例如有 C 程序：
+
+{% include_code lang:c csapp-machine-level-representation-of-programs/absdiff.c %}
+
+采用 `-O1` 优化的汇编代码：
+
+{% include_code lang:asm csapp-machine-level-representation-of-programs/absdiff.s %}
+
+可以看到它实际上事先计算了 `y - x` 和 `x - y` 的值，然后再根据 `compq` 的结果用 `cmovge` 实现条件赋值。其逻辑与以下 C 代码类似：
+
+{% include_code lang:c csapp-machine-level-representation-of-programs/cmovdiff.c %}
+
+如果将它编译的话，得到的[汇编代码](/downloads/code/csapp-machine-level-representation-of-programs/cmovdiff.s)与上面很相似。
+
+基于条件数据传送的代码会比基于条件控制转移的代码性能更好，主要是有利于处理器通过流水线技术获得高性能。如果使用条件控制，则只有当分支条件求值完成后才能决定分支往哪边走。
+
+处理器可以采用精密的分支预测逻辑来猜测跳转指令是否会执行，如果它的猜测成功率高，则流水线就会充满指令。一旦出现错误，处理器就要丢弃为该跳转指令后所有指令已做的工作，然后从正确位置处起始的指令填充流水线，这会浪费大约 15 ~ 30 个时钟周期。
+
+书的作者在 Intel Haswell 处理器上对 `absdiff` 的两种条件操作的实现进行计时。两种方法执行计算的时间都只需要 1 个时钟周期，因此分支预测代价主导了性能。
+
+- 对于条件跳转的代码，在 `x < y` 很容易预测时，每次调用函数需要约 8 个时钟周期。在随机的时候，每次需要约 17.5 个时钟周期。由此可以估算分支预测错误的代价大约为 19 个时钟周期。
+
+  这里的“代价”指预测错误造成的额外耗时，英文原文为 penalty，这里中文版翻译为“处罚”是不正确的。
+
+  > 设预测错误的概率为 $p$，没有预测错误时，执行代码时间为 $T_{OK}$，预测错误的代价是 $T_{MP}$。则执行代码的平均时间 $T_{AVG}(p) = (1-p)T_{OK} + p(T_{OK} + T_{MP}) = T_{OK} + pT_{MP}$。当 $p=0.5$ 时，将 $T_{OK} = 8$ 和 $T_{AVG}(0.5) = 17.5$ 代入，得 $T_{MP} = 19$。
+
+- 对于条件传送的代码，无论测试数据是什么，所需时间都是约为 8 个时钟周期。
+
+![](/images/csapp-machine-level-representation-of-programs/the-conditional-move-instructions.png)
+
+条件传送指令有两个操作数：源操作数可以为寄存器或内存位置，目的操作数必须为寄存器，只有在指定条件满足时，才会将源值复制到目的寄存器中。源和目的的值可以为 16 位、32 位、64 位，不支持单字节条件传送。无法像无条件指令那样将操作数长度显式编码在指令中（如 `movw`）。
+
+与条件跳转不同，处理器无需预测。
+
+考虑下面的条件表达式和赋值的通用形式：
+
+```c
+v = test-expr ? then-expr : else-expr;
+```
+
+编译为条件控制得到如下形式：
+
+```c
+    if (!test-expr)
+        goto false;
+    v = then-expr;
+    goto done;
+false:
+    v = else-expr;
+done:
+```
+
+编译为条件传送：
+
+```c
+v = then-expr;
+ve = else-expr;
+t = test-expr;
+if (!t) v = ve;
+```
+
+不是所有条件表达式都适合用条件传送实现。
+
+上一节的 `absdiff_se.c` 中，引入了副作用 `lt_cnt` 和 `ge_cnt` 计数，这样就无法使用条件传送来实现。
+
+再例如，C 函数：
+
+{% include_code lang:c csapp-machine-level-representation-of-programs/cread.c %}
+
+如果使用条件传送来实现：
+
+```asm
+cread:
+	movq	(%rdi), %rax	; v = *xp
+	testq	%rdi, %rdi	; 测试 x
+	movl	$0, %eax	; ve = 0
+	cmove	%rdx, %rax	; 如果 x == 0，v = ve
+	ret
+```
+
+显然当 `xp` 为空时，`movq` 指令会导致空指针错误。
+
+事实上 GCC 生成的汇编仍然是用条件跳转实现的：
+
+{% include_code lang:asm csapp-machine-level-representation-of-programs/cread.s %}
+
+另外，使用条件传送不一定会提高性能，例如两个分支都需要大量计算。

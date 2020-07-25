@@ -764,3 +764,87 @@ cread:
 {% include_code lang:asm csapp-machine-level-representation-of-programs/cread.s %}
 
 另外，使用条件传送不一定会提高性能，例如两个分支都需要大量计算。
+
+## 3.6.7 循环
+
+C 语言提供多种循环结构：`do-while`、`while` 和 `for`。汇编使用条件测试和跳转组合来实现循环效果。
+
+### do-while 循环
+
+通用形式如下：
+
+```c
+do
+    body-statement
+    while(test-expr);
+```
+
+body-statement 至少会执行一次。
+
+一个计算阶乘的 C 代码：
+
+{% include_code lang:c csapp-machine-level-representation-of-programs/fact_do.c %}
+
+其[汇编代码](/downloads/code/csapp-machine-level-representation-of-programs/fact_do.s)核心功能如下：
+
+```asm
+fact_do:
+	movl	$1, %eax	; result = 1
+.L2:
+	imulq	%rdi, %rax	; result *= n
+	subq	$1, %rdi	; n -= 1
+	cmpq	$1, %rdi	; 比较 n 和 1
+	jg	.L2		; 如果 n > 1 则跳转到 .L2
+	ret
+```
+
+将其逻辑直接转换为 C 代码：
+
+{% include_code lang:c csapp-machine-level-representation-of-programs/fact_do_goto.c %}
+
+在复杂的程序中，C 语言编译器常常会重组计算，例如有时 C 代码中的变量在机器代码中没有对应的值，有时机器代码会引入 C 代码中不存在的值，有时编译器会将多个值映射在一个寄存器上以最小化寄存器使用率。
+
+### while 循环
+
+通用形式如下：
+
+```c
+while (test-expr)
+    body-statement
+```
+
+将 `while` 循环翻译成机器代码有很多种方法，GCC 使用其中的两种，这两种使用同样的循环结构。
+
+第一种称为跳转到中间，先通过无条件跳转跳到循环结尾处的测试，然后根据测试结果决定是否跳转到循环体：
+
+```c
+    goto test;
+loop:
+    body-statement
+test:
+    t = test-expr;
+    if (t)
+        goto loop;
+```
+
+第二种称为 guarded-do
+
+```c
+loop:
+    t = test-expr;
+    if (!t)
+        goto done;
+    body-statement
+    goto loop;
+done:
+```
+
+例如 C 程序：
+
+{% include_code lang:c csapp-machine-level-representation-of-programs/fact_while.c %}
+
+采用 `-Og` 编译得到的汇编：
+
+{% include_code lang:asm csapp-machine-level-representation-of-programs/fact_while.s %}
+
+{% include_code lang:asm csapp-machine-level-representation-of-programs/fact_while.o1.s %}

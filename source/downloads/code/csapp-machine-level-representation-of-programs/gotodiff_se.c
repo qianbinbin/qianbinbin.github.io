@@ -1,7 +1,7 @@
 long lt_cnt = 0;
 long ge_cnt = 0;
 
-long absdiff_se(long x, long y) {
+long gotodiff_se(long x, long y) {
     long result;
     if (x >= y)
         goto x_ge_y;

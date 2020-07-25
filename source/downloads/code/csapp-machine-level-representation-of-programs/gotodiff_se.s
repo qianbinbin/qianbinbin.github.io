@@ -1,8 +1,8 @@
 	.file	"gotodiff_se.c"
 	.text
-	.globl	absdiff_se
-	.type	absdiff_se, @function
-absdiff_se:
+	.globl	gotodiff_se
+	.type	gotodiff_se, @function
+gotodiff_se:
 .LFB0:
 	.cfi_startproc
 	cmpq	%rsi, %rdi
@@ -18,7 +18,7 @@ absdiff_se:
 	ret
 	.cfi_endproc
 .LFE0:
-	.size	absdiff_se, .-absdiff_se
+	.size	gotodiff_se, .-gotodiff_se
 	.globl	ge_cnt
 	.bss
 	.align 8

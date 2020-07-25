@@ -278,7 +278,7 @@ C 代码：
 
 {% include_code lang:c csapp-machine-level-representation-of-programs/exchange.c %}
 
-其[汇编代码](/downloads/code/csapp-machine-level-representation-of-programs/exchange.s)的核心功能如下（参数 `xp` 和 `y` 分别保存在 `%rdi` 和 `%rsi` 中）：
+其[汇编代码](/downloads/code/csapp-machine-level-representation-of-programs/exchange.s)为（参数 `xp` 和 `y` 分别保存在 `%rdi` 和 `%rsi` 中）：
 
 ```asm
 exchange:
@@ -337,7 +337,7 @@ addq $8,%rsp
 
 {% include_code lang:c csapp-machine-level-representation-of-programs/scale.c %}
 
-GCC 使用 `-O1` 及以上优化级别时，得到[汇编代码](/downloads/code/csapp-machine-level-representation-of-programs/scale.s)的核心功能如下：
+GCC 使用 `-O1` 及以上优化级别时，得到[汇编代码](/downloads/code/csapp-machine-level-representation-of-programs/scale.s)：
 
 ```
 scale:
@@ -369,7 +369,7 @@ x86-64 对 $w$ 位长的数据进行移位操作时，移位量是由 `%cl` 中�
 
 {% include_code lang:c csapp-machine-level-representation-of-programs/arith.c %}
 
-GCC 生成[汇编代码](/downloads/code/csapp-machine-level-representation-of-programs/arith.s)的指令顺序和书中有区别，不影响结果。其核心功能如下：
+GCC 生成[汇编代码](/downloads/code/csapp-machine-level-representation-of-programs/arith.s)（指令顺序和书中有区别，不影响结果）：
 
 ```
 arith:
@@ -403,7 +403,7 @@ arith:
 
 C 标准不包括 128 位整数类型，但 GCC 提供了支持，使用 `__int128` 来声明。
 
-其[汇编代码](/downloads/code/csapp-machine-level-representation-of-programs/store_uprod.s)的核心功能如下：
+其[汇编代码](/downloads/code/csapp-machine-level-representation-of-programs/store_uprod.s)：
 
 ```asm
 store_uprod:
@@ -426,7 +426,7 @@ C 代码计算 64 位有符号数的商和余数：
 
 {% include_code lang:c csapp-machine-level-representation-of-programs/remdiv.c %}
 
-这里生成的[汇编代码](/downloads/code/csapp-machine-level-representation-of-programs/remdiv.s)与书中有区别，不影响结果。核心功能如下：
+这里生成的[汇编代码](/downloads/code/csapp-machine-level-representation-of-programs/remdiv.s)（与书中有区别，不影响结果）：
 
 ```asm
 remdiv:
@@ -508,7 +508,7 @@ SET 指令的目的操作数可以为单字节寄存器或内存位置，指令�
 
 {% include_code lang:c csapp-machine-level-representation-of-programs/comp.c %}
 
-[汇编代码](/downloads/code/csapp-machine-level-representation-of-programs/comp.s)核心功能如下：
+[汇编代码](/downloads/code/csapp-machine-level-representation-of-programs/comp.s)：
 
 ```asm
 comp:
@@ -637,9 +637,22 @@ SET 指令的描述适用的情况是：执行比较指令，根据 $t = a - b$ 
 
 {% include_code lang:c csapp-machine-level-representation-of-programs/absdiff_se.c %}
 
-汇编代码：
+[汇编代码](/downloads/code/csapp-machine-level-representation-of-programs/absdiff_se.s)：
 
-{% include_code lang:asm csapp-machine-level-representation-of-programs/absdiff_se.s %}
+```asm
+absdiff_se:
+	cmpq	%rsi, %rdi		; 比较 x 和 y
+	jge	.L2			; 如果 x >= y 则跳转到 .L2
+	addq	$1, lt_cnt(%rip)	; lt_cnt++
+	movq	%rsi, %rax
+	subq	%rdi, %rax		; result = y - x
+	ret
+.L2:
+	addq	$1, ge_cnt(%rip)	; ge_cnt++
+	movq	%rdi, %rax
+	subq	%rsi, %rax		; result = x - y
+	ret
+```
 
 将汇编代码再转换为 C 代码：
 
@@ -681,15 +694,24 @@ done:
 
 {% include_code lang:c csapp-machine-level-representation-of-programs/absdiff.c %}
 
-采用 `-O1` 优化的汇编代码：
+采用 `-O1` 优化的[汇编代码](/downloads/code/csapp-machine-level-representation-of-programs/absdiff.s)为：
 
-{% include_code lang:asm csapp-machine-level-representation-of-programs/absdiff.s %}
+```asm
+absdiff:
+	movq	%rsi, %rdx
+	subq	%rdi, %rdx	; eval = y - x
+	movq	%rdi, %rax
+	subq	%rsi, %rax	; rval = x - y
+	cmpq	%rsi, %rdi	; 比较 x 和 y
+	cmovl	%rdx, %rax	; 如果 x < y 则 rval = eval
+	ret			; 返回 rval
+```
 
-可以看到它实际上事先计算了 `y - x` 和 `x - y` 的值，然后再根据 `compq` 的结果用 `cmovge` 实现条件赋值。其逻辑与以下 C 代码类似：
+书中原文最后一行 `tval` 应为 `rval`，此处疑似笔误，英文版也是如此。书中 `eval` 和 `rval` 所使用寄存器与我实际生成相反，故这里使用 `comvl` 而不是 `comvge`。
+
+可以看到它实际上事先计算了 `y - x` 和 `x - y` 的值，然后再根据 `compq` 的结果用 `cmovl` 实现条件赋值。其逻辑与以下 C 代码类似：
 
 {% include_code lang:c csapp-machine-level-representation-of-programs/cmovdiff.c %}
-
-如果将它编译的话，得到的[汇编代码](/downloads/code/csapp-machine-level-representation-of-programs/cmovdiff.s)与上面很相似。
 
 基于条件数据传送的代码会比基于条件控制转移的代码性能更好，主要是有利于处理器通过流水线技术获得高性能。如果使用条件控制，则只有当分支条件求值完成后才能决定分支往哪边走。
 
@@ -759,9 +781,7 @@ cread:
 
 显然当 `xp` 为空时，`movq` 指令会导致空指针错误。
 
-事实上 GCC 生成的汇编仍然是用条件跳转实现的：
-
-{% include_code lang:asm csapp-machine-level-representation-of-programs/cread.s %}
+事实上 GCC 生成的[汇编](/downloads/code/csapp-machine-level-representation-of-programs/cread.s)仍然是用条件跳转实现的。
 
 另外，使用条件传送不一定会提高性能，例如两个分支都需要大量计算。
 
@@ -781,11 +801,21 @@ do
 
 body-statement 至少会执行一次。
 
+这种通用形式可以被翻译为如下语句：
+
+```c
+loop:
+    body-statement
+    t = test-expr;
+    if (t)
+        goto loop;
+```
+
 一个计算阶乘的 C 代码：
 
 {% include_code lang:c csapp-machine-level-representation-of-programs/fact_do.c %}
 
-其[汇编代码](/downloads/code/csapp-machine-level-representation-of-programs/fact_do.s)核心功能如下：
+其[汇编代码](/downloads/code/csapp-machine-level-representation-of-programs/fact_do.s)为：
 
 ```asm
 fact_do:
@@ -827,7 +857,7 @@ test:
         goto loop;
 ```
 
-第二种称为 guarded-do
+书上使用 `-Og` 生成，但我本地测试只有在不使用优化时才会生成类似结构的汇编，而实际生成的结构为：
 
 ```c
 loop:
@@ -839,12 +869,67 @@ loop:
 done:
 ```
 
+实际上是把测试指令提前了，而不是先进行无条件跳转，也更符合直觉。但是这样就不能称为“跳转到中间”了。
+
 例如 C 程序：
 
 {% include_code lang:c csapp-machine-level-representation-of-programs/fact_while.c %}
 
-采用 `-Og` 编译得到的汇编：
+采用 `-Og` 编译得到[汇编代码](/downloads/code/csapp-machine-level-representation-of-programs/fact_while.s)：
 
-{% include_code lang:asm csapp-machine-level-representation-of-programs/fact_while.s %}
+```asm
+fact_while:
+	movl	$1, %eax	; result = 1
+.L2:
+	cmpq	$1, %rdi	; 比较 n 和 1
+	jle	.L4		; 如果 n <= 1 则跳转到 .L4
+	imulq	%rdi, %rax	; result *= n
+	subq	$1, %rdi	; n -= 1
+	jmp	.L2		; 跳转到 .L2
+.L4:
+	ret
+```
 
-{% include_code lang:asm csapp-machine-level-representation-of-programs/fact_while.o1.s %}
+将其再转换为 C 代码：
+
+{% include_code lang:c csapp-machine-level-representation-of-programs/fact_while_goto.c %}
+
+第二种称为 guarded-do，先进行条件跳转，如果条件不成立则跳过循环：
+
+```c
+t = test-expr;
+if (!t)
+    goto done;
+loop:
+    body-statement
+    t = test-expr;
+    if (t)
+        goto loop;
+done:
+```
+
+相当于在 do-while 代码之前先进行一次测试。编译器可以利用这样的策略进行优化初始测试，例如认为测试条件总是满足。
+
+使用 `-O1` 优化级别编译 `fact_while.c` 时，生成[汇编代码](/downloads/code/csapp-machine-level-representation-of-programs/fact_while.o1.s)：
+
+```asm
+fact_while:
+	cmpq	$1, %rdi	; 比较 n 和 1
+	jle	.L4		; 如果 n <= 1 则跳转到 .L4
+	movl	$1, %eax	; result = 1
+.L3:
+	imulq	%rdi, %rax	; result *= n
+	subq	$1, %rdi	; n -= 1
+	cmpq	$1, %rdi	; 比较 n 和 1
+	jne	.L3		; 如果 n != 1 则跳转到 .L3
+	ret
+.L4:
+	movl	$1, %eax	; result = 1
+	ret
+```
+
+其中第 9 行 $n > 1$ 被编译器变为 $n \ne 1$，因为只有 $n > 1$ 时才会进入循环。
+
+将其转换为 C 代码：
+
+{% include_code lang:c csapp-machine-level-representation-of-programs/fact_while_gd_goto.c %}

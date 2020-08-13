@@ -787,7 +787,7 @@ cread:
 
 ## 3.6.7 循环
 
-C 语言提供多种循环结构：`do-while`、`while` 和 `for`。汇编使用条件测试和跳转组合来实现循环效果。
+C 语言提供多种循环结构：do-while、while 和 for。汇编使用条件测试和跳转组合来实现循环效果。
 
 ### do-while 循环
 
@@ -843,7 +843,7 @@ while (test-expr)
     body-statement
 ```
 
-将 `while` 循环翻译成机器代码有很多种方法，GCC 使用其中的两种，这两种使用同样的循环结构。
+将 while 循环翻译成机器代码有很多种方法，GCC 使用其中的两种，这两种使用同样的循环结构。
 
 第一种称为跳转到中间，先通过无条件跳转跳到循环结尾处的测试，然后根据测试结果决定是否跳转到循环体：
 
@@ -928,8 +928,129 @@ fact_while:
 	ret
 ```
 
-其中第 9 行 $n > 1$ 被编译器变为 $n \ne 1$，因为只有 $n > 1$ 时才会进入循环。
+其中第 9 行 $n > 1$ 被编译器变为 $n \ne 1$，因为只有 $n > 1$ 时才会进入循环。这一点与 LLVM 的 C++ 编码规范一样。
 
 将其转换为 C 代码：
 
 {% include_code lang:c csapp-machine-level-representation-of-programs/fact_while_gd_goto.c %}
+
+### for 循环
+
+通用形式如下：
+
+```c
+for (init-expr; test-expr; update-expr)
+    body-statement
+```
+
+相当于以下 while 循环：
+
+```c
+init-expr;
+while (test-expr) {
+    body-statement
+    update-expr;
+}
+```
+
+GCC 为 for 循环产生的代码是 while 循环的两种翻译（指跳转到中间和 guarded-do，但实际测试结果与 while 类似，不会产生跳转到中间的情况）之一，取决于优化级别。
+
+例如 C 程序：
+
+{% include_code lang:c csapp-machine-level-representation-of-programs/fact_for.c %}
+
+使用 `-Og` 编译得到[汇编代码](/downloads/code/csapp-machine-level-representation-of-programs/fact_for.s)：
+
+```asm
+fact_for:
+	movl	$1, %eax	; result = 1
+	movl	$2, %edx	; i = 2
+.L2:
+	cmpq	%rdi, %rdx	; 比较 i 和 n
+	jg	.L4		; 如果 i > n 则跳转到 .L2
+	imulq	%rdx, %rax	; result *= i
+	addq	$1, %rdx	; i += 1
+	jmp	.L2		; 跳转到 .L2
+.L4:
+	ret
+```
+
+如果使用 `-O1` 则得到[汇编代码](/downloads/code/csapp-machine-level-representation-of-programs/fact_for.o1.s)：
+
+```asm
+fact_for:
+	cmpq	$1, %rdi	; 比较 n 和 1
+	jle	.L4		; 如果 n <= 1 则跳转到 .L4
+	addq	$1, %rdi	; n += 1
+	movl	$1, %eax	; result = 1
+	movl	$2, %edx	; i = 2
+.L3:
+	imulq	%rdx, %rax	; result *= i
+	addq	$1, %rdx	; i += 1
+	cmpq	%rdi, %rdx	; 比较 i 和 n
+	jne	.L3		; 如果 i != n 则跳转到 .L3
+	ret
+.L4:
+	movl	$1, %eax	; result = 1
+	ret
+```
+
+## 3.6.8 switch 语句
+
+switch 语句根据一个整数索引值实现多个分支，而且可以通过使用跳转表这种数据结构使得实现更加高效。
+
+与使用很长的 if-else 语句相比，使用跳转表时执行开关的时间与开关情况数量无关。GCC 根据开关情况的数量和稀疏程度来翻译 switch 语句，当情况数量较多且值的范围跨度比较小时，就会使用跳转表。
+
+例如 C 程序：
+
+{% include_code lang:c csapp-machine-level-representation-of-programs/switch_eg.c %}
+
+得到的[汇编代码](/downloads/code/csapp-machine-level-representation-of-programs/switch_eg.s)与书中有出入：
+
+```asm
+switch_eg:
+	subq	$100, %rsi			; n -= 100
+	cmpq	$6, %rsi			; 将 n 与 6 比较
+	ja	.L8				; 如果无符号数 n > 6 则跳转到 .L8
+	leaq	.L4(%rip), %rcx
+	movslq	(%rcx,%rsi,4), %rax
+	addq	%rcx, %rax
+	jmp	*%rax				; 间接跳转
+	.section	.rodata			; 只读数据
+	.align 4				; 地址对齐为 4 的倍数
+	.align 4
+.L4:
+	.long	.L7-.L4
+	.long	.L8-.L4
+	.long	.L6-.L4
+	.long	.L5-.L4
+	.long	.L3-.L4
+	.long	.L8-.L4
+	.long	.L3-.L4
+	.text
+.L7:					; case 100:
+	leaq	(%rdi,%rdi,2), %rax
+	leaq	(%rdi,%rax,4), %rdi		; val *= 13
+	jmp	.L2				; 跳转到 .L2
+.L6:					; case 102:
+	addq	$10, %rdi			; val += 10
+.L5:					; case 103:
+	addq	$11, %rdi			; val += 11
+.L2:
+	movq	%rdi, (%rdx)			; *dest = val
+	ret					; 返回
+.L3:					; case 106:
+	imulq	%rdi, %rdi			; val *= val
+	jmp	.L2				; 跳转到 .L2
+.L8:					; default:
+	movl	$0, %edi			; val = 0
+	jmp	.L2				; 跳转到 .L2
+```
+
+这里 `x` 和 `val` 共用寄存器 `%rdi`。
+
+间接跳转的实现和跳转表的表示与书中有很大不同，比如书中跳转表项是 8 个字节，用 `.quad` 开头，而这里是 `.long`。
+
+使用跳转表是一种非常有效的实现多重分支的方法，可以只访问一次跳转表就处理很多分支。
+
+# 3.7 过程

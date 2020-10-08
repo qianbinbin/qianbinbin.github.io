@@ -41,13 +41,9 @@ tags:
 
 ## 使用方法
 
-1. 如有必要，更新 BIOS 版本。
+1. [创建 USB](https://dortania.github.io/OpenCore-Install-Guide/installer-guide/)。
 
-2. [配置 BIOS](https://dortania.github.io/OpenCore-Install-Guide/config-laptop.plist/haswell.html#intel-bios-settings)。
-
-3. [创建 USB](https://dortania.github.io/OpenCore-Install-Guide/installer-guide/)。
-
-4. 挂载 USB 中的 EFI 分区（连接电脑时会自动挂载），删除其中所有文件，并把 [EFI 文件夹](https://github.com/qianbinbin/hackintosh-m73-tiny/releases) 复制进去。
+2. 挂载 USB 中的 EFI 分区（连接电脑时会自动挂载），删除其中所有文件，并把 [EFI 文件夹](https://github.com/qianbinbin/hackintosh-m73-tiny/tree/macOS-Catalina-10.15/BOOT/EFI) 复制进去。
 
    名为 `BOOT` 的 EFI 分区结构应该形如：
 
@@ -55,10 +51,23 @@ tags:
    BOOT
    └── EFI
        ├── BOOT
+       │   └── BOOTx64.efi
        └── OC
+           ├── ACPI
+           ├── Bootstrap
+           ├── Drivers
+           ├── Kexts
+           ├── OpenCore.efi
+           ├── Resources
+           ├── Tools
+           └── config.plist
    ```
 
-5. 以 `iMac14,1` [生成 SMBIOS 信息](https://dortania.github.io/OpenCore-Install-Guide/config-laptop.plist/haswell.html#platforminfo)，并在 `config.plist` 中设置 `SystemSerialNumber`、`MLB` 和 `SystemUUID` 的值。
+3. 以 `iMac14,1` [生成 SMBIOS 信息](https://dortania.github.io/OpenCore-Install-Guide/config-laptop.plist/haswell.html#platforminfo)，并在 `config.plist` 中设置 `SystemSerialNumber`、`MLB` 和 `SystemUUID` 的值。
+
+4. 如有必要，更新 BIOS 版本。
+
+5. [配置 BIOS](https://dortania.github.io/OpenCore-Install-Guide/config-laptop.plist/haswell.html#intel-bios-settings)。
 
 6. 从 USB 启动，安装 macOS。
 

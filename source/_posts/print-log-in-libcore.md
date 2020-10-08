@@ -15,7 +15,7 @@ Android Java 核心库中是无法直接使用 android.util.Log 的，添加后�
 
 <!-- more -->
 
-# 使用 System.out 和 System.err
+## 使用 System.out 和 System.err
 
 这是很常见的方法，在 Android 中它被重定向到本地的 Log 系统，tag 分别为`System.out`和`System.err`。
 
@@ -98,7 +98,7 @@ class AndroidPrintStream extends LoggingPrintStream {
 }
 ```
 
-## 使用 java.util.logging.Logger
+### 使用 java.util.logging.Logger
 
 Java 核心库中有 java.util.logging.Logger，在 Android 中它也被重定向到 Android 本地的 Log 系统。
 
@@ -228,13 +228,13 @@ public void publish(Logger source, String tag, Level level, String message) {
 
 如果需要在开机流程中较早的位置打印 Log，则此方法同样无效。
 
-# 移植 android.util.Log
+## 移植 android.util.Log
 
 以上方法使用简单，可以满足大部分需要，但都有一些缺陷。其实也可以把 android.util.Log 核心部分移植过来，只不过有些繁琐，需要以 JNI 方式调用 liblog 中的 Log 函数。
 
 例如，要使`java.util.logging.Logger`也能像`android.util.Log`那样方便地打印 Log，可以在 Logger 类中添加一个静态方法`d()`，对应`android.util.Log.d()`。
 
-## 在 Java 代码中声明 native 方法
+### 在 Java 代码中声明 native 方法
 
 ```java
 // libcore/ojluni/src/main/java/java/util/logging/Logger.java
@@ -259,7 +259,7 @@ public static native int println_native(int bufID,
 
 编译生成 core-oj.jar，把它 push 到 /system/framework/ 中。要使此核心库生效，可能需要删除 /system/framework/arm/ 或 /system/framework/arm64/ 下的 boot.art、boot.oat（取决于手机，可都删除，删除后重启会比较慢）。
 
-## 实现 JNI 层
+### 实现 JNI 层
 
 只要移植 android_util_Log.cpp 中的`android_util_Log_println_native()`方法即可，创建文件：
 
@@ -343,7 +343,7 @@ jint JNI_OnLoad(JavaVM* vm, void*) { JNIEnv* env;
 
 但我在`java.io.File#delete()`中使用这个 Log 时，发现了一个奇怪的问题：一些第三方 APP 会报 java.lang.UnsatisfiedLinkError 错误（如 Chrome 等），而 Android 系统本身，以及其它 APP，包括自己写的 demo 都没有问题，尝试网上各种方法无果，希望有人能指点迷津……
 
-# 打印栈信息 Stack Trace
+## 打印栈信息 Stack Trace
 
 同样我们可以把 android.util.Log 中的`getStackTraceString()`方法移植过来。
 

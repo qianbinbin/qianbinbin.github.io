@@ -70,10 +70,10 @@ public double myPow(double x, int n) {
 
 注意指数为 0 和负数的情况，当指数为 int 最小值的情况也要做防溢出处理。
 
-# 其他语言实现
+## 其他语言实现
 
 <https://github.com/qianbinbin/leetcode>
 
-# 参考资料
+## 参考资料
 
 1. [Iterative Log(N) solution with Clear Explanation - LeetCode Discuss](https://leetcode.com/problems/powx-n/discuss/19563/Iterative-Log%28N%29-solution-with-Clear-Explanation)

@@ -8,7 +8,7 @@ tags:
 
 个人翻译，仅供参考。
 
-# Introduction | 引言
+## Introduction | 引言
 
 This document attempts to describe a few coding standards that are being used in the LLVM source tree. Although no coding standards should be regarded as absolute requirements to be followed in all instances, coding standards are particularly important for large-scale code bases that follow a library-based design (like LLVM).
 
@@ -35,13 +35,13 @@ The ultimate goal of these guidelines is to increase the readability and maintai
 这些指南的最终目标是提高我们公共源码库的可读性和可维护性。如果你对相关主题有什么建议，请发邮件给[Chris](mailto:sabre@nondot.org)。
 
 
-# Languages, Libraries, and Standards | 语言，库和标准
+## Languages, Libraries, and Standards | 语言，库和标准
 
 Most source code in LLVM and other LLVM projects using these coding standards is C++ code. There are some places where C code is used either due to environment restrictions, historical restrictions, or due to third-party source code imported into the tree. Generally, our preference is for standards conforming, modern, and portable C++ code as the implementation language of choice.
 
 LLVM 及其它应用这些编码规范的 LLVM 项目中的大部分源码都是 C++ 代码。由于环境限制、历史限制，或引入源码树的第三方源码，有些地方使用 C 代码。通常我们倾向于将符合规范、现代和可移植的 C++ 代码作为首选实现语言。
 
-## C++ Standard Versions | C++ 标准版本
+### C++ Standard Versions | C++ 标准版本
 
 LLVM, Clang, and LLD are currently written using C++11 conforming code, although we restrict ourselves to features which are available in the major toolchains supported as host compilers. The LLDB project is even more aggressive in the set of host compilers supported and thus uses still more features. Regardless of the supported features, code is expected to (when reasonable) be standard, portable, and modern C++11 code. We avoid unnecessary vendor-specific extensions, etc.
 

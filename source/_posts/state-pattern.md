@@ -12,9 +12,9 @@ tags:
 
 状态模式将“状态”抽象出来，将每种状态下的行为下放到具体状态类，这对客户端是透明的。网上有些文章把状态的构建和切换放到了客户端，这就违背了初衷。
 
-# 实例
+## 实例
 
-## 参与者
+### 参与者
 
 ![](/images/state-pattern/state-pattern.png)
 
@@ -27,7 +27,7 @@ tags:
 - ConcreteState subclasses
   具体状态子类，处理来自 Context 的请求，每个类都提供了自己对请求的实现，所以当 Context 状态改变时行为也跟着改变
 
-## 源码
+### 源码
 
 ```java
 public class Context {
@@ -99,7 +99,7 @@ public class ConcreteStateB implements State {
 
 状态模式可以有不同的写法，这里是在 `Context` 中为每种状态维护了一个实例，也可以把具体状态写成单例模式。
 
-## 测试
+### 测试
 
 ```java
 Context context = new Context();
@@ -118,15 +118,15 @@ java.lang.Throwable
 ...
 ```
 
-## 与策略模式比较
+### 与策略模式比较
 
 两者都可以在运行时改变行为，但策略模式中客户端通常会主动指定所需的策略对象，而状态模式中状态对象对客户端是透明的，客户不需要了解状态。
 
-# 源码实现
+## 源码实现
 
 <https://github.com/qianbinbin/DesignPattern/tree/master/src/main/java/io/binac/designpattern/state>
 
-# 参考资料
+## 参考资料
 
 1. 《Head First 设计模式》
 2. [State pattern - Wikipedia](https://en.wikipedia.org/wiki/State_pattern)

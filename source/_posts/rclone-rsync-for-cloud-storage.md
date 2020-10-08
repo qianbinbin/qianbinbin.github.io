@@ -11,7 +11,7 @@ Rclone 就是为此而生的，它可以方便在命令行下挂载网盘，目�
 
 <!-- more -->
 
-# 安装
+## 安装
 
 Debian 的官方源中 Rclone 版本过于陈旧，建议到官网下载：<https://rclone.org/downloads/>
 
@@ -21,7 +21,7 @@ Debian 的官方源中 Rclone 版本过于陈旧，建议到官网下载：<http
 $ curl https://rclone.org/install.sh | sudo bash
 ```
 
-# 配置
+## 配置
 
 Rclone 提供了简单的交互式配置方式，运行 `rclone config` 即可，一般就是打开浏览器获取一个 token，网上有很多教程，在此就不赘述了。
 
@@ -56,7 +56,7 @@ $ curl http://127.0.0.1:53682/auth?state=xxxxxxxxxxxxxxxxxxxxxx
 
 这时 Rclone 的配置应该会自动进行到下一步，其它照常配置即可。如果不行就多试几次。
 
-# 挂载
+## 挂载
 
 安装 FUSE：
 
@@ -86,7 +86,7 @@ Filesystem      Size  Used Avail Use% Mounted on
 onedrive:       5.0T   18G  5.0T   1% /mnt/onedrive
 ```
 
-# 开机自启
+## 开机自启
 
 systemd 脚本：
 

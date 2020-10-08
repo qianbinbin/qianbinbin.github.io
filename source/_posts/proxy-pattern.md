@@ -14,9 +14,9 @@ Java 可以实现动态代理，在运行时定制或增强功能。
 
 <!-- more -->
 
-# 实例
+## 实例
 
-## 静态代理
+### 静态代理
 
 ![](/images/proxy-pattern/proxy-pattern.png)
 
@@ -48,7 +48,7 @@ public class SubjectProxy implements Subject {
 }
 ```
 
-### 测试
+#### 测试
 
 ```java
 Subject subject = new SubjectProxy();
@@ -61,11 +61,11 @@ java.lang.Throwable
 	at io.binac.designpattern.proxy.SubjectProxy.request(SubjectProxy.java:10)
 ```
 
-### 与装饰器模式比较
+#### 与装饰器模式比较
 
 两者都封装原始对象，代理模式注重控制对象的访问，装饰器模式则注重装饰对象，而且可以多次装饰。
 
-### 应用
+#### 应用
 
 - 远程代理
   为对象在不同地址空间提供局部代表，通过序列化等手段，使客户端的代码在远程执行
@@ -79,7 +79,7 @@ java.lang.Throwable
 - 指针引用
   当调用真实的对象时，代理处理一些额外工作，例如引用计数，当该对象没有引用时自动释放
 
-## Java 动态代理
+### Java 动态代理
 
 在动态代理中，代理类的字节码将在运行时生成并载入当前代理的 `ClassLoader`。这里介绍 Java 自身支持的代理方式，此外还有 cglib 等第三方库。
 
@@ -105,7 +105,7 @@ public class SubjectInvocationHandler implements InvocationHandler {
 
 动态代理是通过反射完成的，在重写 `InvocationHandler#invoke` 时定制所需的方法，不需要像静态代理那样重载被代理接口的全部方法。
 
-### 测试
+#### 测试
 
 先获取一个需要代理的实例，然后通过 `java.lang.reflect.Proxy#newProxyInstance` 来获取代理类的对象：
 
@@ -140,11 +140,11 @@ public final class $Proxy0 extends Proxy implements Subject {
 }
 ```
 
-# 源码实现
+## 源码实现
 
 <https://github.com/qianbinbin/DesignPattern/tree/master/src/main/java/io/binac/designpattern/proxy>
 
-# 参考资料
+## 参考资料
 
 1. 《Head First 设计模式》
 2. [代理模式原理及实例讲解](https://www.ibm.com/developerworks/cn/java/j-lo-proxy-pattern/index.html)

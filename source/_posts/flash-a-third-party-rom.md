@@ -5,11 +5,11 @@ tags:
 - Android
 ---
 
-# 解锁 Bootloader
+## 解锁 Bootloader
 
 参考各机型官网。
 
-# 刷第三方 Recovery
+## 刷第三方 Recovery
 
 [TeamWin - TWRP](https://twrp.me/)
 
@@ -29,17 +29,17 @@ $ fastboot reboot
 
 <!-- more -->
 
-# 退出 Google 账号，去除锁屏
+## 退出 Google 账号，去除锁屏
 
 先退出 Google 账号是为了在刷机后开机向导跳过登录 Google 账号，除非翻墙。如果不是在墙外，各种奇技淫巧均不推荐。
 
 将锁屏改为无或者滑动，否则一些 TWRP 版本可能无法解密 data 分区。
 
-# 备份
+## 备份
 
 重启进入 TWRP，自带的 backup 功能进行备份，但注意无法备份默认目录下的媒体文件等，如照片、音乐。
 
-# 下载 ROM
+## 下载 ROM
 
 [LineageOS – LineageOS Android Distribution](https://lineageos.org/)
 
@@ -47,13 +47,13 @@ $ fastboot reboot
 
 [Android Forum for Mobile Phones, Tablets, Watches & Android App Development - XDA Forums](https://forum.xda-developers.com/)
 
-# Root 下载
+## Root 下载
 
 [SuperSU HomePage](http://www.supersu.com/)（已过时）
 
 [Magisk Manager](https://magiskmanager.com/)
 
-# 刷机
+## 刷机
 
 1. 将 ROM 和 SuperSU 复制到 `/sdcard/` 下
 
@@ -63,11 +63,11 @@ $ fastboot reboot
 
 4. 清除 cache、dalvik cache
 
-# 交换返回键和最近任务键
+## 交换返回键和最近任务键
 
 {% post_link swap-back-key-and-recents-key-of-android %}
 
-# 修改网络检测 URL
+## 修改网络检测 URL
 
 ```sh
 $ adb shell "settings put global captive_portal_https_url https://connect.rom.miui.com/generate_204"

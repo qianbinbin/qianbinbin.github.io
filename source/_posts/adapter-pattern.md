@@ -23,9 +23,9 @@ tags:
 
 <!-- more -->
 
-# 实例
+## 实例
 
-## 对象适配器模式
+### 对象适配器模式
 
 对象适配器实际上是将旧接口的实例封装起来并实现新接口。
 
@@ -68,7 +68,7 @@ public class ObjectAdapter implements Target {
 }
 ```
 
-### 测试
+#### 测试
 
 ```java
 Target target = new ObjectAdapter(new Adaptee());
@@ -81,11 +81,11 @@ java.lang.Throwable
 	at io.binac.designpattern.adapter.ObjectAdapter.request(ObjectAdapter.java:12)
 ```
 
-### 与装饰器模式的区别
+#### 与装饰器模式的区别
 
 对象适配器是将原接口封装为客户端期望的接口，而{% post_link decorator-pattern 装饰器模式 %}则希望让客户端以与原接口相同的形式调用，且更侧重于在运行时动态地增加功能。
 
-## 类适配器模式
+### 类适配器模式
 
 类适配器模式是直接继承 `Adaptee` 并实现 `Target`，而不封装实例。不过对于 Java 等不支持多重继承的语言，`Target` 必须为接口而不能是抽象类。
 
@@ -102,7 +102,7 @@ public class ClassAdapter extends Adaptee implements Target {
 }
 ```
 
-### 测试
+#### 测试
 
 ```java
 Target target = new ClassAdapter();
@@ -115,11 +115,11 @@ java.lang.Throwable
 	at io.binac.designpattern.adapter.ClassAdapter.request(ClassAdapter.java:6)
 ```
 
-# 源码实现
+## 源码实现
 
 <https://github.com/qianbinbin/DesignPattern/tree/master/src/main/java/io/binac/designpattern/adapter>
 
-# 参考资料
+## 参考资料
 
 1. [1. 适配器模式 — Graphic Design Patterns](https://design-patterns.readthedocs.io/zh_CN/latest/structural_patterns/adapter.html)
 2. [Java编程设计模式，第 2 部分: 适配器模式原理及实例介绍](https://www.ibm.com/developerworks/cn/java/j-lo-adapter-pattern/index.html)

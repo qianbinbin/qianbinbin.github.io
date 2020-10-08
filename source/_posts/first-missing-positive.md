@@ -57,6 +57,6 @@ tags:
 
 然后依次遍历数组，找出第一个不等于 $i + 1$ 的值即为所求值，这里为 $2$。
 
-# 实现源码
+## 实现源码
 
 <https://github.com/qianbinbin/leetcode>

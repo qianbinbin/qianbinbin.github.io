@@ -6,7 +6,7 @@ tags:
 - 交叉编译
 ---
 
-# 前言
+## 前言
 
 iOS 越狱后可以像树莓派那样作为迷你服务器，在上面搭建 aria2、Transmission 等。但是 Cydia 上的 Samba 非常古老，而且只能在 32 位 CPU 上运行。
 
@@ -29,7 +29,7 @@ Samba 如果能跑当然是最好的方案了，但是用官方的最新源码�
 
 最后我找了一个比较老的 4.0.8 版本，磕磕绊绊后终于成功了，虽然`nmbd`还是无法运行，但`smbd`可以跑了，已经可以满足我的需求。
 
-# 编译过程
+## 编译过程
 
 下载源码：
 
@@ -171,7 +171,7 @@ int get_interfaces(TALLOC_CTX *mem_ctx, struct iface_struct **pifaces)
 
 还好 `nmbd` 对我来说没什么卵用，忽略了。
 
-# 参考资料
+## 参考资料
 
 1. [iOS开发之macOS下kxsmb编译smb类库-天狐博客](http://www.skyfox.org/ios-macos-kxsmb-smb-build.html)
 2. [MINI2440 samba移植笔记 - 且行且珍惜 - CSDN博客](https://blog.csdn.net/kingdragonfly120/article/details/10044605)

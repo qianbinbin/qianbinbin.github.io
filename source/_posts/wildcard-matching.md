@@ -29,7 +29,7 @@ tags:
 
 <!-- more -->
 
-# 动态规划
+## 动态规划
 
 设 $f(i, j)$ 表示 `s` 前 $i$ 个字符与 `p` 前 $j$ 个字符是否匹配，当 $i \le 1$ 时不难写出递推公式：
 
@@ -74,7 +74,7 @@ bool isMatch(char *s, char *p) {
 
 时间复杂度为 $O(mn)$。
 
-# 贪心法
+## 贪心法
 
 这里的贪心法其实可以看作是对递归版本算法（DFS）的优化，在递归版本中，当在模式串中遇到 `*` 时，是这样实现的：
 
@@ -127,10 +127,10 @@ bool isMatch(char *s, char *p) {
 
 如果回溯第一个 `*`，让它匹配更长的子串，则若能找到与 `p` 中 `abc` 匹配的串，则对应的 `c` 位置一定在 $i_0$ 之后，它可能在 `[*]` 中，也可能在 `[to match]` 中，但无论如何，这些情况都被“只回溯第二个 `*` ”包括在内了。因此，只回溯最后一个 `*` 就可以了。
 
-# 实现源码
+## 实现源码
 
 <https://github.com/qianbinbin/leetcode>
 
-# 参考资料
+## 参考资料
 
 1. [Wildcard Matching - LeetCode](https://leetcode.com/problems/wildcard-matching/discuss/17810/Linear-runtime-and-constant-space-solution)

@@ -12,7 +12,7 @@ tags:
 
 <!-- more -->
 
-# 先序遍历
+## 先序遍历
 
 递归算法的伪代码：
 
@@ -47,7 +47,7 @@ iterativePreorder(node)
       s.push(node.left)
 ```
 
-# 中序遍历
+## 中序遍历
 
 递归算法伪代码：
 
@@ -107,7 +107,7 @@ iterativePreorder(node)
 
 不同的是这时栈中保存的就是已经访问过的结点了。
 
-# 后序遍历
+## 后序遍历
 
 递归算法伪代码：
 
@@ -151,7 +151,7 @@ iterativePostorder(node)
         lastNodeVisited ← s.pop()
 ```
 
-## 双栈法
+### 双栈法
 
 如果使用两个栈，则后序遍历会简单很多。
 
@@ -177,6 +177,6 @@ iterativePostorder(node)
     visit(s2.pop())
 ```
 
-# 参考资料
+## 参考资料
 
 1. [Tree traversal - Wikipedia](https://en.wikipedia.org/wiki/Tree_traversal)

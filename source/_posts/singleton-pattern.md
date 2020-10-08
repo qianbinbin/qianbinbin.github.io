@@ -24,9 +24,9 @@ tags:
 
 <!-- more -->
 
-# 懒汉方式
+## 懒汉方式
 
-## 适用于单线程的懒汉方式
+### 适用于单线程的懒汉方式
 
 ```java
 public class SimpleLazySingleton {
@@ -50,7 +50,7 @@ public class SimpleLazySingleton {
 
 - 缺点：多线程环境下，可能有多个线程同时进入 `if` 代码块，从而多次创建实例
 
-## 使用简单的锁机制保证线程安全
+### 使用简单的锁机制保证线程安全
 
 可使用 `synchronized` 关键字修饰 `getInstance` 方法，这种方式锁定的是类对象：
 
@@ -76,7 +76,7 @@ public class SyncedSingleton {
 
 - 缺点：每次调用 `getInstance` 方法都会获取同步锁，影响效率
 
-## 使用双重检查的锁机制保证线程安全
+### 使用双重检查的锁机制保证线程安全
 
 ```java
 public class DoubleCheckedLockingSingleton {
@@ -130,7 +130,7 @@ sInstance = new DoubleCheckedLockingSingleton();
 
 - 缺点：实现略显繁琐
 
-## 使用静态嵌套类保证线程安全
+### 使用静态嵌套类保证线程安全
 
 ```java
 public class NestedHolderSingleton {
@@ -153,9 +153,9 @@ public class NestedHolderSingleton {
 
 - 缺点：调用动态数据不够灵活
 
-# 饿汉方式
+## 饿汉方式
 
-## 简单的饿汉方式
+### 简单的饿汉方式
 
 ```java
 public class SimpleSingleton {
@@ -172,7 +172,7 @@ public class SimpleSingleton {
 
 在加载 `SimpleSingleton` 类时，`sInstance` 就会被初始化，天生就是线程安全的。
 
-## 使用枚举实现饿汉方式
+### 使用枚举实现饿汉方式
 
 ```java
 public enum EnumSingleton {
@@ -185,7 +185,7 @@ public enum EnumSingleton {
 
 利用 JVM 保证了仅有一个实例，保证了线程安全，而且实现简单，一般来说性能高于简单的饿汉方式。此外，枚举无法使用反射机制破解。虽然很多人，包括 *Effective Java* 也推荐这种方式，但利用枚举实现单例模式很少见。
 
-# 总结
+## 总结
 
 如何选择合适的方式实现单例模式？个人认为，先确定是否需要延迟加载（例如要用动态数据作为构造单例的参数），再看是否在多线程环境下，
 
@@ -201,11 +201,11 @@ public enum EnumSingleton {
 
         - 否则简单的锁机制即可满足要求
 
-# 实现源码
+## 实现源码
 
 <https://github.com/qianbinbin/DesignPattern/tree/master/src/main/java/io/binac/designpattern/singleton>
 
-# 参考资料
+## 参考资料
 
 1. [Singleton pattern - Wikipedia](https://en.wikipedia.org/wiki/Singleton_pattern)
 2. [如何正确地写出单例模式 | Jark's Blog](http://wuchong.me/blog/2014/08/28/how-to-correctly-write-singleton-pattern/)

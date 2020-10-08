@@ -41,7 +41,7 @@ tags:
 
 <!-- more -->
 
-# 只买卖一次的情况
+## 只买卖一次的情况
 
 与 [Best Time to Buy and Sell Stock - LeetCode](https://leetcode.com/problems/best-time-to-buy-and-sell-stock/description/) 不同的是，这道题可以买卖两次，而后者只能买卖一次。
 
@@ -53,7 +53,7 @@ $price_{min}$ 也可以用递推公式表示：
 
 $$price_{min}(i) = \min\{price_{min}(i - 1), prices[i]\}$$
 
-# 最多买卖两次的情况
+## 最多买卖两次的情况
 
 对于最多买卖两次的情况，其实可以简单地看作买卖两次，当第一次卖出和第二次买入同时发生时，就可以看作是买卖一次的情况。因此，可以直接按照买卖两次处理。
 
@@ -75,16 +75,16 @@ $$hold_2(i) = \max\{hold_2(i - 1), release_1(i - 1) - prices[i]\}$$
 
 如果对两次买卖都使用长度为 $n$ 的数组保存，空间复杂度就为 $O(n)$，但元素只利用一次，可以优化为 $O(n)$ 的空间复杂度。
 
-# 最多买卖 k 次的情况
+## 最多买卖 k 次的情况
 
 明白了买卖两次的原理，就能很容易扩展到最多买卖 $k$ 次的情况，只需要把 $release_i$ 和 $hold_i$ 改为长度为 $k$ 的数组，更新步骤写成一个 $k$ 次的循环即可。
 
 这就是 [Best Time to Buy and Sell Stock IV - LeetCode](https://leetcode.com/problems/best-time-to-buy-and-sell-stock-iv/description/) 的思路。
 
-# 实现源码
+## 实现源码
 
 <https://github.com/qianbinbin/leetcode>
 
-# 参考资料
+## 参考资料
 
 1. [Is it Best Solution with O(n), O(1). - LeetCode Discuss](https://leetcode.com/problems/best-time-to-buy-and-sell-stock-iii/discuss/39611/Is-it-Best-Solution-with-O%28n%29-O%281%29.)

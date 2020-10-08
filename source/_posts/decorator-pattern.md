@@ -23,7 +23,7 @@ System.out.println("Cost: " + getCost() + "; Ingredients: " + getIngredients());
 
 <!-- more -->
 
-# 模式结构
+## 模式结构
 
 装饰器模式包含如下角色：
 
@@ -43,9 +43,9 @@ UML 类图如下（图片来自 <https://en.wikipedia.org/wiki/Decorator_pattern
 
 ![](https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/Decorator_UML_class_diagram.svg/757px-Decorator_UML_class_diagram.svg.png)
 
-# 实例
+## 实例
 
-## 抽象组件 Component
+### 抽象组件 Component
 
 仍然以咖啡为例，先定义一个 Coffee 抽象类或接口作为抽象组件 Component：
 
@@ -64,7 +64,7 @@ public abstract class Coffee {
 
 它具有获取价格和成分的行为。
 
-## 具体组件 ConcreteComponent
+### 具体组件 ConcreteComponent
 
 很多咖啡都是以意式浓缩 Espresso 为基础进行调制的，那么被装饰的基础类当然就是：
 
@@ -82,7 +82,7 @@ public class Espresso extends Coffee {
 }
 ```
 
-## 抽象装饰器 Decorator
+### 抽象装饰器 Decorator
 
 ```java
 public abstract class CoffeeDecorator extends Coffee {
@@ -106,7 +106,7 @@ public abstract class CoffeeDecorator extends Coffee {
 
 它维护了一个私有 Coffee 对象，通过构造方法传入，然后将 Coffee 对象的行为封装起来。
 
-## 具体装饰器 ConcreteDecorator
+### 具体装饰器 ConcreteDecorator
 
 咖啡可以加奶，那么牛奶就可以作为一种装饰器：
 
@@ -152,7 +152,7 @@ public class WithSprinkles extends CoffeeDecorator {
 
 同样可以定义其它装饰器。
 
-## 测试
+### 测试
 
 ```java
 Coffee coffee = new Espresso();
@@ -175,10 +175,10 @@ Cost: 31; Ingredients: espresso, milk, sprinkles
 
 于是，我们成功地在运行时动态扩展了对象的行为。
 
-# 实现源码
+## 实现源码
 
 <https://github.com/qianbinbin/DesignPattern/tree/master/src/main/java/io/binac/designpattern/decorator>
 
-# 参考资料
+## 参考资料
 
 1. [Decorator pattern - Wikipedia](https://en.wikipedia.org/wiki/Decorator_pattern)

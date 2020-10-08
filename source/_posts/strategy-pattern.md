@@ -16,9 +16,9 @@ tags:
 
 <!-- more -->
 
-# 实例
+## 实例
 
-## 抽象策略
+### 抽象策略
 
 ```java
 public interface Strategy {
@@ -26,7 +26,7 @@ public interface Strategy {
 }
 ```
 
-## 具体策略
+### 具体策略
 
 ```java
 public class ConcreteStrategyA implements Strategy {
@@ -46,7 +46,7 @@ public class ConcreteStrategyB implements Strategy {
 }
 ```
 
-## 环境类
+### 环境类
 
 ```java
 public class Context {
@@ -66,7 +66,7 @@ public class Context {
 }
 ```
 
-## 测试
+### 测试
 
 ```java
 Context context = new Context(new ConcreteStrategyA());
@@ -83,11 +83,11 @@ executing io.binac.designpattern.strategy.ConcreteStrategyB@1d16f93d
 executing lambda expression
 ```
 
-# 实现源码
+## 实现源码
 
 <https://github.com/qianbinbin/DesignPattern/tree/master/src/main/java/io/binac/designpattern/strategy>
 
-# 参考资料
+## 参考资料
 
 1. [策略模式 - 维基百科，自由的百科全书](https://zh.wikipedia.org/wiki/%E7%AD%96%E7%95%A5%E6%A8%A1%E5%BC%8F)
 2. [5. 策略模式 — Graphic Design Patterns](https://design-patterns.readthedocs.io/zh_CN/latest/behavioral_patterns/strategy.html)

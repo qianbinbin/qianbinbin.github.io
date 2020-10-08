@@ -17,7 +17,7 @@ tags:
 
 <!-- more -->
 
-# 实例
+## 实例
 
 传统写法中把 `Flyweight` 设计为抽象，然后让可共享和不可共享的具体来实现它，显得怪异、冗余、令人费解，这里假设 `Flyweight` 就是可共享的，简单起见，不加入状态字段：
 
@@ -42,7 +42,7 @@ public class FlyweightFactory {
 
 这里用一个静态的 `WeakHashMap` 来做缓存以便自动回收。`HashMap` 有内存无法回收的风险。
 
-## 测试
+### 测试
 
 ```java
 // create a String object to avoid String pool
@@ -68,10 +68,10 @@ assertTimeout(Duration.ofSeconds(1), () -> {
 
 调用 `System#gc` 只是建议 JVM 进行垃圾回收，是否立即执行与 JVM 的实现有关，所以用循环来不断触发。
 
-# 源码实现
+## 源码实现
 
 <https://github.com/qianbinbin/DesignPattern/tree/master/src/main/java/io/binac/designpattern/flyweight>
 
-# 参考资料
+## 参考资料
 
 1. [Flyweight pattern - Wikipedia](https://en.wikipedia.org/wiki/Flyweight_pattern)

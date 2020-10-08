@@ -14,7 +14,7 @@ Builder 模式就可以很方便地解决这个问题。
 
 <!-- more -->
 
-# 实例
+## 实例
 
 ```java
 public class Product {
@@ -52,7 +52,7 @@ public class Product {
 }
 ```
 
-## 测试
+### 测试
 
 ```java
 Product product = new Product.Builder().setA(1).setB(2).build();
@@ -63,21 +63,21 @@ System.out.println(product);
 A: 1; B: 2
 ```
 
-# 问题
+## 问题
 
 链式调用是通过 Builder 类返回 `this` 实现的，那么为什么不让 `Product` 类本身直接实现 setter 并返回 `this` 呢？
 
 一方面，setter 返回 `this` 不是习惯做法，另一方面，客户端调用 setter 仍然可能得到不完整的对象，Builder 则强制创建完整对象。
 
-# 传统写法
+## 传统写法
 
 上面的写法只保留了核心部分，传统写法比较繁琐，具体可以参考底部链接。
 
-# 实现源码
+## 实现源码
 
 <https://github.com/qianbinbin/DesignPattern/tree/master/src/main/java/io/binac/designpattern/builder>
 
-# 参考资料
+## 参考资料
 
 1. [4. 建造者模式 — Graphic Design Patterns](https://design-patterns.readthedocs.io/zh_CN/latest/creational_patterns/builder.html)
 2. [为什么一定要弄一个Builder内部类？ - 知乎](https://www.zhihu.com/question/326142180/answer/697172067)

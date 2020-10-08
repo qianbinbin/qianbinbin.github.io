@@ -12,7 +12,7 @@ tags:
 
 <!-- more -->
 
-# 实例
+## 实例
 
 ```java
 public class SystemA {
@@ -52,7 +52,7 @@ public class Facade {
 }
 ```
 
-## 测试
+### 测试
 
 ```java
 Facade facade = new Facade();
@@ -65,10 +65,10 @@ operationB
 operationC
 ```
 
-# 源码实现
+## 源码实现
 
 <https://github.com/qianbinbin/DesignPattern/tree/master/src/main/java/io/binac/designpattern/facade>
 
-# 参考资料
+## 参考资料
 
 1. [4. 外观模式 — Graphic Design Patterns](https://design-patterns.readthedocs.io/zh_CN/latest/structural_patterns/facade.html)

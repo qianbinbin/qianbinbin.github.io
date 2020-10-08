@@ -6,15 +6,15 @@ tags:
 - 读书笔记
 ---
 
-# 2.1 信息存储
+## 2.1 信息存储
 
-## 2.1.1 十六进制表示法
+### 2.1.1 十六进制表示法
 
 十六进制转换窍门：记住 A、C 和 F 对应的值，B、D 和 E 可通过计算它们与前三个值的相对关系来完成。
 
 对于 2 的非负整数 n 次幂 x，即 $x = 2^n$，一个转换为十六进制的技巧：x 的二进制形式就是 1 后面跟 n 个 0，把 n 表示成 $i + 4j$，其中 $0 \le i \le 3$，当 i 为 0、1、2、3 时，x 的十六进制开头数字分别为 1、2、4、8，后面跟着 j 个十六进制的 0。如 $2048 = 2 ^ {11}$，有 $n = 11 = 3 + 4 \cdot 2$，从而得到十六进制 0x800。
 
-## 2.1.2 字数据大小
+### 2.1.2 字数据大小
 
 大多数 64 位机器也可以运行 32 位机器编译的程序，这是一种向后兼容。例如 `prog.c` 用如下伪指令编译后
 
@@ -36,7 +36,7 @@ ISO C99 引入了一类数据类型，其数据长度是固定的，不随编译
 
 大多数编译器将 `char` 类型视为有符号数，但 C 标准不保证这一点，程序员应该用 `signed char` 来保证它为有符号数值。不过在很多情况下，`char` 是否有符号并不敏感。
 
-## 2.1.3 寻址和字节顺序
+### 2.1.3 寻址和字节顺序
 
 在几乎所有机器上，多字节对象被存储为连续的字节序列，对象的地址是所使用字节中最小的地址。
 
@@ -45,7 +45,7 @@ ISO C99 引入了一类数据类型，其数据长度是固定的，不随编译
 
 `man ascii` 可查询 ASCII 字符码表。
 
-## 2.1.7 C 语言中的位级运算
+### 2.1.7 C 语言中的位级运算
 
 `~0`可以生成一个全 1 的掩码，不管机器的字长是多少。
 
@@ -53,7 +53,7 @@ ISO C99 引入了一类数据类型，其数据长度是固定的，不随编译
 
 `x ^ y` 等价于 `(x & ~y) | (~x & y)`
 
-## 2.1.9 C 语言中的移位运算
+### 2.1.9 C 语言中的移位运算
 
 C 语言左移 `<<` 都是逻辑左移，没有算数左移。
 
@@ -65,13 +65,13 @@ Java 对如何右移有明确定义，`>>` 是算数右移，`>>>` 是逻辑右�
 
 如果移位量 k 大于数据类型的位数 w，即 $k \ge w$，按照 C 标准实际上位移量是 $k\ mod\ w$，但这种行为对于 C 程序来说是没有保证的。而 Java 则保证这一点。
 
-# 2.2 整数表示
+## 2.2 整数表示
 
-## 2.2.2 无符号数的编码
+### 2.2.2 无符号数的编码
 
 $$B2U_w(x) = \sum_{i=0}^{w-1} x_i2^i$$
 
-## 2.2.3 补码编码
+### 2.2.3 补码编码
 
 $$B2T_w(x) = -x_{w-1}2^{w-1} + \sum_{i=0}^{w-2} x_i2^i$$
 
@@ -81,7 +81,7 @@ C 语言标准并没有要求使用补码形式来表示有符号整数，但几
 
 Java 对整数类型的取值范围和表示是非常明确的，它要求采用补码表示。其单字节数据类型为 `byte` 而不是 `char`。
 
-## 2.2.4 有符号数和无符号数之间的转换
+### 2.2.4 有符号数和无符号数之间的转换
 
 补码转无符号数：
 
@@ -99,7 +99,7 @@ u - 2^w, & u > TMax_w
 \end{cases}\\
 = -u_{w-1}2^w + u$$
 
-## 2.2.5 C 语言中的有符号数与无符号数
+### 2.2.5 C 语言中的有符号数与无符号数
 
 C 语言创建一个无符号常量，必须加上后缀字符 `U` 或 `u`，例如 `12345U` 或者 `0x1A2Bu`。
 
@@ -118,7 +118,7 @@ C 语言允许无符号数和有符号数之间的转换，C 标准没有精确�
 
 解释可参考 [c - Why do we define INT_MIN as -INT_MAX - 1? - Stack Overflow](https://stackoverflow.com/questions/26003893/why-do-we-define-int-min-as-int-max-1)，简而言之，`-2148473648` 不是一个 `int` 常量，而是由一元操作符 `-` 和常量 `2147483648` 组合而成，而后者超过了 `int` 范围，在 32 位系统中是 `long long`，在 64 位系统中是 `long`。
 
-## 2.2.6 扩展一个数字的位表示
+### 2.2.6 扩展一个数字的位表示
 
 无符号数的零扩展：将一个无符号数转换为一个较长的数据类型，只要在开头添加 0。
 
@@ -144,13 +144,13 @@ $$
 
 C 语言标准规定，先作位扩展，再作有符号和无符号数之间的转换。例如，把 `short` 类型的变量 `sx` 转换为 `unsigned` 类型，`(unsigned) sx` 等价于 `(unsigned) (int) sx`，而不是 `(unsigned) (unsigned short) sx`。
 
-## 2.2.7 截断数字
+### 2.2.7 截断数字
 
 将较长类型转换为较短类型，直接去掉高位。
 
-# 2.3 整数运算
+## 2.3 整数运算
 
-## 2.3.1 无符号加法
+### 2.3.1 无符号加法
 
 无符号整数 $x$ 和 $y$ 相加，把和 $x + y$ 截断为 $w$ 位得到无符号数结果。
 
@@ -184,7 +184,7 @@ x, & x = 0\\
 2^w - x, & x > 0
 \end{cases}$$
 
-## 2.3.2 补码加法
+### 2.3.2 补码加法
 
 两个 $w$ 位补码之和与无符号之和有完全相同的位级表示，大多数计算机使用同样的机器指令来执行无符号和有符号加法。把 $x + y$ 截断为 $w$ 位得到补码结果。
 
@@ -233,7 +233,7 @@ C 语言实现：
 
 这里只用 `>= 0` 和 `< 0`，只需取 `int` 符号位即可判断，不需要其他位。
 
-# 2.3.3 补码的非
+## 2.3.3 补码的非
 
 **原理**：补码的非：
 
@@ -250,7 +250,7 @@ TMin_w, & x = TMin_w\\
 
 - 找到最右边的 1，将其左边所有位取反
 
-## 2.3.4 无符号乘法
+### 2.3.4 无符号乘法
 
 把乘积 $x \cdot y$ 截断为 $w$ 位。
 
@@ -260,7 +260,7 @@ TMin_w, & x = TMin_w\\
 
 $$x *_w^u y = (x \cdot y)\ mod \ 2^w$$
 
-## 2.3.5 补码乘法
+### 2.3.5 补码乘法
 
 将乘积截断为 $w$ 位。
 
@@ -336,7 +336,7 @@ $$T2B_w(x *_w^t y) = U2B_w(x' *_w^u y')$$
 
   {% include_code lang:c from:9 to:12 csapp-representing-and-manipulating-information/tmult_check.c %}
 
-## 2.3.6 乘以常数
+### 2.3.6 乘以常数
 
 **原理**：与 2 的幂相乘的无符号乘法
 
@@ -358,7 +358,7 @@ $$T2B_w(x *_w^t y) = U2B_w(x' *_w^u y')$$
 
 选择用移位和加减法组合，还是乘法指令，取决于这些指令的相对速度。大多数编译器只在需要少量移位和加减法就足够时才使用这种优化。
 
-## 2.3.7 除以 2 的幂
+### 2.3.7 除以 2 的幂
 
 整数除法总是舍入到零。
 
@@ -396,13 +396,13 @@ C 表达式 `x + (1 << k) - 1` 得到数值 $x + 2^k - 1$，再右移 $k$ 位，
 
 将会计算数值 $x/2^k$。
 
-## 2.3.8 关于整数运算的最后思考
+### 2.3.8 关于整数运算的最后思考
 
 补码使用了与无符号运算相同的位级实现，包括加法、减法、乘法甚至除法。
 
-# 2.4 浮点数
+## 2.4 浮点数
 
-## 2.4.2 IEEE 浮点表示
+### 2.4.2 IEEE 浮点表示
 
 IEEE 浮点标准用 $V = (-1)^s \times M \times 2^E$ 的形式来表示一个数。
 
@@ -448,7 +448,7 @@ IEEE 浮点标准用 $V = (-1)^s \times M \times 2^E$ 的形式来表示一个�
 
 当小数字段不为 0 时，值为 NaN（Not a Number），例如 $\sqrt{-1}$ 或 $\infty - \infty$ 的结果。也可用来表示未初始化的数据。
 
-## 2.4.3 数字示例
+### 2.4.3 数字示例
 
 | 描述 | 位表示 | 值 |
 |------|--------|----|
@@ -521,7 +521,7 @@ public final class Float extends Number implements Comparable<Float> {
 
 上面表格中的值，如果把浮点数的位表示解释为无符号整数，它们就是按升序排列的，就像它们表示的浮点数一样，以便使用整数排序函数进行排序。如果符号位为 1，就是降序排列的。
 
-## 2.4.4 舍入
+### 2.4.4 舍入
 
 IEEE 浮点数规定了四种舍入方式：
 
@@ -535,7 +535,7 @@ IEEE 浮点数规定了四种舍入方式：
 
 4. Round-up 向上舍入
 
-## 2.4.5 浮点运算
+### 2.4.5 浮点运算
 
 浮点加法是可交换的，但不可结合，例如 `(3.14 + 1e10) - 1e10` 的结果为 `0.0`，但 `3.14 + (1e10 - 1e10)` 的结果为 `3.14`，由于舍入而丢失了精度。编译器就无法利用结合性进行优化。
 
@@ -543,27 +543,27 @@ IEEE 浮点数规定了四种舍入方式：
 
 浮点乘法也是可交换但不可结合的，例如 `(1e20 * 1e20) * 1e-20` 结果为 `inf`，`1e20 * (1e20 * 1e-20)` 结果为 `1e20`。浮点乘法在加法上不具备分配性，例如 `1e20 * (1e20 - 1e20)` 的结果为 `0.0`，`1e20 * 1e20 - 1e20 * 1e20` 结果为 `nan`。
 
-# 家庭作业
+## 家庭作业
 
-## 2.58
+### 2.58
 
 判断是否为小端机器：
 
 {% include_code lang:c from:3 to:6 csapp-representing-and-manipulating-information/is_little_endian.c %}
 
-## 2.62
+### 2.62
 
 判断是否为算数右移：
 
 {% include_code lang:c from:4 to:8 csapp-representing-and-manipulating-information/is_shifts_are_arithmetic.c %}
 
-## 2.63
+### 2.63
 
 用算数右移模拟逻辑右移、用逻辑右移模拟算数右移：
 
 {% include_code lang:c from:5 to:22 csapp-representing-and-manipulating-information/right_shifts.c %}
 
-## 2.65
+### 2.65
 
 判断无符号整数二进制形式中是否有奇数个 1：
 
@@ -571,49 +571,49 @@ IEEE 浮点数规定了四种舍入方式：
 
 让所有二进制位做异或操作，即得到结果。
 
-## 2.66
+### 2.66
 
 找到无符号整数二进制形式中最高位的 1：
 
 {% include_code lang:c from:4 to:17 csapp-representing-and-manipulating-information/leftmost_one.c %}
 
-## 2.67
+### 2.67
 
 判断 `int` 类型是否为 32 位，可以在 16 位及以上的机器上运行：
 
 {% include_code lang:c from:3 to:7 csapp-representing-and-manipulating-information/int_size_is_32.c %}
 
-## 2.68
+### 2.68
 
 生成低 n 位为 1 的掩码：
 
 {% include_code lang:c from:4 to:14 csapp-representing-and-manipulating-information/lower_one_mask.c %}
 
-## 2.69
+### 2.69
 
 实现循环左移：
 
 {% include_code lang:c from:4 to:14 csapp-representing-and-manipulating-information/rotate_left.c %}
 
-## 2.70
+### 2.70
 
 判断 x 能否用 n 位补码表示：
 
 {% include_code lang:c from:4 to:15 csapp-representing-and-manipulating-information/fits_bits.c %}
 
-## 2.73
+### 2.73
 
 补码加法，溢出时返回最值：
 
 {% include_code lang:c from:4 to:12 csapp-representing-and-manipulating-information/saturating_add.c %}
 
-## 2.74
+### 2.74
 
 判断补码减法是否溢出：
 
 {% include_code lang:c from:4 to:10 csapp-representing-and-manipulating-information/tsub_ok.c %}
 
-## 2.75
+### 2.75
 
 已知补码乘法高 $w$ 位，求无符号整数乘法高 $w$ 位。
 
@@ -625,31 +625,31 @@ $$x' \cdot y' = (x + x_{w-1}2^w)(y + y_{w-1}2^w) = x \cdot y + (xy_{w-1} + yx_{w
 
 {% include_code lang:c from:6 to:19 csapp-representing-and-manipulating-information/unsigned_high_prod.c %}
 
-## 2.76
+### 2.76
 
 实现 `calloc` 函数：
 
 {% include_code lang:c from:7 to:17 csapp-representing-and-manipulating-information/calloc.c %}
 
-## 2.78
+### 2.78
 
 用移位实现除以 2 的幂算法，由于除法是向零取整的，当 $x < 0$ 时需要加一个偏移量：
 
 {% include_code lang:c from:5 to:13 csapp-representing-and-manipulating-information/divide_power2.c %}
 
-## 2.79
+### 2.79
 
 计算 $3x/4$，其中 $3x$ 可能溢出：
 
 {% include_code lang:c from:5 to:10 csapp-representing-and-manipulating-information/mul3div4.c %}
 
-## 2.80
+### 2.80
 
 计算 $3x/4$，其中 $3x$ 不允许溢出，此时可把 $x$ 分为高 $w-2$ 位和低 $2$ 位两部分计算，其中高位无需考虑舍入，只有低位需要加入偏移量：
 
 {% include_code lang:c from:5 to:12 csapp-representing-and-manipulating-information/threefourths.c %}
 
-## 2.83
+### 2.83
 
 A. 设 $x$ 的二进制表示为 $0.yyyy...$，其中 $y$ 是一个 $k$ 位序列，两边同时左移 $k$ 位得
 
@@ -659,31 +659,31 @@ $$x \cdot 2^k = y + x$$
 
 $$x = \frac{y}{2^k-1}$$
 
-## 2.84
+### 2.84
 
 比较浮点数大小：
 
 {% include_code lang:c from:4 to:20 csapp-representing-and-manipulating-information/float_le.c %}
 
-## 2.90
+### 2.90
 
 求浮点数 $2^x$：
 
 {% include_code lang:c from:5 to:40 csapp-representing-and-manipulating-information/fpwr2.c %}
 
-## 2.92
+### 2.92
 
 求浮点数相反数：
 
 {% include_code lang:c from:3 to:11 csapp-representing-and-manipulating-information/float_negate.c %}
 
-## 2.93
+### 2.93
 
 求浮点数绝对值：
 
 {% include_code lang:c from:3 to:11 csapp-representing-and-manipulating-information/float_absval.c %}
 
-## 2.94
+### 2.94
 
 求浮点数 $2x$：
 
@@ -691,7 +691,7 @@ $$x = \frac{y}{2^k-1}$$
 
 IEEE 浮点数的设计很精妙，当浮点数为非规格化时，直接将除符号位外整体左移一位即可。
 
-## 2.95
+### 2.95
 
 求浮点数 $0.5x$：
 
@@ -699,13 +699,13 @@ IEEE 浮点数的设计很精妙，当浮点数为非规格化时，直接将除
 
 比求 $2x$ 要复杂一些，因为当尾数右移时要考虑舍入的问题，如果最后两位为 `11`，则需要添加一个偏移量以向偶数舍入。
 
-## 2.96
+### 2.96
 
 `float` 转换为 `int`：
 
 {% include_code lang:c from:3 to:21 csapp-representing-and-manipulating-information/float_f2i.c %}
 
-## 2.97
+### 2.97
 
 `int` 转换为 `float`：
 

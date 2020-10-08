@@ -11,7 +11,7 @@ tags:
 
 <!-- more -->
 
-# Bash 脚本
+## Bash 脚本
 
 其中几个用于配置的常量：
 
@@ -45,7 +45,7 @@ tags:
 
 总体过程是，先用 `tar` 打包存放到 `TEMP_PATH`，再使用 `xz` 压缩为最终备份文件并存放到 `BACKUP_PATH`，如果超出最大数则清理旧备份，最后复制到远程目录。
 
-# systemd 定时任务
+## systemd 定时任务
 
 将以下两个文件存放到 `/lib/systemd/system/` 下：
 

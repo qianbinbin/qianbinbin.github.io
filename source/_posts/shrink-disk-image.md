@@ -15,7 +15,7 @@ tags:
 
 <!-- more -->
 
-# 调整文件系统
+## 调整文件系统
 
 开启 loopback 并寻找可用设备：
 
@@ -97,7 +97,7 @@ The filesystem is already 432227 (4k) blocks long.  Nothing to do!
 
 `432227 (4k) blocks` 是指最终调整到 432227 个块，每个块 4KiB。这里 `resize2fs` 的单位不规范。
 
-# 调整分区表
+## 调整分区表
 
 使用 `fdisk` 调整分区，先 `d` 删除，再 `n` 新建，最后 `w` 写入：
 
@@ -189,7 +189,7 @@ $ sudo losetup -d /dev/loop18
 $ sudo losetup -d /dev/loop18
 ```
 
-# 截取 IMG 镜像
+## 截取 IMG 镜像
 
 ```shell
 $ fdisk -l Armbian_20.05.1_Arm-64_bionic_current_5.6.2_20200408.img
@@ -215,7 +215,7 @@ $ truncate --size=$[(4612095+1)*512] Armbian_20.05.1_Arm-64_bionic_current_5.6.2
 
 最终得到的 IMG 是 2.2GiB，还不到原来的一半。
 
-# 参考资料
+## 参考资料
 
 1. [Shrinking images on Linux - Softwarebakery](https://softwarebakery.com/shrinking-images-on-linux)
 2. [How to Shrink an ext2/3/4 File system with resize2fs - Red Hat Customer Portal](https://access.redhat.com/articles/1196333)

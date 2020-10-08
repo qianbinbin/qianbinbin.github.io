@@ -8,7 +8,7 @@ tags:
 
 一个老生常谈的问题：在 Java 中，如何使用 Map 给对象计数，例如统计字符串出现的次数？
 
-# 姿势一：containsKey()
+## 姿势一：containsKey()
 
 ```java
 Map<String, Integer> map = new HashMap<>();
@@ -35,7 +35,7 @@ map.put(word, count + 1);
 
 <!-- more -->
 
-# 姿势二：get() / getOrDefault()
+## 姿势二：get() / getOrDefault()
 
 ```java
 Integer count = map.get(word);
@@ -55,7 +55,7 @@ map.put(word, map.getOrDefault(word, 0) + 1);
 
 2. 改善了查表问题，不管 `map` 中是否已经存在 `word`，都只查两次表
 
-# 姿势三：AtomicInteger / 自定义可变 int 封装类
+## 姿势三：AtomicInteger / 自定义可变 int 封装类
 
 ```java
 Map<String, AtomicInteger> map = new HashMap<>();
@@ -93,7 +93,7 @@ AtomicInteger 是为线程安全设计的，可能有一定性能损失，但我
 
 2. 改善了查表问题，每次只查两次表
 
-# 姿势四：利用 put() 方法的返回值
+## 姿势四：利用 put() 方法的返回值
 
 Map 的 `put()` 方法返回的是之前对应键的值，如果不存在，则为 `null`。
 
@@ -110,7 +110,7 @@ if (old != null)
 
 2. 只查表一次，大大提高效率
 
-# 姿势五：Java 8 中的 merge() / compute()
+## 姿势五：Java 8 中的 merge() / compute()
 
 ```java
 map.merge(word, 1, (a, b) -> a + b);
@@ -145,7 +145,7 @@ map.compute(word, (k, v) -> {
 
 只不过代码没那么简洁了，这样既解决了 Integer 对象问题，又减少了查表时间。
 
-# 总结
+## 总结
 
 以下是我个人测试得到的性能表现：
 
@@ -167,7 +167,7 @@ map.compute(word, (k, v) -> {
 
 以上均不考虑线程安全。
 
-# 参考资料
+## 参考资料
 
 1. [optimization - Most efficient way to increment a Map value in Java - Stack Overflow](https://stackoverflow.com/questions/81346/most-efficient-way-to-increment-a-map-value-in-java)
 2. [java - Increment an Integer within a HashMap - Stack Overflow](https://stackoverflow.com/questions/4277388/increment-an-integer-within-a-hashmap/37296348)

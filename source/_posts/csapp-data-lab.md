@@ -27,7 +27,7 @@ $ make clean && make btest && ./btest
 
 <!-- more -->
 
-# bitXor
+## bitXor
 
 用 `~` 和 `&` 来实现 `^`：
 
@@ -43,13 +43,13 @@ $$A + B = \overline{\overline{A + B}} = \overline{\overline{A} \cdot \overline{B
 
 来实现 `|`。
 
-# tmin
+## tmin
 
 求补码最小值，送分题：
 
 {% include_code lang:c from:148 to:156 csapp-labs/datalab-handout/bits.c %}
 
-# isTmax
+## isTmax
 
 判断是否为 `int` 最大值 `0x7fffffff`，只允许使用 `! ~ & ^ | +`：
 
@@ -61,7 +61,7 @@ $$A + B = \overline{\overline{A + B}} = \overline{\overline{A} \cdot \overline{B
 
 再利用逻辑非 `!` 排除 `0` 即可。
 
-# allOddBits
+## allOddBits
 
 判断是否所有奇数位（最低位为 0 位）都为 `1`：
 
@@ -69,13 +69,13 @@ $$A + B = \overline{\overline{A + B}} = \overline{\overline{A} \cdot \overline{B
 
 只允许使用 `0` 到 `0xff` 之间的常数，故先用移位求 `0xaaaaaaaa`，再用 `^` 实现 `==`。
 
-# negate
+## negate
 
 求相反数，送分题：
 
 {% include_code lang:c from:185 to:194 csapp-labs/datalab-handout/bits.c %}
 
-# isAsciiDigit
+## isAsciiDigit
 
 判断是否为 `'0'` 到 `'9'` 之间的 ASCII 码：
 
@@ -85,7 +85,7 @@ $$A + B = \overline{\overline{A + B}} = \overline{\overline{A} \cdot \overline{B
 
 中间可能有溢出的问题，当 `x - 0x30 >= 0` 时，可能 `x` 是一个很小的负数，负负得正产生溢出；当 `0x39 - x >= 0` 时，不会产生溢出，从而把前一种溢出的情况排除。
 
-# conditional
+## conditional
 
 实现三元运算符 `a ? b : c`：
 
@@ -93,7 +93,7 @@ $$A + B = \overline{\overline{A + B}} = \overline{\overline{A} \cdot \overline{B
 
 将非零数转换为掩码 `0xffffffff`，零转换为掩码 `0`。
 
-# isLessOrEqual
+## isLessOrEqual
 
 实现 `<=`：
 
@@ -103,7 +103,7 @@ $$A + B = \overline{\overline{A + B}} = \overline{\overline{A} \cdot \overline{B
 
 考虑溢出的问题，取 `x`、`y` 的符号位，不同号时直接判断，若同号再判断 `-x + y` 正负。
 
-# logicalNeg
+## logicalNeg
 
 实现逻辑非 `!`：
 
@@ -113,7 +113,7 @@ $$A + B = \overline{\overline{A + B}} = \overline{\overline{A} \cdot \overline{B
 
 后来发现了一种更简便的方法[^2]，除 `0` 和 `0x80000000` 外，一个数必定与其相反数异号，若将 `x` 与 `-x` 符号异或，则包括 `0x80000000` 在内 ，所有非零数异或结果必定为 `1`。
 
-# howManyBits
+## howManyBits
 
 求补码表示的最少位数：
 
@@ -121,17 +121,17 @@ $$A + B = \overline{\overline{A + B}} = \overline{\overline{A} \cdot \overline{B
 
 个人认为是最难的一题，参考了网上的答案[^3]，并对其作了改进。
 
-## 如何确定最少位数
+### 如何确定最少位数
 
 对于非负数而言，开头连续的 `0` 可以去掉，只需保留其中最后一个 `0` 作为符号位即可（否则就会被当成负数了）。例如，`0001...` 与 `01...` 表示的是相等值。
 
 对于负数而言，同样从符号位开始，开头连续的 `1` 只需保留最后一个即可。例如，`1110...` 与 `10...` 表示的是相等值。
 
-## 将负数的情况转化为非负数的情况
+### 将负数的情况转化为非负数的情况
 
 `x = x ^ (x >> 31)` 的作用就是，若 `x` 为非负，则保持不变，若为负数，则取反。这样无论 `x` 符号，都可以按照非负数的情况来求解。
 
-## 求最高位的 `1` 到最低位的长度，最终结果就是长度 + 1
+### 求最高位的 `1` 到最低位的长度，最终结果就是长度 + 1
 
 这个步骤需要一些技巧。
 
@@ -167,7 +167,7 @@ n = 16 + 8 + 4 + 2 + 0
 n = 16 + 8 + 4 + 2 + 0 + 1
 ```
 
-# floatScale2
+## floatScale2
 
 书上的习题，求 $2x$：
 
@@ -175,7 +175,7 @@ n = 16 + 8 + 4 + 2 + 0 + 1
 
 浮点数题目的限制比前面宽松很多，虽然构造复杂一点，只要按照定义求解即可。
 
-# floatFloat2Int
+## floatFloat2Int
 
 书上的习题，`float` 转换为 `int`：
 
@@ -183,13 +183,13 @@ n = 16 + 8 + 4 + 2 + 0 + 1
 
 `float` 范围比 `int` 更广，但精度（有效数字）更低，注意溢出的情况。
 
-# floatPower2
+## floatPower2
 
 书上的习题，求 $2^x$：
 
 {% include_code lang:c from:333 to:357 csapp-labs/datalab-handout/bits.c %}
 
-# 参考资料
+## 参考资料
 
 [^1]: [CS:APP3e, Bryant and O'Hallaron](http://csapp.cs.cmu.edu/3e/labs.html)
 

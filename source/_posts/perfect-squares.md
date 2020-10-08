@@ -22,7 +22,7 @@ tags:
 > Output: 2
 > Explanation: 13 = 4 + 9.
 
-# 动态规划
+## 动态规划
 
 $$ f(i) = \min\{f(i - s)\} + 1, 其中 s 为平方数且 1 \le s \le i$$
 
@@ -55,7 +55,7 @@ int Solution::numSquares(int n) {
 }
 ```
 
-# 宽度优先搜索
+## 宽度优先搜索
 
 ![](https://leetcode.com/uploads/files/1467720855285-xcoqwin.png)
 
@@ -86,7 +86,7 @@ int Solution::numSquares(int n) {
 }
 ```
 
-# 筛法
+## 筛法
 
 灵感来源于{% post_link prime-sieve-and-goldbach-s-conjecture 埃拉托斯特尼筛法 %}。Discuss 区翻了一下，好像没人提到过。
 
@@ -129,7 +129,7 @@ int Solution::numSquares(int n) {
 }
 ```
 
-# 四平方和定理
+## 四平方和定理
 
 数学武器可以说是降维打击了。这里用到：
 
@@ -163,11 +163,11 @@ int Solution::numSquares(int n) {
 
 时间复杂度 $O(\log(n))$，空间复杂度 $O(1)$。
 
-# 实现源码
+## 实现源码
 
 <https://github.com/qianbinbin/leetcode>
 
-# 参考资料
+## 参考资料
 
 1. [Summary of 4 different solutions (BFS, DP, static DP and mathematics) - LeetCode Discuss](https://leetcode.com/problems/perfect-squares/discuss/71488)
 2. [Short Python solution using BFS - LeetCode Discuss](https://leetcode.com/problems/perfect-squares/discuss/71475/Short-Python-solution-using-BFS)

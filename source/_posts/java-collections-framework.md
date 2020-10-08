@@ -7,7 +7,7 @@ tags:
 - 算法
 ---
 
-# Collection
+## Collection
 
 ![](/images/java-collections-framework/collection.png)
 
@@ -22,7 +22,7 @@ public class ArrayList<E> extends AbstractList<E>
 
 事实上这就是个错误，Java 集合框架最初版的作者承认了：[java - Why does LinkedHashSet<E> extend HashSet<e> and implement Set<E> - Stack Overflow](https://stackoverflow.com/questions/2165204/why-does-linkedhashsete-extend-hashsete-and-implement-sete)
 
-## List
+### List
 
 - ArrayList
 
@@ -53,7 +53,7 @@ public class ArrayList<E> extends AbstractList<E>
 
   废弃类。Stack 类是糟糕的设计，它继承自 Vector，加入了栈相关的方法（还用 `synchronized` 修饰）。这就意味着 Stack 可以随机存取，而栈是一种限制只能在栈顶存取的数据结构。可以用 ArrayDeque 代替。
 
-## Set
+### Set
 
 - HashSet
 
@@ -79,7 +79,7 @@ public class ArrayList<E> extends AbstractList<E>
 
   枚举类型 Set 的抽象类，提供一系列静态方法，返回继承它的实体类的实例。如果枚举数量不超过 64，则返回 RegularEnumSet 的实例，它维护一个 `long` 变量，每个比特标识一个枚举；如果枚举数量超过 64，则返回 JumboEnumSet 的实例，它使用 `long` 数组来标识。
 
-## Queue
+### Queue
 
 - LinkedList
 
@@ -103,7 +103,7 @@ public class ArrayList<E> extends AbstractList<E>
 
   与 C++、Python 不同，Java 标准库没有提供在数组上直接建堆的方法。
 
-# Map
+## Map
 
 ![](/images/java-collections-framework/map.png)
 
@@ -135,7 +135,7 @@ public class ArrayList<E> extends AbstractList<E>
 
   其父类 Dictionary 已废弃，被 Map 代替。其子类 Properties 用于存取 String 类型的键值对，`System.getProperty` 方法就是一个应用。
 
-# 工具类
+## 工具类
 
 - Arrays
 

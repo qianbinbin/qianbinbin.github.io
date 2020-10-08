@@ -14,9 +14,9 @@ tags:
 
 <!-- more -->
 
-# 实例
+## 实例
 
-## 参与者
+### 参与者
 
 ![](/images/bridge-pattern/bridge-pattern.png)
 
@@ -32,7 +32,7 @@ tags:
 - ConcreteImplementor
   Implementor 的一个实现，对应具体的“绘图 API”
 
-## 源码
+### 源码
 
 ```java
 public interface Implementor {
@@ -75,7 +75,7 @@ public class RefinedAbstraction extends Abstraction {
 }
 ```
 
-## 测试
+### 测试
 
 ```java
 Abstraction abstraction = new RefinedAbstraction(new ConcreteImplementorA());
@@ -93,19 +93,19 @@ java.lang.Throwable
 Lambda implementor
 ```
 
-## 与抽象工厂模式比较
+### 与抽象工厂模式比较
 
 两者都可以将多个维度的实现进行组合，但{% post_link factory-pattern 抽象工厂模式 %}是创建型模式，注重的是一个产品族产品的创建，其实现往往是编译时定义好的，而桥接模式是结构型模式，Implementor 的实现可以是在运行时变化的。
 
-## 与策略模式比较
+### 与策略模式比较
 
 如果忽略 Abstraction 的扩展，则与{% post_link strategy-pattern 策略模式 %}很相似，但策略模式侧重于在运行时替换具体实现，桥接模式则是为了分离抽象和实现。
 
-# 源码实现
+## 源码实现
 
 <https://github.com/qianbinbin/DesignPattern/tree/master/src/main/java/io/binac/designpattern/bridge>
 
-# 参考资料
+## 参考资料
 
 1. 《设计模式：可复用面向对象软件的基础》
 2. [桥接模式 - 维基百科，自由的百科全书](https://zh.wikipedia.org/wiki/%E6%A9%8B%E6%8E%A5%E6%A8%A1%E5%BC%8F)

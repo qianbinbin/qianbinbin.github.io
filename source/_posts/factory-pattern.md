@@ -10,7 +10,7 @@ tags:
 
 <!-- more -->
 
-# 简单工厂模式
+## 简单工厂模式
 
 简单工厂模式实际上是对产品创建逻辑做了统一的封装，包含如下角色：
 
@@ -23,9 +23,9 @@ tags:
 - 工厂
   创建所有产品实例的类
 
-## 实例
+### 实例
 
-### 抽象产品
+#### 抽象产品
 
 ```java
 public interface Product {
@@ -35,7 +35,7 @@ public interface Product {
 }
 ```
 
-### 具体产品
+#### 具体产品
 
 ```java
 public class ConcreteProductA implements Product {
@@ -47,7 +47,7 @@ public class ConcreteProductB implements Product {
 }
 ```
 
-### 工厂
+#### 工厂
 
 根据客户端传来的参数，创建并返回不同的产品。
 
@@ -71,7 +71,7 @@ public class Factory {
 }
 ```
 
-### 测试
+#### 测试
 
 ```java
 Product product = Factory.createProduct(Factory.ProductType.TYPE_A);
@@ -88,7 +88,7 @@ using io.binac.designpattern.factory.simplefactory.ConcreteProductA@65e2dbf3
 using io.binac.designpattern.factory.simplefactory.ConcreteProductB@4f970963
 ```
 
-## 小结
+### 小结
 
 由于创建产品的方法是静态的，简单工厂模式也称为静态工厂模式。
 
@@ -103,15 +103,15 @@ using io.binac.designpattern.factory.simplefactory.ConcreteProductB@4f970963
 - 增加产品时，需要修改工厂类，违反开闭原则
 - 产品过多时，难以维护
 
-# 工厂方法模式
+## 工厂方法模式
 
 工厂方法模式是对简单工厂模式的改进，把工厂角色分为抽象工厂和具体工厂，即包含抽象产品、具体产品、抽象工厂、具体工厂四个角色，每个具体产品对应一个具体工厂。
 
-## 实例
+### 实例
 
 抽象产品和具体产品代码同简单工厂模式。
 
-### 抽象工厂
+#### 抽象工厂
 
 ```java
 public interface Factory {
@@ -119,7 +119,7 @@ public interface Factory {
 }
 ```
 
-### 具体工厂
+#### 具体工厂
 
 ```java
 public class ConcreteFactoryA implements Factory {
@@ -139,7 +139,7 @@ public class ConcreteFactoryB implements Factory {
 }
 ```
 
-### 测试
+#### 测试
 
 ```java
 Factory factory = new ConcreteFactoryA();
@@ -158,7 +158,7 @@ using io.binac.designpattern.factory.factorymethod.ConcreteProductA@65e2dbf3
 using io.binac.designpattern.factory.factorymethod.ConcreteProductB@4f970963
 ```
 
-## 小结
+### 小结
 
 优点：
 
@@ -169,7 +169,7 @@ using io.binac.designpattern.factory.factorymethod.ConcreteProductB@4f970963
 
 - 增加产品时，类的个数成对增加，增加了系统复杂性
 
-# 抽象工厂模式
+## 抽象工厂模式
 
 在工厂方法模式中，一个具体产品对应一个具体工厂。如果一个具体工厂可以提供多种相关的产品，称这些产品属于同一个产品族。
 
@@ -177,9 +177,9 @@ using io.binac.designpattern.factory.factorymethod.ConcreteProductB@4f970963
 
 抽象工厂模式同样包含抽象产品、具体产品、抽象工厂、具体工厂四个角色。
 
-## 实例
+### 实例
 
-### 抽象产品
+#### 抽象产品
 
 ```java
 public interface ProductA {
@@ -197,7 +197,7 @@ public interface ProductB {
 }
 ```
 
-### 具体产品
+#### 具体产品
 
 ```java
 public class ConcreteProductA1 implements ProductA {
@@ -219,7 +219,7 @@ public class ConcreteProductB2 implements ProductB {
 }
 ```
 
-### 抽象工厂
+#### 抽象工厂
 
 ```java
 public interface Factory {
@@ -231,7 +231,7 @@ public interface Factory {
 
 这里使用的是接口，也可以用抽象类。
 
-### 具体工厂
+#### 具体工厂
 
 ```java
 public class ConcreteFactory1 implements Factory {
@@ -261,7 +261,7 @@ public class ConcreteFactory2 implements Factory {
 }
 ```
 
-### 测试
+#### 测试
 
 ```java
 Factory factory = new ConcreteFactory1();
@@ -286,7 +286,7 @@ using io.binac.designpattern.factory.abstractfactory.ConcreteProductA2@61f8bee4
 using io.binac.designpattern.factory.abstractfactory.ConcreteProductB2@7b49cea0
 ```
 
-## 小结
+### 小结
 
 优点：
 
@@ -298,11 +298,11 @@ using io.binac.designpattern.factory.abstractfactory.ConcreteProductB2@7b49cea0
 
 - 产品族增加新的产品非常麻烦，需要修改所有的工厂类，对开闭原则有倾斜性
 
-# 实现源码
+## 实现源码
 
 <https://github.com/qianbinbin/DesignPattern/tree/master/src/main/java/io/binac/designpattern/factory>
 
-# 参考资料
+## 参考资料
 
 1. [创建型模式 — Graphic Design Patterns](http://design-patterns.readthedocs.io/zh_CN/latest/creational_patterns/creational.html)
 2. [设计模式（七）——抽象工厂模式-HollisChuang's Blog](http://www.hollischuang.com/archives/1420)

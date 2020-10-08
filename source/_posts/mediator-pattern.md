@@ -10,9 +10,9 @@ tags:
 
 中介者常被用来协调相关的 GUI 组件。例如，一个按钮被点击以后，其他控件应该如何处理。
 
-# 实例
+## 实例
 
-## 参与者
+### 参与者
 
 ![](/images/mediator-pattern/mediator-pattern.png)
 
@@ -25,7 +25,7 @@ tags:
 - Colleague class
   同事类，每个同事类都知道它的中介者对象，每个同事对象都通过中介者与其他同事进行通信
 
-## 源码
+### 源码
 
 抽象中介者：
 
@@ -102,18 +102,18 @@ class ConcreteMediator implements Mediator {
 
 这里写成了 JUnit 单元测试类。
 
-## 测试
+### 测试
 
 ```shell
 Colleague1 changed
 Colleague2 changed
 ```
 
-# 实现源码
+## 实现源码
 
 <https://github.com/qianbinbin/DesignPattern/tree/master/src/main/java/io/binac/designpattern/mediator>
 
-# 参考资料
+## 参考资料
 
 1. 《设计模式：可复用面向对象软件的基础》
 2. 《Head First 设计模式》

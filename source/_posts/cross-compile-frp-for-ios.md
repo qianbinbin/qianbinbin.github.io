@@ -48,7 +48,7 @@ git clone git@github.com:golang/text.git $GOPATH/src/golang.org/x/text
 
 然后重新编译即可。别忘了将编译生成的二进制文件进行签名。
 
-# 参考资料
+## 参考资料
 
 1. [一键解决 go get golang.org/x 包失败 - 格物](https://shockerli.net/post/go-get-golang-org-x-solution/)
 2. [Golang教程：编译可在苹果iOS设备上运行的Go语言程序 | Konica 的自留地](http://www.iikira.com/2017/08/09/golang-compile-jc-1/)

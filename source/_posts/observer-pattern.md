@@ -10,7 +10,7 @@ tags:
 
 <!-- more -->
 
-# 实例
+## 实例
 
 ```java
 public class Subject {
@@ -48,7 +48,7 @@ public class Subject {
 }
 ```
 
-## 测试
+### 测试
 
 ```java
 Subject subject = new Subject();
@@ -66,10 +66,10 @@ subject.setState(2);
 State: 1
 ```
 
-# 实现源码
+## 实现源码
 
 <https://github.com/qianbinbin/DesignPattern/tree/master/src/main/java/io/binac/designpattern/observer>
 
-# 参考资料
+## 参考资料
 
 1. [Observer pattern - Wikipedia](https://en.wikipedia.org/wiki/Observer_pattern)

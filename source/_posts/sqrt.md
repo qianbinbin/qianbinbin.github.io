@@ -12,7 +12,7 @@ tags:
 
 <!-- more -->
 
-# 从泰勒公式到牛顿法
+## 从泰勒公式到牛顿法
 
 泰勒公式
 
@@ -42,7 +42,7 @@ $$f(x_n) + f'(x_n)(x_{n + 1} - x_n) = 0,$$
 
 $$ x_{n + 1} = x_n - \frac{f(x_n)}{f'(x_n)}.$$
 
-# 开平方迭代公式
+## 开平方迭代公式
 
 求开平方 $\sqrt{n}$，可令
 
@@ -62,10 +62,10 @@ $$x_{n + 1} = \frac{1}{2} (x_n + \frac{n}{x_n}).$$
 
 类似地还可以求更高次方根以及其它复杂方程的根。
 
-# 实现源码
+## 实现源码
 
 <https://github.com/qianbinbin/leetcode>
 
-# 参考资料
+## 参考资料
 
 1. [Newton's method - Wikipedia](https://en.wikipedia.org/wiki/Newton%27s_method)

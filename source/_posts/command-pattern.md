@@ -12,9 +12,9 @@ tags:
 
 <!-- more -->
 
-# 实例
+## 实例
 
-## 参与者
+### 参与者
 
 ![](/images/command-pattern/command-pattern.png)
 
@@ -34,7 +34,7 @@ tags:
 
 举个例子，工具栏是调用者，它负责调用命令、记录历史等，不关心最终这些命令是如何执行的（Receiver 是如何实现的）。
 
-## 源码
+### 源码
 
 ```java
 public class Receiver {
@@ -75,7 +75,7 @@ public class Invoker {
 
 这里调用者只负责执行命令，它可以实现更复杂的功能。
 
-## 测试
+### 测试
 
 ```java
 Receiver receiver = new Receiver();
@@ -91,11 +91,11 @@ java.lang.Throwable
 	at io.binac.designpattern.command.Invoker.call(Invoker.java:5)
 ```
 
-# 源码实现
+## 源码实现
 
 <https://github.com/qianbinbin/DesignPattern/tree/master/src/main/java/io/binac/designpattern/command>
 
-# 参考资料
+## 参考资料
 
 1. 《Head First 设计模式》
 2. [命令模式 - 维基百科，自由的百科全书](https://zh.wikipedia.org/wiki/%E5%91%BD%E4%BB%A4%E6%A8%A1%E5%BC%8F)

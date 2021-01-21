@@ -9,212 +9,187 @@ tags:
 这是 LeetCode 上的一道题，求两个有序数组的中位数：
 <https://leetcode.com/problems/median-of-two-sorted-arrays/description/>
 
-> There are two sorted arrays nums1 and nums2 of size m and n respectively.
->
-> Find the median of the two sorted arrays. The overall run time complexity should be O(log (m+n)).
->
-> Example 1:
-> nums1 = [1, 3]
-> nums2 = [2]
->
-> The median is 2.0
-> Example 2:
-> nums1 = [1, 2]
-> nums2 = [3, 4]
->
-> The median is (2 + 3)/2 = 2.5
+> <p>Given two sorted arrays <code>nums1</code> and <code>nums2</code> of size <code>m</code> and <code>n</code> respectively, return <strong>the median</strong> of the two sorted arrays.</p>
+> 
+> <p><strong>Follow up:</strong> The overall run time complexity should be <code>O(log (m+n))</code>.</p>
+> 
+> <p>&nbsp;</p>
+> <p><strong>Example 1:</strong></p>
+> 
+> <pre><strong>Input:</strong> nums1 = [1,3], nums2 = [2]
+> <strong>Output:</strong> 2.00000
+> <strong>Explanation:</strong> merged array = [1,2,3] and median is 2.
+> </pre>
+> 
+> <p><strong>Example 2:</strong></p>
+> 
+> <pre><strong>Input:</strong> nums1 = [1,2], nums2 = [3,4]
+> <strong>Output:</strong> 2.50000
+> <strong>Explanation:</strong> merged array = [1,2,3,4] and median is (2 + 3) / 2 = 2.5.
+> </pre>
+> 
+> <p><strong>Example 3:</strong></p>
+> 
+> <pre><strong>Input:</strong> nums1 = [0,0], nums2 = [0,0]
+> <strong>Output:</strong> 0.00000
+> </pre>
+> 
+> <p><strong>Example 4:</strong></p>
+> 
+> <pre><strong>Input:</strong> nums1 = [], nums2 = [1]
+> <strong>Output:</strong> 1.00000
+> </pre>
+> 
+> <p><strong>Example 5:</strong></p>
+> 
+> <pre><strong>Input:</strong> nums1 = [2], nums2 = []
+> <strong>Output:</strong> 2.00000
+> </pre>
+> 
+> <p>&nbsp;</p>
+> <p><strong>Constraints:</strong></p>
+> 
+> <ul>
+> 	<li><code>nums1.length == m</code></li>
+> 	<li><code>nums2.length == n</code></li>
+> 	<li><code>0 &lt;= m &lt;= 1000</code></li>
+> 	<li><code>0 &lt;= n &lt;= 1000</code></li>
+> 	<li><code>1 &lt;= m + n &lt;= 2000</code></li>
+> 	<li><code>-10<sup>6</sup> &lt;= nums1[i], nums2[i] &lt;= 10<sup>6</sup></code></li>
+> </ul>
 
-这道题初看并不复杂，很容易想到时间复杂度为 $O(m+n)$ 的方法，但是要求的复杂度为 $O(\log(m+n))$，而且边缘情况很繁杂，所以难度为 hard。
+确定一下输入应满足的条件：两个数组的长度可以有一个为 $0$（此时中位数就是另一个数组的中位数），但不能同时为 $0$。
 
-很多中文博客都是用的寻找第 $k$ 小的数来实现的，这里我介绍另一种方法，时间复杂度为 $O(\log(\min\{m, n\}))$。
+很容易想到时间复杂度为 $O(m+n)$ 的方法，但是 follow-up 要求复杂度为 $O(\log(m+n))$。从复杂度看应该用分治法。事实上，复杂度可以减少到 $O(\log(\min(m, n)))$。
 
 <!-- more -->
 
-首先确定一下输入应满足的条件：两个数组可以有一个数组的长度为 0（此时中位数就是另一个数组的中位数），但长度不能同时为 0，因为此时不存在中位数。
-
 ## 划分
 
-设两个数组中位数为 $x$，$x$ 可将两个数组分别划分为两半：
+设中位数为 $x$，$x$ 可将两个数组分别划分为两半：
 
-$$A[0], A[1], ..., A[i - 1] \quad \mid \quad A[i], A[i + 1], ..., A[m - 1]\\
-B[0], B[1], ..., B[j - 1] \quad \mid \quad B[j], B[j + 1], ..., B[n - 1]$$
+```
+A[0], A[1], ..., A[i - 1] | A[i], A[i + 1], ..., A[m - 1]
+B[0], B[1], ..., B[j - 1] | B[j], B[j + 1], ..., B[n - 1]
+```
 
-其中
+其中 $0 \le i \le m, 0 \le j \le n$。
 
-$$i = 0, 1, ..., m\\
-j = 0, 1, ..., n$$
+如果满足两个条件：
 
-这里先不关注 $i$、$j$ 在边缘情况的取值问题，稍后再详细说明。
-
-如果同时满足以下两个条件：
-
-1. $i + j =
-\begin{cases}
-m - i + n - j& \text{$m + n$ 为偶数}\\
-m - i + n - j + 1& \text{$m + n$ 为奇数}
+- $i + j = \begin{cases} m - i + n - j, & \text{$m + n$ 为偶数}\\
+m - i + n - j + 1, & \text{$m + n$ 为奇数}
 \end{cases}$
+- 左边所有元素 $\le x \le$ 右边所有元素，
 
-2. 左边最大的元素 $\leq x$，右边最小的元素 $\geq x$
+则找到了适当的划分位置，且
 
-则找到了划分位置，并且
+$$
+x = \begin{cases}
+(\max\{A[i - 1], B[j - 1]\} + \min\{A[i + 1], B[j + 1]\}) \div 2, & \text{$m + n$ 为偶数}\\
+\max\{A[i - 1], B[j - 1]\}, & \text{$m + n$ 为奇数}
+\end{cases}
+$$
 
-$$x = \begin{cases}
-\frac{\max\{A[i - 1], B[j - 1]\} + \min\{A[i + 1], B[j + 1]\}}{2}& \text{$m + n$ 为偶数}\\
-\max\{A[i - 1], B[j - 1]\}& \text{$m + n$ 为奇数}
-\end{cases}$$
+由此问题转化为：查找这样的 $i$，且同时满足以上两个条件，即可得出中位数 $x$。
 
-由此，问题转化为：查找这样的 $i$，且同时满足以上两个条件，即可得出中位数 $x$。
-
-根据第一个条件，由 $i$ 和 $j$ 之间的关系，在编程语言中可以直接根据 $i$ 计算得出 $j$：
+- 根据第一个条件，在编程中可以直接用截断除法得出 $j$：
 
 ```c
 j = (m + n + 1) / 2 - i;
 ```
 
-以上表达式在 $m + n$ 奇偶情况下均成立。
+- 若不考虑下标越界情况，由于两个数组升序，第二个条件等价于：
 
-第二个条件等价于：
-
-$$\begin{cases}
-A[i - 1] \leq x \leq A[i]&\\
-B[j - 1] \leq x \leq B[j]
+$$
+\begin{cases}
+A[i - 1] \le x \leq A[i]&\\
+B[j - 1] \le x \leq B[j]
 \end{cases}
 \iff
 \begin{cases}
-A[i - 1] \leq B[j]&\\
-B[j - 1] \leq A[i]
-\end{cases}$$
+A[i - 1] \le B[j]&\\
+B[j - 1] \le A[i]
+\end{cases}
+$$
 
 ## 二分查找
 
 ### $j$ 的取值范围
 
-现考察 $j$ 的范围，先将 $j$ 表示为
+现考察 $j$ 的范围，$j = \frac{m + n + k}{2} - i$，其中
 
-$$j = \frac{m + n + k}{2} - i，其中 k = \begin{cases}
-0& \text{$m + n$ 为偶数}\\
-1& \text{$m + n$ 为奇数}
-\end{cases}$$
+$$
+k = \begin{cases}
+0, & \text{$m + n$ 为偶数}\\
+1, & \text{$m + n$ 为奇数}
+\end{cases}
+$$
 
-显然 $j$ 随 $i$ 递增而递减，只需 $\begin{cases}
-j_{max} \leq n&\\
-j_{min} \geq 0\end{cases}$ 即可，又 $0 \leq i \leq m$，则：
+$j$ 随 $i$ 递减，只需
 
-$$\begin{cases}
-j_{max} = \frac{m + n + k}{2} \leq n&\\
-j_{min} = \frac{m + n + k}{2} - m \geq 0
+$$
+\begin{cases}
+j_{max} = (m + n + k) \div 2 - 0 \le n&\\
+j_{min} = (m + n + k) \div 2 - m \ge 0
 \end{cases}
 \iff
-m \leq n - k$$
+m \le n - k
+$$
 
 即可保证 $0 \leq j \leq n$。
 
-- 当 $m + n$ 为偶数时，$k = 0$，则 $m \leq n$
+- 当 $m + n$ 为偶数时，$k = 0$，则 $m \leq n$。
+- 当 $m + n$ 为奇数时，$k = 1$，则 $m \leq n - 1$，又 $m$、$n$ 必为一奇一偶，因此 $m < n$。
 
-- 当 $m + n$ 为奇数时，$k = 1$，则 $m \leq n - 1$，又 $m$、$n$ 必为一奇一偶，因此 $m < n$
+综上得 $m \le n$。
 
-综合得
+因此当 $m \le n$ 时，若 $0 \le i \le m$，则必有 $0 \le j \le n$。
 
-$$m \leq n$$
-
-因此只需 $m \leq n$，即保证 $0 \leq j \leq n$。
-
-在编程实现时，就要先比较两个数组长度，如果 $m > n$，就要将两个数组交换。
+在编程实现时，保证数组长度 $A$ 比 $B$ 小即可。
 
 ### 查找思路
 
-要在 $i = 0, 1, ..., m$ 中查找合适的 $i$，自然联想到二分查找。
+要在 $i = 0, 1, ..., m$ 中查找合适的 $i$，自然联想到二分查找。初始情况下，$i$ 的下界为 $0$，上界为 $m$。
 
-初始情况下，令
+若不考虑下标越界，则有以下几种情形：
 
-```c
-int begin = 0, end = m;
-```
+- $\begin{cases} A[i-1] \le B[j] &\\ B[j-1] \le A[i] \end{cases}$，此时 $i$ 查找成功。
+- $A[i-1] > B[j]$，此时 $i$ 过大，应丢弃后半部分。
+- $B[j-1] > A[i]$，此时 $i$ 过小，应丢弃前半部分。
 
-然后令
+考虑下标越界情况：
 
-```c
-i = begin + (end - begin) / 2;
-j = (m + n + 1) / 2 - i;
-```
+- $i = 0$，无需判断 $A[i-1] \le B[j]$。
+- $i = m$，无需判断 $B[j-1] \le A[i]$。
+- $j = 0$，无需判断 $B[j-1] \le A[i]$。
+- $j = n$，无需判断 $A[i-1] \le B[j]$。
 
-如果`m == 0`，此时相当于只对 $B$ 数组进行划分，直接找到了 $i$、$j$ 的值。
+结合越界情况，会出现以下三种情形：
 
-如果`m != 0`，就要判断上面第二个条件是否成立，成立则找到所求划分位置，否则就舍去 $begin$ 到 $end$ 一半的元素，然后继续查找。
-
-但是在$\begin{cases}
-A[i - 1] \leq B[j]&\\
-B[j - 1] \leq A[i]
-\end{cases}$的判断中可能会有 $A[i - 1]$、$A[i]$、$B[j - 1]$、$B[j]$ 不存在的情况，又需要进一步讨论。
-
-我这里给出的方法比较笨，分为如下三种情形，如果你有更好的方法欢迎讨论：
-
-- $i = 0$ 时
-
-  $A[i - 1]$ 不存在，相当于把数组 $A$ 的所有元素划分到右边，只需判断 $B[j - 1] \leq A[i]$ 是否成立即可。
-
-  但 $B[j - 1]$ 是否存在，也就是说是否一定有 $0 \leq j - 1 \leq n - 1$ 呢？答案是肯定的。显然 $j - 1 \leq n - 1$，注意到 $i + j$ 是一个恒定的正数`(m + n + 1) / 2`，因此 $j \geq 1$，$0 \leq j - 1 \leq n - 1$ 。
-
-  这样，
-
-  - 若 $B[j - 1] > A[i]$，说明 $A[i]$ 太小，$i$ 的最终位置应在 $i + 1, i + 2, ..., m$ 之中，此时就应舍去一半元素：
-
-  ```c
-  begin = i + 1;
-  ```
-
-  - 否则说明找到 $i$
-
-
-- $0 < i < m$ 时，$j$ 在 $i_{min} = 0$、$i_{max} = m$ 处分别取 $j_{max}$、$j_{min}$，则 $0 \leq j_{min} < j < j_{max} \leq n$ 。
-
-  此时两个不等式中的元素均存在，并且
-
-  - 若 $A[i - i] > B[j]$，说明 $j$ 太小，$i$ 太大，应：
-
-    ```c
-    end = i - 1;
-    ```
-
-  - 若 $B[j - 1] > A[i]$，说明 $i$ 太小，应：
-
-    ```c
-    begin = i + 1;
-    ```
-
-  - 否则说明找到 $i$
-
-- $i = m$ 时
-
-  $A[i]$ 不存在，只需判断 $A[i - 1] \leq B[j]$ 是否成立即可。显然 $A[i - 1]$ 必存在，又 $j = j_{min} < j_{max} \leq n$，故 $B[j]$ 也必存在。
-
-  在这种情况下，
-
-  - 若 $A[i - 1] > B[j]$，说明 $i$ 太大，应：
-
-    ```c
-    end = i - 1;
-    ```
-
-  - 否则说明找到 $i$
+- $\begin{cases} i=0 \ 或\ j=n \ 或\ A[i-1] \le B[j] &\\ j=0 \ 或\ i=m \ 或\ B[j-1] \le A[i] \end{cases}$，此时 $i$ 查找成功。
+- $i>0 \ 且\ j < n \ 且\ A[i-1] > B[j]$，此时 $i$ 过大。
+- $j>0 \ 且\ i < m \ 且\ B[j-1] > A[i]$，此时 $i$ 过小。
 
 这样，通过二分查找，找到所需要的 $i$ 的值。
+
+也可以反过来考虑，合适的 $0 \le i \le m$ 必定存在，先考虑 $i$ 过大和过小的情形。
+
+例如，若 $i$ 过大，要在 $< i$ 中查找，不可能有 $i = 0$ 或 $j = n$，因为 $i$ 减小同时 $j$ 增大后必定越界，而 $A[i-1] > B[j]$ 是一定成立的，所以 $i$ 过大 $\iff \begin{cases} i>0 &\\ j < n &\\ A[i-1] > B[j] \end{cases}$。排除过大和过小的情形，剩下只能是查找成功的情形。
 
 ## 计算中位数
 
 现在已经找出了划分位置，如果共有奇数个元素，则中位数为左边元素的最大值，如果共有偶数个元素，则中位数为左边最大值和右边最小值的平均数。
 
-- 若 $A[i - 1]$ 不存在，即 $i = 0$，左边最大值即为 $B[j - 1]$（$i + j$ 为确定的正数`(m + n + 1) / 2`，故 $j > 0$，$B[j - 1]$ 必定存在）
+例如求左边最大值：
 
-- 若 $B[j - 1]$ 不存在，即 $j = 0$，左边最大值即为 $A[i - 1]$（同样 $A[i - 1]$ 必定存在）
-
-- 若 $A[i - 1]$、$B[j - 1]$ 均存在时，左边最大值为 $\max\{A[i - 1], B[j - 1]\}$
-
-如果 $m + n$ 为奇数，则直接返回左边最大值，否则同理求得右边最小值，返回它们的平均数。
+- 若 $i = 0$，左边最大值即为 $B[j - 1]$，此时 $j > 0$ 必成立。
+- 若 $j = 0$，左边最大值即为 $A[i - 1]$，此时 $i > 0$ 必成立。
+- 若 $\begin{cases} i > 0 &\\ j > 0 \end{cases}$，左边最大值为 $\max\{A[i - 1], B[j - 1]\}$。
 
 ## 时间复杂度
 
-此算法相当于在长度为 $m$ 的数组 $A$ 中进行二分查找，由于保证了 $m \leq n$，因此时间复杂度为 $O(\log(\min\{m, n\}))$。
+在长度为 $m$ 的数组 $A$ 中进行二分查找，由于保证了 $m \leq n$，因此时间复杂度为 $O(\log(\min(m, n)))$。
 
 ## 实现源码
 

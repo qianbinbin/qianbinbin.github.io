@@ -4,3 +4,6 @@
 [submodule "source/downloads/code/csapp-labs"]
 	path = source/downloads/code/csapp-labs
 	url = git@github.com:qianbinbin/csapp-labs.git
+[submodule "source/downloads/code/ostep/ostep-code"]
+	path = source/downloads/code/ostep/ostep-code
+	url = git@github.com:qianbinbin/ostep-code.git

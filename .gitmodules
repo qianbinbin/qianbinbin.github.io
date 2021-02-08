@@ -7,3 +7,6 @@
 [submodule "source/downloads/code/ostep/ostep-code"]
 	path = source/downloads/code/ostep/ostep-code
 	url = git@github.com:qianbinbin/ostep-code.git
+[submodule "source/downloads/code/xv6-public"]
+	path = source/downloads/code/xv6-public
+	url = git@github.com:mit-pdos/xv6-public.git

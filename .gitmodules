@@ -10,3 +10,6 @@
 [submodule "source/downloads/code/xv6-public"]
 	path = source/downloads/code/xv6-public
 	url = git@github.com:mit-pdos/xv6-public.git
+[submodule "source/downloads/code/ostep/ostep-homework"]
+	path = source/downloads/code/ostep/ostep-homework
+	url = git@github.com:remzi-arpacidusseau/ostep-homework.git

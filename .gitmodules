@@ -12,4 +12,4 @@
 	url = git@github.com:mit-pdos/xv6-public.git
 [submodule "source/downloads/code/ostep/ostep-homework"]
 	path = source/downloads/code/ostep/ostep-homework
-	url = git@github.com:remzi-arpacidusseau/ostep-homework.git
+	url = git@github.com:qianbinbin/ostep-homework.git

@@ -84,7 +84,7 @@ hello, I am parent of 29147 (pid:29146)
 
 新创建的进行几乎与调用的进程完全一样，在 OS 看来就好像有两个 `p1` 的副本在运行，两者都将从 `fork()` 系统调用返回。
 
-但子进程不会从 `main()` 函数开始执行，而是紧接着 `fork()` 之后。父进程获得的返回值是子进程的 PID，子进程获得的返回值是 0。这样就可以在编码中处理两种不同的情况。
+**但子进程不会从 `main()` 函数开始执行，而是紧接着 `fork()` 之后。父进程获得的返回值是子进程的 PID，子进程获得的返回值是 0。这样就可以在编码中处理两种不同的情况。**
 
 子进程和父进程的先后顺序是不确定的。
 
@@ -141,3 +141,67 @@ UNIX 管道也是用类似方式实现的，但用的是 `pipe()` 系统调用�
 ### 5.5 其他 API
 
 UNIX 还有其他与进程交互的方式，如 `kill()` 系统调用可以向进程发送信号，要求其睡眠、终止等。
+
+## 作业
+
+1.
+
+{% include_code lang:c ostep/ostep-homework/cpu-api/p1.c %}
+
+2.
+
+{% include_code lang:c ostep/ostep-homework/cpu-api/p2.c %}
+
+3.
+
+{% include_code lang:c ostep/ostep-homework/cpu-api/p3.c %}
+
+4. 根据 <https://en.wikipedia.org/wiki/Exec_(system_call)>：
+
+```c
+int execl(char const *path, char const *arg0, ...);
+int execle(char const *path, char const *arg0, ..., char const *envp[]);
+int execlp(char const *file, char const *arg0, ...);
+int execv(char const *path, char const *argv[]);
+int execve(char const *path, char const *argv[], char const *envp[]);
+int execvp(char const *file, char const *argv[]);
+```
+
+> e – An array of pointers to environment variables is explicitly passed to the new process image.
+>
+> l – Command-line arguments are passed individually (a list) to the function.
+>
+> p – Uses the PATH environment variable to find the file named in the file argument to be executed.
+>
+> v – Command-line arguments are passed to the function as an array (vector) of pointers.
+
+- `e`：`environment variables`，指定环境变量。
+- `l`：`list`，通过列表传递参数。
+- `p`：`PATH environment variable`，即 `PATH` 环境变量，从 `PATH` 中查找可执行程序。
+- `v`：`vector`，通过数组传递参数。
+
+{% include_code lang:c ostep/ostep-homework/cpu-api/p4.c %}
+
+5. 父进程调用 `wait()` 返回的是子进程的 `pid`，子进程调用 `wait()` 返回值为 `-1`：
+
+{% include_code lang:c ostep/ostep-homework/cpu-api/p5.c %}
+
+6. `wait(&wstatus)` 等价于 `waitpid(-1, &wstatus, 0)`：
+
+{% include_code lang:c ostep/ostep-homework/cpu-api/p6.c %}
+
+7. 关闭标准输出后，`printf()` 不会有内容输出：
+
+{% include_code lang:c ostep/ostep-homework/cpu-api/p7.c %}
+
+8. 使用 `pipe()` 系统调用创建管道，使用 `dup2()` 系统调用将标准输入和输出重定向到管道两端：
+
+{% include_code lang:c ostep/ostep-homework/cpu-api/p8.c %}
+
+```c
+int dup2(int oldfd, int newfd);
+```
+
+`dup2()` 将 `newfd` 指向 `oldfd`，如果 `newfd` 已经打开，则首先会被关闭，然后再指向 `oldfd`。这样在访问 `newfd` 时，实际上访问的是 `oldfd`。
+
+`reader` 进程中最后 3 行是读取标准输入并输出，如果将其注释，则不会有 `writer` 输出，可见实现了将一个进程的标准输出连接到另一个进程的标准输入。

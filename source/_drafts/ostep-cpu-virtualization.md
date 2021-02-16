@@ -261,38 +261,98 @@ OS 实现进程之间的切换，但进程在 CPU 运行时，意味着 OS 不�
 
 #### 非协作方式：操作系统进行控制
 
+如果进程不协作，OS  通过时钟中断获取 CPU 控制权。
 
+时钟设备可以编程为每隔几毫秒产生一次中断。产生中断时，当前正在运行的进程停止，OS 中预先配置的中断处理程序会运行，OS 重新获得 CPU 控制权。
 
+首先，就像系统调用一样，OS 必须通知硬件在时钟中断发生时运行哪些代码，这是在启动时完成的。
 
+其次，在启动过程中，OS 必须启动时钟，这是特权操作。
 
+一旦时钟开始，OS 就可以自由运行用户程序了，因为控制权最终会归还给它。时钟也可以关闭，这也是特权操作。
 
+与显式系统调用陷入内核时相似，发生时钟中断时，硬件需要保存进程的状态如寄存器，执行从陷阱返回指令时再恢复。
 
+#### 保存和恢复上下文
 
+当 OS 重新获取控制权后，必须决定是继续运行当前的进程，还是切换到另一个进程，将由调度程序通过调度策略作出决定。调度程序是 OS 的一部分。
 
+上下文切换：OS 执行底层汇编代码，保存通用寄存器、程序计数器，以及当前正在运行的进程的内核栈指针，然后恢复另一个进程的寄存器及内核栈指针。
 
+进程 A 正在运行，然后被切换到进程 B 的简略过程：
 
+![](/images/ostep-cpu-virtualization/limited-direct-excution-protocol-timer-interrupt.png)
 
+书中的图不是很恰当，看上去是直接把 A 切换到 B。
 
+xv6 上下文其实就是 `context` 结构体：
 
+{% include_code lang:c from:16 to:33 xv6-public/proc.h %}
 
+xv6 上下文切换[^1]，实际上是先将原进程上下文切换到当前 CPU 的 `scheduler`（也是 `context` 结构体），然后再切换到新进程。
 
+![](https://miro.medium.com/max/1400/1*O9fKaBEgNhoR45xZFBjvxQ.png)
 
+调用 `swtch()` 时，栈顶元素分别为：
 
+- `%eip`：调用时自动将其下一条指令地址压栈。
+- CPU 的 `scheduler`：指向一个 `context` 结构体。
+- 原进程的 `context` 的指针（注意这里变量与结构体同名）：指针的指针，这是为了能修改原进程的 `context` 指向。
 
+上下文切换代码（书中使用的是旧版，故不一致）：
 
+{% include_code lang:asm xv6-public/swtch.S %}
 
+`swtch()` 首先将 `old` 和 `new` 分别保存到 `%eax` 和 `%edx`，然后将其余寄存器入栈：
 
+![](https://miro.medium.com/max/1400/1*ixP6n0S0c8hinWuxyvjijA.png)
 
+这样栈顶元素与 `context` 结构体完全一致。
 
+接着 `movl %esp, (%eax)` 将 `*old`（即原进程的 `context`）指向栈顶，相当于 `&p->context = %esp`，然后 `movl %edx, %esp` 将栈指针切换为 `new`（即 `scheduler`）。
 
+最后从栈顶依次弹出寄存器（顺序与入栈相反）。
 
+之后再选择合适的新进程，使用 `swtch()` 切换其上下文。
 
+### 6.5 小结
 
+OS 在启动时设置陷阱处理程序，并启动时钟中断，然后仅在受限模式下运行进程，只有在执行特权操作或切换进程时，才需要 OS 干预。
 
+### 作业
 
+测试环境：物理机为搭载 i7-7700HQ 的 MacBook Pro 2017，使用 VMware 运行 Debian 10.8，分配一个 CPU 核心。
 
+测量系统调用开销：
 
+{% include_code lang:c ostep/ostep-homework/cpu-mechanisms/syscall_bench.c %}
 
+Debian 虚拟机上的结果比物理机还要少：
 
+```
+417 ns
+```
 
+测量上下文切换开销：
 
+{% include_code lang:c ostep/ostep-homework/cpu-mechanisms/context_switch_bench.c %}
+
+这里有两个进程，两个管道，父进程向其中一个管道写入，从另一个读取，子进程相反。
+
+在一次循环中，父进程写入后等待读取，故阻塞，子进程读取并写入，再次等待读取，故阻塞，切换回父进程。因此一次循环有两次上下文切换。
+
+由于只分配一个核心，不用考虑多核的问题，否则需要把进程绑定到同一核心。Linux 上使用 `sched_setaffinity()` 系统调用来实现。
+
+测试结果：
+
+```
+1911 ns
+```
+
+这一结果可能不准确，因为其他进程也运行在同一核心。
+
+但一般的进程在切换上下文时，还要切换 Cache、TLB 等，开销会更大。
+
+## 参考资料
+
+[^1]: https://ppan-brian.medium.com/context-switch-from-xv6-aedcb1246cd

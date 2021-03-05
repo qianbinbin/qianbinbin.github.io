@@ -321,7 +321,7 @@ xv6 上下文切换[^1]，实际上是先将原进程上下文切换到当前 CP
 
 测量系统调用开销：
 
-{% include_code lang:c ostep/ostep-homework/cpu-mechanisms/syscall_bench.c %}
+{% include_code lang:c ostep/ostep-homework/cpu-mechanisms/syscall-bench.c %}
 
 Debian 虚拟机上的结果比物理机还要少：
 
@@ -331,7 +331,7 @@ Debian 虚拟机上的结果比物理机还要少：
 
 测量上下文切换开销：
 
-{% include_code lang:c ostep/ostep-homework/cpu-mechanisms/context_switch_bench.c %}
+{% include_code lang:c ostep/ostep-homework/cpu-mechanisms/context-switch-bench.c %}
 
 这里有两个进程，两个管道，父进程向其中一个管道写入，从另一个读取，子进程相反。
 

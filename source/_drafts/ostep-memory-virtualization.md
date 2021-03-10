@@ -49,9 +49,9 @@ OS 将物理内存抽象为地址空间。
 
 虚拟化内存的主要目标：
 
-1. 透明。OS 实现虚拟内存的方式对于用户程序是不可见的，程序就好像拥有自己的私有物理内存。
-2. 效率。依靠 TLB 等硬件，实现时间和空间上的高效。
-3. 保护。OS 通过隔离，确保进程受到保护，进程之间不会影响，OS 本身也不会受进程影响。
+1. 透明：OS 实现虚拟内存的方式对于用户程序是不可见的，程序就好像拥有自己的私有物理内存。
+2. 效率：依靠 TLB 等硬件，实现时间和空间上的高效。
+3. 保护：OS 通过隔离，确保进程受到保护，进程之间不会影响，OS 本身也不会受进程影响。
 
 使用如下程序打印代码、堆和栈的虚拟地址：
 
@@ -124,7 +124,7 @@ Starting program: .../ostep-homework/vm-api/null
 
 3. 书中命令 `valgrind --leak-check=yes null` 有误，应该加上路径 `./null`：
 
-```sh
+```
 $ valgrind --leak-check=yes ./null
 ==7937== Memcheck, a memory error detector
 ==7937== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
@@ -150,7 +150,7 @@ $ valgrind --leak-check=yes ./null
 
 使用 gdb 没有异常，使用 `valgrind` 检测出内存泄露：
 
-```sh
+```
 $ valgrind --leak-check=yes ./p4
 ==8015== Memcheck, a memory error detector
 ==8015== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
@@ -183,7 +183,7 @@ $ valgrind --leak-check=yes ./p4
 
 运行没有错误，`valgrind` 检测出非法写入：
 
-```sh
+```
 $ valgrind ./p5
 ==8052== Memcheck, a memory error detector
 ==8052== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
@@ -213,7 +213,7 @@ $ valgrind ./p5
 
 直接运行输出 `0`，`valgrind` 检测出非法读取：
 
-```sh
+```
 $ ./p6
 0
 $ valgrind ./p6
@@ -249,7 +249,7 @@ $ valgrind ./p6
 
 运行显示非法指针：
 
-```sh
+```
 $ ./p7
 free(): invalid pointer
 Aborted
@@ -288,3 +288,84 @@ $ valgrind ./p7
 {% include_code lang:c ostep/ostep-homework/vm-api/p8.c %}
 
 添加元素时如果超过容量，需要使用 `realloc()` 重新分配内存，时间复杂度比链表高。
+
+## 第 15 章 机制：地址转换
+
+基于硬件的地址转换：简称为地址转换，在每次内存引用时，硬件将指令中的虚拟地址转换为数据实际存储的物理地址。
+
+OS 必须在关键位置介入，设置硬件，管理内存。
+
+### 15.1 假设
+
+本章作以下假设：
+
+1. 用户地址空间连续存放在物理内存中。
+2. 地址空间小于物理内存大小。
+3. 每个地址空间大小完全一样。
+
+### 15.2 一个例子
+
+下图中 OS 将进程地址空间重定位到 32KB 开始的物理地址：
+
+![](/images/ostep-memory-virtualization/a-process-and-its-address-space.png)
+
+![](/images/ostep-memory-virtualization/physical-memory-with-a-single-relocated-process.png)
+
+### 15.3 动态重定位
+
+在硬件支持重定位前，一些 OS 使用纯软件实现重定位，加载程序重写指令中的地址，称为静态重定位。它不提供访问保护，也很难将内存重定位到其他位置。
+
+动态重定位也称为基址加界限机制，每个 CPU 使用两个寄存器：基址（base）寄存器和界限（bound）寄存器，前者保存物理起始地址，后者提供访问保护。
+
+编写和编译程序时，假设地址空间从 0 开始，当程序执行时，将其转换为物理地址：
+
+```
+physical address = virtual address + base
+```
+
+硬件将虚拟地址转换为物理地址后，发送给内存系统。
+
+这种重定位是在运行时发生的，OS 甚至可以在进程运行后改变其地址空间，因此称为动态重定位。
+
+界限寄存器有两种使用方式：
+
+1. 保存地址空间大小。在地址转换前，就检查这个界限。
+2. 保存地址空间结束的物理地址。在地址转换后才检查这个界限。
+
+一旦内存访问越界，CPU 将触发异常，进程可能被终止。
+
+CPU 中负责地址转换的部分称为内存管理单元（Memory Management Unit，MMU）。
+
+OS 还必须记录哪些空闲内存没有使用，最简单的方法是使用空闲列表（free list）。
+
+### 15.4 硬件支持
+
+硬件要求：
+
+1. 特权模式：如使用处理器状态字来标识当前 CPU 的运行模式。
+2. 基址/界限寄存器。
+3. 实现地址转换并检查是否越界。
+4. 修改基址/界限寄存器的特权指令。
+5. 注册异常处理程序的特权指令。
+6. 触发异常：如内存访问越界时。
+
+### 15.5 软件支持（OS）
+
+OS 介入：
+
+1. 在进程创建时，为进程的地址空间寻找内存空间。
+2. 在进程终止时，回收其所有内存。
+3. 上下文切换时，在内存中保存（或从内存中恢复）基址寄存器和界限寄存器，即维护进程结构体或 PCB。OS 还可以动态改变其地址空间的物理位置。
+4. 提供异常处理程序。例如当内存访问越界时，CPU 触发异常，OS 将错误进程终止。
+
+系统启动时：
+
+![](/images/ostep-memory-virtualization/limited-direct-execution-dynamic-relocation-boot.png)
+
+运行进程 A，然后切换到 B，B 触发越界异常：
+
+![](/images/ostep-memory-virtualization/limited-direct-execution-dynamic-relocation-runtime.png)
+
+### 15.6 小结
+
+本章中，为进程分配的物理内存区域是固定的连续空间，其内部有未使用的空间，称为内部碎片，这造成了内存的浪费。

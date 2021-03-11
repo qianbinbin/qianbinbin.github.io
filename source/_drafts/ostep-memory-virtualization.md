@@ -476,3 +476,106 @@ else
 
 1. 外部碎片。
 2. 不适合更一般化的稀疏地址空间。例如一个很大的稀疏的堆，整个堆都必须完全分配物理内存才能运行。
+
+## 第 17 章 空闲空间管理
+
+如果空间被划分为固定大小的单元，例如分页，管理空闲空间就很容易；否则就很难，例如分段，或用户级内存分配库，如 `malloc()` 和 `free()`。
+
+### 17.1 假设
+
+本章作以下假设：
+
+1. 基本接口类似于 `malloc()` 和 `free()`。
+2. 只关注外部碎片。
+3. 内存一旦分配，就不能重定向到其他位置。不使用紧凑。
+4. 管理的是连续区域。
+
+简而言之，本章讨论的是 `malloc()` 和 `free()` 的一些原理。
+
+### 17.2 底层机制
+
+空闲列表是一个链表，每个元素对应一个空闲区域。
+
+#### 分割与合并
+
+在请求分配内存时，如果申请的内存比找到的空闲块小，则分配程序会进行分割，第一块返回给用户，第二块留在空闲列表；如果找不到大小足够的空闲块，则分配程序会将相邻的空闲块合并为大的空闲块。
+
+#### 追踪已分配空间大小
+
+`free(void *ptr)` 接口没有块大小的参数，块大小实际上由分配程序记录在返回的内存块之前，称为头块（header）。
+
+例如，一个简单的头块：
+
+```c
+typedef struct {
+    int size;
+    int magic;
+} header_t;
+```
+
+它至少包含空间大小，还可能包含加速释放的额外指针，以及幻数（magic number）。
+
+幻数起验证作用，例如设置为常数 `1234567`，断言 `assert(hptr->magic == 1234567)`。
+
+![](/images/ostep-memory-virtualization/specific-contents-of-the-header.png)
+
+释放空间时，通过简单的计算得出实际起始地址：
+
+```c
+void free(void *ptr) {
+    header_t *hptr = (header_t *) ptr - 1;
+    ...
+```
+
+这些头块对用户是透明的，因此实际分配和释放的空间比用户空间略大。
+
+#### 嵌入空闲列表
+
+在内存分配库内，要使用空闲内存建立列表，显然不能像 C 程序那样直接使用 `malloc()`。
+
+需要在空闲空间本身中建立空闲列表。
+
+链表结点：
+
+```c
+typedef struct __node_t {
+    int size;
+    struct __node_t *next;
+} node_t;
+```
+
+现初始化一个 4KB 的堆，假设通过 `mmap()` 系统调用获取：
+
+```c
+// mmap() returns a pointer to a chunk of free space
+node_t *head = mmap(NULL, 4096, PROT_READ|PROT_WRITE,
+                    MAP_ANON|MAP_PRIVATE, -1, 0);
+head->size = 4096 - sizeof(node_t);
+head->next = NULL;
+```
+
+和已分配内存块的头块类似，空闲块头部也有一个链表结点的结构体。
+
+此时，列表中只有一个结点，记录的大小为 4096 - 8 = 4088：
+
+![](/images/ostep-memory-virtualization/a-heap-with-one-free-chunk.png)
+
+假设申请 100 字节，由于只有一个块，那么这个块被分割为两块，一块满足请求，一块为剩余空闲块：
+
+![](/images/ostep-memory-virtualization/a-heap-after-one-allocation.png)
+
+当连续分配 3 个 100 字节的块时：
+
+![](/images/ostep-memory-virtualization/free-space-with-three-chunks-allocated.png)
+
+如果用户通过 `free()` 释放第二块，则调用的是 `free(16500)`，即释放 `sptr` 指向的内存。
+
+库读取头块，得到需释放的空间大小，释放后将其加入空闲列表。假设这个空闲块插入到列表头部：
+
+![](/images/ostep-memory-virtualization/free-space-with-two-chunks-allocated.png)
+
+假设剩余的两块也被释放，则需要合并相邻的空闲块。
+
+#### 让堆增长
+
+大多数传统分配程序一开始会申请较小的堆，当空间耗尽时再申请更大的堆。例如 OS 执行 `sbrk()` 系统调用，找到空闲的物理内存页，将其映射到进程的地址空间，并返回新的堆的末尾地址。

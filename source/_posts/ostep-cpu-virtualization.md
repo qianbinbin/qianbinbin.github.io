@@ -301,7 +301,7 @@ xv6 上下文切换[^1]，实际上是先将原进程上下文切换到当前 CP
 
 上下文切换代码（书中使用的是旧版，故不一致）：
 
-{% include_code lang:asm xv6-public/swtch.S %}
+{% include_code lang:x86asm xv6-public/swtch.S %}
 
 `swtch()` 首先将 `old` 和 `new` 分别保存到 `%eax` 和 `%edx`，然后将其余寄存器入栈：
 

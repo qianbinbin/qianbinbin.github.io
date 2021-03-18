@@ -44,7 +44,7 @@ $ gcc -save-temps -o hello hello.c
 
   编译器（ccl）将 `hello.i` 翻译成文本文件 `hello.s`（和书上有区别），它包含一个汇编语言程序，该程序包含函数 `main` 的定义：
 
-  {% include_code lang:asm csapp-a-tour-of-computer-systems/hello.s %}
+  {% include_code lang:x86asm csapp-a-tour-of-computer-systems/hello.s %}
 
 - 汇编。
 

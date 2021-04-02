@@ -111,8 +111,8 @@ int *get_next(char const *p, int size) {
 }
 ```
 
-注意这一判断不能放在内部 while 循环，因为 j 的实际含义不是应回退的位置，而是 p[0:i+1] 的最长公共前后子串长度，这一结果需要在下次外部 while 循环中使用。
+注意这一判断不能放在内层 while 循环，因为 j 的实际含义不是应回退的位置，而是 p[0:i+1] 的最长公共前后子串长度，这一结果需要在下次外层 while 循环中使用。
 
 ## 参考资料
 
-[KMP算法的Next数组详解 - 唐小喵 - 博客园](www.cnblogs.com/tangzhengyue/p/4315393.html)
+[KMP算法的Next数组详解 - 唐小喵 - 博客园](https://www.cnblogs.com/tangzhengyue/p/4315393.html)

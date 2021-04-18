@@ -1,0 +1,3 @@
+[submodule "themes/primer"]
+	path = themes/primer
+	url = git@github.com:qqhann/hugo-primer.git

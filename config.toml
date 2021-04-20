@@ -1,3 +1,18 @@
-baseURL = "http://example.org/"
-languageCode = "en-us"
-title = "My New Hugo Site"
+baseURL = "https://binac.io/"
+title = "Binac"
+theme = "primer"
+paginate = 10
+enableInlineShortcodes = true
+hasCJKLanguage = true
+pygmentsCodeFences = true
+pygmentsUseClasses = true
+copyright = '© 2017 Binac.  本站的全部文字在<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">署名-非商业性使用-相同方式共享 4.0 国际协议</a>之条款下提供。'
+
+[taxonomies]
+tag = "tags"
+
+[params]
+useIcon = true
+math = false
+enableUtterances = true
+utterancesRepo = "qianbinbin/qianbinbin.github.io"

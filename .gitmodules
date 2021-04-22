@@ -1,3 +1,15 @@
 [submodule "themes/primer"]
 	path = themes/primer
 	url = git@github.com:qqhann/hugo-primer.git
+[submodule "static/code/csapp-labs"]
+	path = static/code/csapp-labs
+	url = git@github.com:qianbinbin/csapp-labs.git
+[submodule "static/code/xv6-public"]
+	path = static/code/xv6-public
+	url = git@github.com:mit-pdos/xv6-public.git
+[submodule "static/code/ostep-code"]
+	path = static/code/ostep-code
+	url = git@github.com:qianbinbin/ostep-code.git
+[submodule "static/code/ostep-homework"]
+	path = static/code/ostep-homework
+	url = git@github.com:qianbinbin/ostep-homework.git

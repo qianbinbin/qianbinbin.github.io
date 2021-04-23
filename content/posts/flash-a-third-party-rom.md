@@ -65,7 +65,7 @@ $ fastboot reboot
 
 ## 交换返回键和最近任务键
 
-{% post_link swap-back-key-and-recents-key-of-android %}
+{{< post swap-back-key-and-recents-key-of-android >}}
 
 ## 修改网络检测 URL
 

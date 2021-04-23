@@ -88,7 +88,9 @@ int Solution::numSquares(int n) {
 
 ## 筛法
 
-灵感来源于{% post_link prime-sieve-and-goldbach-s-conjecture 埃拉托斯特尼筛法 %}。Discuss 区翻了一下，好像没人提到过。
+灵感来源于{{< post "prime-sieve-and-goldbach-s-conjecture#埃拉托斯特尼筛法" 埃拉托斯特尼筛法 >}}。Discuss 区翻了一下，好像没人提到过。
+
+
 
 ```
 1 2 3 4 5 6 7 8 9 10 11 12 13    // numbers

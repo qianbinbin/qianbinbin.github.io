@@ -30,9 +30,9 @@ There are some conventions that are not uniformly followed in the code base (e.g
 
 代码库中一些惯例并没有统一遵循（例如命名惯例）。这是因为规范相对较新，而很多代码是在规范实施之前写的。我们的长期目标是让整个代码库遵循惯例，但我们明确不要对已有代码进行大规模格式化的补丁。但另一方面，如果你要修改一个类的用法，将其函数重命名也是合理的。只要将格式化与功能修改分离，作为单独的提交即可。
 
-The ultimate goal of these guidelines is to increase the readability and maintainability of our common source base. If you have suggestions for topics to be included, please mail them to [Chris](mailto:sabre@nondot.org).
+The ultimate goal of these guidelines is to increase the readability and maintainability of our common source base. If you have suggestions for topics to be included, please mail them to [Chris](mailto=sabre@nondot.org).
 
-这些指南的最终目标是提高我们公共源码库的可读性和可维护性。如果你对相关主题有什么建议，请发邮件给[Chris](mailto:sabre@nondot.org)。
+这些指南的最终目标是提高我们公共源码库的可读性和可维护性。如果你对相关主题有什么建议，请发邮件给[Chris](mailto=sabre@nondot.org)。
 
 
 ## Languages, Libraries, and Standards | 语言，库和标准

@@ -39,7 +39,7 @@ tags:
 - REMOTE_PATH
   需要保存的远程路径，例如使用 Rclone 挂载的路径
 
-{% include_code lang:sh linux-backup-script/backup.sh %}
+{{< code lang=sh file=linux-backup-script/backup.sh >}}
 
 将脚本放到 `/root/bin/` 下并添加执行权限。
 
@@ -49,9 +49,9 @@ tags:
 
 将以下两个文件存放到 `/lib/systemd/system/` 下：
 
-{% include_code linux-backup-script/backup.service %}
+{{< code file=linux-backup-script/backup.service >}}
 
-{% include_code linux-backup-script/backup.timer %}
+{{< code file=linux-backup-script/backup.timer >}}
 
 这里设置为每周一 03:00 开始备份，`AccuracySec=1h` 表示可以有一小时的容错，这是为了减少唤醒 CPU。
 

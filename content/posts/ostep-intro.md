@@ -11,7 +11,7 @@ tags:
 
 ### 2.1 虚拟化 CPU
 
-{% include_code lang:c ostep/ostep-code/intro/cpu.c %}
+{{< code lang=c file=ostep-code/intro/cpu.c >}}
 
 程序会重复打印传入的字符串，`Spin()` 函数用于暂停 1 秒。
 
@@ -50,7 +50,7 @@ A
 
 ### 2.2 虚拟化内存
 
-{% include_code lang:c ostep/ostep-code/intro/mem.c %}
+{{< code lang=c file=ostep-code/intro/mem.c >}}
 
 ```sh
 $ ./mem &; ./mem &
@@ -76,7 +76,7 @@ $ ./mem &; ./mem &
 
 ### 2.3 并发
 
-{% include_code lang:c ostep/ostep-code/intro/threads.c %}
+{{< code lang=c file=ostep-code/intro/threads.c >}}
 
 两个线程都更新共享计数器 `counter` 的值。
 
@@ -113,7 +113,7 @@ DRAM 是易失性的，需要硬件和软件来持久地保存数据。
 
 与 CPU 和内存不同，操作系统不会对每个程序虚拟化磁盘。
 
-{% include_code lang:c ostep/ostep-code/intro/io.c %}
+{{< code lang=c file=ostep-code/intro/io.c >}}
 
 该程序会创建文件 `/tmp/file`，在其中写入 `hello world`。
 

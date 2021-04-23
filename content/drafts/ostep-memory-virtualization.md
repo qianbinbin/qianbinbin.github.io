@@ -55,7 +55,7 @@ OS 将物理内存抽象为地址空间。
 
 使用如下程序打印代码、堆和栈的虚拟地址：
 
-{% include_code lang:c ostep/ostep-code/vm-intro/va.c %}
+{{< code lang=c file=ostep-code/vm-intro/va.c >}}
 
 书中 Mac 的结果：
 
@@ -110,7 +110,7 @@ location of stack: 0x7ffee10908ac
 
 1.
 
-{% include_code lang:c ostep/ostep-homework/vm-api/null.c %}
+{{< code lang=c file=ostep-homework/vm-api/null.c >}}
 
 运行没有异常。
 
@@ -146,7 +146,7 @@ $ valgrind --leak-check=yes ./null
 
 4.
 
-{% include_code lang:c ostep/ostep-homework/vm-api/p4.c %}
+{{< code lang=c file=ostep-homework/vm-api/p4.c >}}
 
 使用 gdb 没有异常，使用 `valgrind` 检测出内存泄露：
 
@@ -179,7 +179,7 @@ $ valgrind --leak-check=yes ./p4
 
 5.
 
-{% include_code lang:c ostep/ostep-homework/vm-api/p5.c %}
+{{< code lang=c file=ostep-homework/vm-api/p5.c >}}
 
 运行没有错误，`valgrind` 检测出非法写入：
 
@@ -209,7 +209,7 @@ $ valgrind ./p5
 
 6.
 
-{% include_code lang:c ostep/ostep-homework/vm-api/p6.c %}
+{{< code lang=c file=ostep-homework/vm-api/p6.c >}}
 
 直接运行输出 `0`，`valgrind` 检测出非法读取：
 
@@ -245,7 +245,7 @@ $ valgrind ./p6
 
 7.
 
-{% include_code lang:c ostep/ostep-homework/vm-api/p7.c %}
+{{< code lang=c file=ostep-homework/vm-api/p7.c >}}
 
 运行显示非法指针：
 
@@ -285,7 +285,7 @@ $ valgrind ./p7
 
 8.
 
-{% include_code lang:c ostep/ostep-homework/vm-api/p8.c %}
+{{< code lang=c file=ostep-homework/vm-api/p8.c >}}
 
 添加元素时如果超过容量，需要使用 `realloc()` 重新分配内存，时间复杂度比链表高。
 

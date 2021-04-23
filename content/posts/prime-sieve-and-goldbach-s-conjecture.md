@@ -16,7 +16,7 @@ tags:
 
 后来发现我还是 naive，验证所有的 32 位无符号整数耗时太长，验证到 1000 万都要 10 秒左右。
 
-{% include_code lang:c from:8 to:18 prime-sieve-and-goldbach-s-conjecture/trial_division.c %}
+{{< code lang=c from=8 to=18 file=prime-sieve-and-goldbach-s-conjecture/trial_division.c >}}
 
 ## 埃拉托斯特尼筛法
 
@@ -30,7 +30,7 @@ tags:
 
 ![](https://upload.wikimedia.org/wikipedia/commons/b/b9/Sieve_of_Eratosthenes_animation.gif)
 
-{% include_code lang:c from:9 to:26 prime-sieve-and-goldbach-s-conjecture/sieve_of_eratosthenes.c %}
+{{< code lang=c from=9 to=26 file=prime-sieve-and-goldbach-s-conjecture/sieve_of_eratosthenes.c >}}
 
 这里除了位操作外，还用到一些优化：
 
@@ -57,7 +57,7 @@ cache 命中率对程序速度有很大影响，于是有了分段筛选。
 
 i7-7700HQ 的 L1 数据 cache 大小为 32 KiB，L2 cache 为 256 KiB，L3 cache 为 6 MiB。在实践中，发现选择 128 KiB 作为一个段大小较为合适。
 
-{% include_code lang:c from:9 to:72 prime-sieve-and-goldbach-s-conjecture/segmented_sieve_of_eratosthenes.c %}
+{{< code lang=c from=9 to=72 file=prime-sieve-and-goldbach-s-conjecture/segmented_sieve_of_eratosthenes.c >}}
 
 速度有了明显的提升：
 
@@ -73,7 +73,7 @@ Verification cost 63.089097 seconds.
 
 在埃氏筛法中，一个合数会被多次筛选到，因此它不是线性的算法。欧拉筛法使每个合数只被其最小质因数筛去一次，其复杂度为 $O(n)$，在数量很大时有很大优势。
 
-{% include_code lang:c from:9 to:34 prime-sieve-and-goldbach-s-conjecture/sieve_of_euler.c %}
+{{< code lang=c from=9 to=34 file=prime-sieve-and-goldbach-s-conjecture/sieve_of_euler.c >}}
 
 关键在当 `n` 是素数 `p` 的倍数时直接 `break`。
 

@@ -173,7 +173,7 @@ x + y - 2^w, & 2^w \le x + y < 2^{w+1}
 
 C 语言实现：
 
-{% include_code lang:c from:4 to:6 csapp-representing-and-manipulating-information/uadd_check.c %}
+{{< code lang=c from=4 to=6 file=csapp-representing-and-manipulating-information/uadd_check.c >}}
 
 **原理**：无符号数的非
 
@@ -229,7 +229,7 @@ $$x +_w^t y = U2T_w(T2U_w(x) +_w^u T2U_w(y))\\
 
 C 语言实现：
 
-{% include_code lang:c from:4 to:8 csapp-representing-and-manipulating-information/tadd_check.c %}
+{{< code lang=c from=4 to=8 file=csapp-representing-and-manipulating-information/tadd_check.c >}}
 
 这里只用 `>= 0` 和 `< 0`，只需取 `int` 符号位即可判断，不需要其他位。
 
@@ -298,7 +298,7 @@ $$T2B_w(x *_w^t y) = U2B_w(x' *_w^u y')$$
 
 - 方法一：
 
-  {% include_code lang:c from:5 to:7 csapp-representing-and-manipulating-information/tmult_check.c %}
+  {{< code lang=c from=5 to=7 file=csapp-representing-and-manipulating-information/tmult_check.c >}}
 
   证明：
 
@@ -334,7 +334,7 @@ $$T2B_w(x *_w^t y) = U2B_w(x' *_w^u y')$$
 
 - 方法二：
 
-  {% include_code lang:c from:9 to:12 csapp-representing-and-manipulating-information/tmult_check.c %}
+  {{< code lang=c from=9 to=12 file=csapp-representing-and-manipulating-information/tmult_check.c >}}
 
 ### 2.3.6 乘以常数
 
@@ -549,25 +549,25 @@ IEEE 浮点数规定了四种舍入方式：
 
 判断是否为小端机器：
 
-{% include_code lang:c from:3 to:6 csapp-representing-and-manipulating-information/is_little_endian.c %}
+{{< code lang=c from=3 to=6 file=csapp-representing-and-manipulating-information/is_little_endian.c >}}
 
 ### 2.62
 
 判断是否为算数右移：
 
-{% include_code lang:c from:4 to:8 csapp-representing-and-manipulating-information/is_shifts_are_arithmetic.c %}
+{{< code lang=c from=4 to=8 file=csapp-representing-and-manipulating-information/is_shifts_are_arithmetic.c >}}
 
 ### 2.63
 
 用算数右移模拟逻辑右移、用逻辑右移模拟算数右移：
 
-{% include_code lang:c from:5 to:22 csapp-representing-and-manipulating-information/right_shifts.c %}
+{{< code lang=c from=5 to=22 file=csapp-representing-and-manipulating-information/right_shifts.c >}}
 
 ### 2.65
 
 判断无符号整数二进制形式中是否有奇数个 1：
 
-{% include_code lang:c from:4 to:14 csapp-representing-and-manipulating-information/odd_ones.c %}
+{{< code lang=c from=4 to=14 file=csapp-representing-and-manipulating-information/odd_ones.c >}}
 
 让所有二进制位做异或操作，即得到结果。
 
@@ -575,43 +575,43 @@ IEEE 浮点数规定了四种舍入方式：
 
 找到无符号整数二进制形式中最高位的 1：
 
-{% include_code lang:c from:4 to:17 csapp-representing-and-manipulating-information/leftmost_one.c %}
+{{< code lang=c from=4 to=17 file=csapp-representing-and-manipulating-information/leftmost_one.c >}}
 
 ### 2.67
 
 判断 `int` 类型是否为 32 位，可以在 16 位及以上的机器上运行：
 
-{% include_code lang:c from:3 to:7 csapp-representing-and-manipulating-information/int_size_is_32.c %}
+{{< code lang=c from=3 to=7 file=csapp-representing-and-manipulating-information/int_size_is_32.c >}}
 
 ### 2.68
 
 生成低 n 位为 1 的掩码：
 
-{% include_code lang:c from:4 to:14 csapp-representing-and-manipulating-information/lower_one_mask.c %}
+{{< code lang=c from=4 to=14 file=csapp-representing-and-manipulating-information/lower_one_mask.c >}}
 
 ### 2.69
 
 实现循环左移：
 
-{% include_code lang:c from:4 to:14 csapp-representing-and-manipulating-information/rotate_left.c %}
+{{< code lang=c from=4 to=14 file=csapp-representing-and-manipulating-information/rotate_left.c >}}
 
 ### 2.70
 
 判断 x 能否用 n 位补码表示：
 
-{% include_code lang:c from:4 to:15 csapp-representing-and-manipulating-information/fits_bits.c %}
+{{< code lang=c from=4 to=15 file=csapp-representing-and-manipulating-information/fits_bits.c >}}
 
 ### 2.73
 
 补码加法，溢出时返回最值：
 
-{% include_code lang:c from:4 to:12 csapp-representing-and-manipulating-information/saturating_add.c %}
+{{< code lang=c from=4 to=12 file=csapp-representing-and-manipulating-information/saturating_add.c >}}
 
 ### 2.74
 
 判断补码减法是否溢出：
 
-{% include_code lang:c from:4 to:10 csapp-representing-and-manipulating-information/tsub_ok.c %}
+{{< code lang=c from=4 to=10 file=csapp-representing-and-manipulating-information/tsub_ok.c >}}
 
 ### 2.75
 
@@ -623,31 +623,31 @@ $$x' \cdot y' = (x + x_{w-1}2^w)(y + y_{w-1}2^w) = x \cdot y + (xy_{w-1} + yx_{w
 
 两边同时除以 $2^w$ 即可得到乘积的高 $w$ 位。
 
-{% include_code lang:c from:6 to:19 csapp-representing-and-manipulating-information/unsigned_high_prod.c %}
+{{< code lang=c from=6 to=19 file=csapp-representing-and-manipulating-information/unsigned_high_prod.c >}}
 
 ### 2.76
 
 实现 `calloc` 函数：
 
-{% include_code lang:c from:7 to:17 csapp-representing-and-manipulating-information/calloc.c %}
+{{< code lang=c from=7 to=17 file=csapp-representing-and-manipulating-information/calloc.c >}}
 
 ### 2.78
 
 用移位实现除以 2 的幂算法，由于除法是向零取整的，当 $x < 0$ 时需要加一个偏移量：
 
-{% include_code lang:c from:5 to:13 csapp-representing-and-manipulating-information/divide_power2.c %}
+{{< code lang=c from=5 to=13 file=csapp-representing-and-manipulating-information/divide_power2.c >}}
 
 ### 2.79
 
 计算 $3x/4$，其中 $3x$ 可能溢出：
 
-{% include_code lang:c from:5 to:10 csapp-representing-and-manipulating-information/mul3div4.c %}
+{{< code lang=c from=5 to=10 file=csapp-representing-and-manipulating-information/mul3div4.c >}}
 
 ### 2.80
 
 计算 $3x/4$，其中 $3x$ 不允许溢出，此时可把 $x$ 分为高 $w-2$ 位和低 $2$ 位两部分计算，其中高位无需考虑舍入，只有低位需要加入偏移量：
 
-{% include_code lang:c from:5 to:12 csapp-representing-and-manipulating-information/threefourths.c %}
+{{< code lang=c from=5 to=12 file=csapp-representing-and-manipulating-information/threefourths.c >}}
 
 ### 2.83
 
@@ -663,31 +663,31 @@ $$x = \frac{y}{2^k-1}$$
 
 比较浮点数大小：
 
-{% include_code lang:c from:4 to:20 csapp-representing-and-manipulating-information/float_le.c %}
+{{< code lang=c from=4 to=20 file=csapp-representing-and-manipulating-information/float_le.c >}}
 
 ### 2.90
 
 求浮点数 $2^x$：
 
-{% include_code lang:c from:5 to:40 csapp-representing-and-manipulating-information/fpwr2.c %}
+{{< code lang=c from=5 to=40 file=csapp-representing-and-manipulating-information/fpwr2.c >}}
 
 ### 2.92
 
 求浮点数相反数：
 
-{% include_code lang:c from:3 to:11 csapp-representing-and-manipulating-information/float_negate.c %}
+{{< code lang=c from=3 to=11 file=csapp-representing-and-manipulating-information/float_negate.c >}}
 
 ### 2.93
 
 求浮点数绝对值：
 
-{% include_code lang:c from:3 to:11 csapp-representing-and-manipulating-information/float_absval.c %}
+{{< code lang=c from=3 to=11 file=csapp-representing-and-manipulating-information/float_absval.c >}}
 
 ### 2.94
 
 求浮点数 $2x$：
 
-{% include_code lang:c from:3 to:16 csapp-representing-and-manipulating-information/float_twice.c %}
+{{< code lang=c from=3 to=16 file=csapp-representing-and-manipulating-information/float_twice.c >}}
 
 IEEE 浮点数的设计很精妙，当浮点数为非规格化时，直接将除符号位外整体左移一位即可。
 
@@ -695,7 +695,7 @@ IEEE 浮点数的设计很精妙，当浮点数为非规格化时，直接将除
 
 求浮点数 $0.5x$：
 
-{% include_code lang:c from:3 to:18 csapp-representing-and-manipulating-information/float_half.c %}
+{{< code lang=c from=3 to=18 file=csapp-representing-and-manipulating-information/float_half.c >}}
 
 比求 $2x$ 要复杂一些，因为当尾数右移时要考虑舍入的问题，如果最后两位为 `11`，则需要添加一个偏移量以向偶数舍入。
 
@@ -703,12 +703,12 @@ IEEE 浮点数的设计很精妙，当浮点数为非规格化时，直接将除
 
 `float` 转换为 `int`：
 
-{% include_code lang:c from:3 to:21 csapp-representing-and-manipulating-information/float_f2i.c %}
+{{< code lang=c from=3 to=21 file=csapp-representing-and-manipulating-information/float_f2i.c >}}
 
 ### 2.97
 
 `int` 转换为 `float`：
 
-{% include_code lang:c from:5 to:26 csapp-representing-and-manipulating-information/float_i2f.c %}
+{{< code lang=c from=5 to=26 file=csapp-representing-and-manipulating-information/float_i2f.c >}}
 
 比 `float` 转换为 `int` 复杂一些，因为要考虑舍入的问题。

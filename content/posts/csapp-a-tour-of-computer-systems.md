@@ -10,7 +10,7 @@ tags:
 
 例如 C 语言源码：
 
-{% include_code lang:c csapp-a-tour-of-computer-systems/hello.c %}
+{{< code lang=c file=csapp-a-tour-of-computer-systems/hello.c >}}
 
 用 vim 以二进制方式打开 `vim -b hello.c`，由于是纯 ASCII 码写成的，所以和以文本方式打开没有区别，然后使用 `:%!xxd` 转换为 16 进制 ASCII 码：
 
@@ -38,21 +38,21 @@ $ gcc -save-temps -o hello hello.c
 
   预处理器（cpp）根据以 `#` 开头的命令修改原始 C 程序，例如根据 `hello.c` 中的 `#include <stdio.h>` 读取系统头文件 `stdio.h` 中的内容，并将其直接插入程序文本，得到另一个 C 程序 `hello.i`：
 
-  {% include_code lang:c from:1 to:10 csapp-a-tour-of-computer-systems/hello.i %}
+  {{< code lang=c from=1 to=10 file=csapp-a-tour-of-computer-systems/hello.i >}}
 
 - 编译。
 
   编译器（ccl）将 `hello.i` 翻译成文本文件 `hello.s`（和书上有区别），它包含一个汇编语言程序，该程序包含函数 `main` 的定义：
 
-  {% include_code lang:x86asm csapp-a-tour-of-computer-systems/hello.s %}
+  {{< code lang=x86asm file=csapp-a-tour-of-computer-systems/hello.s >}}
 
 - 汇编。
 
-  汇编器（as）将 `hello.s` 翻译成机器语言指令，把这些指令打包成可重定位目标程序，并将结果保存到二进制文件 [hello.o](/downloads/code/csapp-a-tour-of-computer-systems/hello.o) 中。
+  汇编器（as）将 `hello.s` 翻译成机器语言指令，把这些指令打包成可重定位目标程序，并将结果保存到二进制文件 [hello.o](/code/csapp-a-tour-of-computer-systems/hello.o) 中。
 
 - 链接。
 
-  `hello` 程序调用了 `printf` 函数，它存在于一个名为 `printf.o` 的单独的预编译好的目标文件中，链接器（ld）将它合并到 `hello.o` 程序中，最终得到可执行文件 [hello](/downloads/code/csapp-a-tour-of-computer-systems/hello)。
+  `hello` 程序调用了 `printf` 函数，它存在于一个名为 `printf.o` 的单独的预编译好的目标文件中，链接器（ld）将它合并到 `hello.o` 程序中，最终得到可执行文件 [hello](/code/csapp-a-tour-of-computer-systems/hello)。
 
 ## 1.7 操作系统管理硬件
 

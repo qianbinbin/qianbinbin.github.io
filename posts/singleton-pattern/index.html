@@ -1,0 +1,74 @@
+<!doctype html><html><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>单例模式 Singleton Pattern &ndash; Binac</title><meta name=description property="og:description" content="许多时候整个系统只需要拥有一个的全局对象，这样有利于我们协调系统整体的行为。单例模式限制只有一个实例存在。 通常单例模式有两种构建方式： 懒汉方|"><meta name=apple-mobile-web-app-title content="Binac"><link rel=icon href=https://binac.iofavicon-64.png><link rel=apple-touch-icon href=https://binac.ioapple-touch-icon.png><link rel=mask-icon size=any href=https://binac.iopinned-icon.svg><link rel=stylesheet href=/assets/syntax.css><link rel=stylesheet href=/assets/primer-build.css><link rel=stylesheet href=/assets/style.css><link rel=stylesheet href=/assets/custom_style.css></head><body class=bg-gray><div id=holy class="container-lg bg-white h-100"><div id=header class="px-1 bg-white"><nav class="UnderlineNav UnderlineNav--right px-2"><a class="UnderlineNav-actions muted-link h2" href=https://binac.io>Binac</a><div class=UnderlineNav-body><a class=UnderlineNav-item href=/posts/><span>Posts</span></a></div></nav></div><div role=main id=main class="holy-main markdown-body px-4 bg-white"><div class=Subhead><div class=Subhead-heading><div class="h1 mt-3 mb-1">单例模式 Singleton Pattern</div></div><div class=Subhead-description><a href=/tags/java class=muted-link><span class="Label Label--gray">Java</span></a>
+<a href=/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F class=muted-link><span class="Label Label--gray">设计模式</span></a><div class=float-md-right><span title="Lastmod: 2017-05-26. Published at: 2017-05-26.">Published: 2017-05-26</span></div></div></div><article><section class="pb-6 mb-3 border-bottom"><p>许多时候整个系统只需要拥有一个的全局对象，这样有利于我们协调系统整体的行为。单例模式限制只有一个实例存在。</p><p>通常单例模式有两种构建方式：</p><ul><li><p>懒汉方式，全局的单例实例在第一次被使用时创建，不试图获取这个实例就不会创建，从而实现了延迟加载</p><ul><li><p>优点：类加载快，可调用动态数据（例如 Android 中的 <code>Context</code> 对象）</p></li><li><p>缺点：对象获取慢，多线程环境下需要考虑线程安全问题</p></li></ul></li><li><p>饿汉方式，全局的单例实例在类装载时构建，在装载类时就初始化这个实例，而不是获取时才创建</p><ul><li><p>优点：对象获取快，天生线程安全</p></li><li><p>缺点：类加载慢，无法调用动态数据</p></li></ul></li></ul><h2 id=懒汉方式>懒汉方式</h2><h3 id=适用于单线程的懒汉方式>适用于单线程的懒汉方式</h3><div class=highlight><pre class=chroma><code class=language-java data-lang=java><span class=kd>public</span> <span class=kd>class</span> <span class=nc>SimpleLazySingleton</span> <span class=o>{</span>
+    <span class=kd>private</span> <span class=kd>static</span> <span class=n>SimpleLazySingleton</span> <span class=n>sInstance</span><span class=o>;</span>
+
+    <span class=kd>private</span> <span class=nf>SimpleLazySingleton</span><span class=o>()</span> <span class=o>{</span>
+    <span class=o>}</span>
+
+    <span class=kd>public</span> <span class=kd>static</span> <span class=n>SimpleLazySingleton</span> <span class=nf>getInstance</span><span class=o>()</span> <span class=o>{</span>
+        <span class=k>if</span> <span class=o>(</span><span class=n>sInstance</span> <span class=o>==</span> <span class=kc>null</span><span class=o>)</span> <span class=o>{</span>
+            <span class=n>sInstance</span> <span class=o>=</span> <span class=k>new</span> <span class=n>SimpleLazySingleton</span><span class=o>();</span>
+        <span class=o>}</span>
+        <span class=k>return</span> <span class=n>sInstance</span><span class=o>;</span>
+    <span class=o>}</span>
+<span class=o>}</span>
+</code></pre></div><p>在同一虚拟机的单线程应用场合中，<code>SimpleLazySingleton</code> 的构造方法私有化，其唯一实例只能通过静态方法 <code>getInstance</code> 来获取（不考虑反射机制）。</p><ul><li><p>优点：实现简单，效率高</p></li><li><p>缺点：多线程环境下，可能有多个线程同时进入 <code>if</code> 代码块，从而多次创建实例</p></li></ul><h3 id=使用简单的锁机制保证线程安全>使用简单的锁机制保证线程安全</h3><p>可使用 <code>synchronized</code> 关键字修饰 <code>getInstance</code> 方法，这种方式锁定的是类对象：</p><div class=highlight><pre class=chroma><code class=language-java data-lang=java><span class=kd>public</span> <span class=kd>class</span> <span class=nc>SyncedSingleton</span> <span class=o>{</span>
+    <span class=kd>private</span> <span class=kd>static</span> <span class=n>SyncedSingleton</span> <span class=n>sInstance</span><span class=o>;</span>
+
+    <span class=kd>private</span> <span class=nf>SyncedSingleton</span><span class=o>()</span> <span class=o>{</span>
+    <span class=o>}</span>
+
+    <span class=kd>public</span> <span class=kd>static</span> <span class=kd>synchronized</span> <span class=n>SyncedSingleton</span> <span class=nf>getInstance</span><span class=o>()</span> <span class=o>{</span>
+        <span class=k>if</span> <span class=o>(</span><span class=n>sInstance</span> <span class=o>==</span> <span class=kc>null</span><span class=o>)</span> <span class=o>{</span>
+            <span class=n>sInstance</span> <span class=o>=</span> <span class=k>new</span> <span class=n>SyncedSingleton</span><span class=o>();</span>
+        <span class=o>}</span>
+        <span class=k>return</span> <span class=n>sInstance</span><span class=o>;</span>
+    <span class=o>}</span>
+<span class=o>}</span>
+</code></pre></div><p>保证了同时只有一个线程能进入 <code>getInstance</code> 代码块，从而保证线程安全。</p><ul><li><p>优点：保证了线程安全</p></li><li><p>缺点：每次调用 <code>getInstance</code> 方法都会获取同步锁，影响效率</p></li></ul><h3 id=使用双重检查的锁机制保证线程安全>使用双重检查的锁机制保证线程安全</h3><div class=highlight><pre class=chroma><code class=language-java data-lang=java><span class=kd>public</span> <span class=kd>class</span> <span class=nc>DoubleCheckedLockingSingleton</span> <span class=o>{</span>
+    <span class=kd>private</span> <span class=kd>static</span> <span class=kd>volatile</span> <span class=n>DoubleCheckedLockingSingleton</span> <span class=n>sInstance</span><span class=o>;</span>
+
+    <span class=kd>private</span> <span class=nf>DoubleCheckedLockingSingleton</span><span class=o>()</span> <span class=o>{</span>
+    <span class=o>}</span>
+
+    <span class=kd>public</span> <span class=kd>static</span> <span class=n>DoubleCheckedLockingSingleton</span> <span class=nf>getInstance</span><span class=o>()</span> <span class=o>{</span>
+        <span class=k>if</span> <span class=o>(</span><span class=n>sInstance</span> <span class=o>==</span> <span class=kc>null</span><span class=o>)</span> <span class=o>{</span>
+            <span class=kd>synchronized</span> <span class=o>(</span><span class=n>DoubleCheckedLockingSingleton</span><span class=o>.</span><span class=na>class</span><span class=o>)</span> <span class=o>{</span>
+                <span class=k>if</span> <span class=o>(</span><span class=n>sInstance</span> <span class=o>==</span> <span class=kc>null</span><span class=o>)</span> <span class=o>{</span>
+                    <span class=n>sInstance</span> <span class=o>=</span> <span class=k>new</span> <span class=n>DoubleCheckedLockingSingleton</span><span class=o>();</span>
+                <span class=o>}</span>
+            <span class=o>}</span>
+        <span class=o>}</span>
+        <span class=k>return</span> <span class=n>sInstance</span><span class=o>;</span>
+    <span class=o>}</span>
+<span class=o>}</span>
+</code></pre></div><p>这里的同步的是 <code>DoubleCheckedLockingSingleton</code> 类对象锁，也可以专门指定一个对象作为同步锁。</p><p><code>getInstance</code> 方法有两个空指针的检查，因此称为双重检查。</p><ul><li><p>在 <code>sInstance</code> 没有初始化时，假设有多个线程同时通过了第一重检查，只有第一个进入 <code>synchronized</code> 代码块的线程才能对 <code>sInstance</code> 进行初始化，其它线程均不会通过第二重检查</p></li><li><p>在 <code>sInstance</code> 初始化后，调用 <code>getInstance</code> 方法不会通过第一重检查，直接返回 <code>sInstance</code> 实例</p></li></ul><p>注意到代码中使用 <code>volatile</code> 关键字修饰 <code>sInstance</code> 对象，这是因为</p><div class=highlight><pre class=chroma><code class=language-java data-lang=java><span class=n>sInstance</span> <span class=o>=</span> <span class=k>new</span> <span class=n>DoubleCheckedLockingSingleton</span><span class=o>();</span>
+</code></pre></div><p>这一语句并非原子操作，事实上在 JVM 中它主要做了三件事：</p><ol><li><p>为 <code>sInstance</code> 分配内存</p></li><li><p>调用 <code>DoubleCheckedLockingSingleton</code> 构造方法进行初始化</p></li><li><p>将 <code>sInstance</code> 指针指向对象</p></li></ol><p>如果不使用 <code>volatile</code> 修饰，JVM 的指令重排序优化会使 2 和 3 的顺序不固定。</p><p>在多线程环境下，当某个线程执行完 1、3，还未完成 2 时，<code>sInstance</code> 已经不为 <code>null</code>，其它线程调用 <code>getInstance</code> 方法就不会通过第一重检查，获取到的是尚未完全初始化的 <code>sInstance</code> 对象。</p><p>而 <code>volatile</code> 关键字的可见性禁止了指令重排序，使 <code>sInstance</code> 的实例化成为原子操作。需要注意的是，Java 5 之前的 <code>volatile</code> 并不能保证禁止指令重排序。</p><ul><li><p>优点：与简单的锁机制相比，双重检查的锁机制只有在 <code>sInstance</code> 尚未初始化时，才会竞争类对象锁，效率更高</p></li><li><p>缺点：实现略显繁琐</p></li></ul><h3 id=使用静态嵌套类保证线程安全>使用静态嵌套类保证线程安全</h3><div class=highlight><pre class=chroma><code class=language-java data-lang=java><span class=kd>public</span> <span class=kd>class</span> <span class=nc>NestedHolderSingleton</span> <span class=o>{</span>
+    <span class=kd>private</span> <span class=kd>static</span> <span class=kd>class</span> <span class=nc>StaticSingletonHolder</span> <span class=o>{</span>
+        <span class=kd>private</span> <span class=kd>static</span> <span class=kd>final</span> <span class=n>NestedHolderSingleton</span> <span class=n>sInstance</span> <span class=o>=</span> <span class=k>new</span> <span class=n>NestedHolderSingleton</span><span class=o>();</span>
+    <span class=o>}</span>
+
+    <span class=kd>private</span> <span class=nf>NestedHolderSingleton</span><span class=o>()</span> <span class=o>{</span>
+    <span class=o>}</span>
+
+    <span class=kd>public</span> <span class=kd>static</span> <span class=n>NestedHolderSingleton</span> <span class=nf>getInstance</span><span class=o>()</span> <span class=o>{</span>
+        <span class=k>return</span> <span class=n>StaticSingletonHolder</span><span class=o>.</span><span class=na>sInstance</span><span class=o>;</span>
+    <span class=o>}</span>
+<span class=o>}</span>
+</code></pre></div><p>这种方法利用 JVM 本身机制保证了线程安全。首次调用 <code>getInstance</code> 时，静态嵌套类 <code>StaticSingletonHolder</code> 才会加载，并初始化它的静态成员 <code>sInstance</code>，类在虚拟机中只会加载一次，因此是线程安全的。</p><ul><li><p>优点：实现简单，比锁机制实现性能高</p></li><li><p>缺点：调用动态数据不够灵活</p></li></ul><h2 id=饿汉方式>饿汉方式</h2><h3 id=简单的饿汉方式>简单的饿汉方式</h3><div class=highlight><pre class=chroma><code class=language-java data-lang=java><span class=kd>public</span> <span class=kd>class</span> <span class=nc>SimpleSingleton</span> <span class=o>{</span>
+    <span class=kd>private</span> <span class=kd>static</span> <span class=kd>final</span> <span class=n>SimpleSingleton</span> <span class=n>sInstance</span> <span class=o>=</span> <span class=k>new</span> <span class=n>SimpleSingleton</span><span class=o>();</span>
+
+    <span class=kd>private</span> <span class=nf>SimpleSingleton</span><span class=o>()</span> <span class=o>{</span>
+    <span class=o>}</span>
+
+    <span class=kd>public</span> <span class=kd>static</span> <span class=n>SimpleSingleton</span> <span class=nf>getInstance</span><span class=o>()</span> <span class=o>{</span>
+        <span class=k>return</span> <span class=n>sInstance</span><span class=o>;</span>
+    <span class=o>}</span>
+<span class=o>}</span>
+</code></pre></div><p>在加载 <code>SimpleSingleton</code> 类时，<code>sInstance</code> 就会被初始化，天生就是线程安全的。</p><h3 id=使用枚举实现饿汉方式>使用枚举实现饿汉方式</h3><div class=highlight><pre class=chroma><code class=language-java data-lang=java><span class=kd>public</span> <span class=kd>enum</span> <span class=n>EnumSingleton</span> <span class=o>{</span>
+    <span class=n>INSTANCE</span><span class=o>;</span>
+
+    <span class=kd>private</span> <span class=nf>EnumSingleton</span><span class=o>()</span> <span class=o>{</span>
+    <span class=o>}</span>
+<span class=o>}</span>
+</code></pre></div><p>利用 JVM 保证了仅有一个实例，保证了线程安全，而且实现简单，一般来说性能高于简单的饿汉方式。此外，枚举无法使用反射机制破解。虽然很多人，包括 <em>Effective Java</em> 也推荐这种方式，但利用枚举实现单例模式很少见。</p><h2 id=总结>总结</h2><p>如何选择合适的方式实现单例模式？个人认为，先确定是否需要延迟加载（例如要用动态数据作为构造单例的参数），再看是否在多线程环境下，</p><ul><li><p>如果不需要延迟加载，使用饿汉方式即可</p></li><li><p>如果需要延迟加载</p><ul><li><p>如果是单线程环境，使用简单的懒汉方式即可</p></li><li><p>如果是多线程，</p><ul><li><p>如果对性能有要求，可使用双重检查的锁机制来实现</p></li><li><p>否则简单的锁机制即可满足要求</p></li></ul></li></ul></li></ul><h2 id=实现源码>实现源码</h2><p><a href=https://github.com/qianbinbin/DesignPattern/tree/master/src/main/java/io/binac/designpattern/singleton>https://github.com/qianbinbin/DesignPattern/tree/master/src/main/java/io/binac/designpattern/singleton</a></p><h2 id=参考资料>参考资料</h2><ol><li><a href=https://en.wikipedia.org/wiki/Singleton_pattern>Singleton pattern - Wikipedia</a></li><li><a href=http://wuchong.me/blog/2014/08/28/how-to-correctly-write-singleton-pattern/>如何正确地写出单例模式 | Jark&rsquo;s Blog</a></li><li><a href=https://www.ibm.com/developerworks/cn/java/j-lo-Singleton/index.html>Java编程设计模式，第 1 部分: 单例模式</a></li></ol></section><section><script src=https://utteranc.es/client.js repo=qianbinbin/qianbinbin.github.io issue-term=pathname theme=github-light crossorigin=anonymous async></script></section></article></div><div id=side class="pr-1 bg-white"><aside class=pr-3><div id=toc class="Box Box--blue mb-3"><b>单例模式 Singleton Pattern</b><nav id=TableOfContents><ul><li><a href=#懒汉方式>懒汉方式</a><ul><li><a href=#适用于单线程的懒汉方式>适用于单线程的懒汉方式</a></li><li><a href=#使用简单的锁机制保证线程安全>使用简单的锁机制保证线程安全</a></li><li><a href=#使用双重检查的锁机制保证线程安全>使用双重检查的锁机制保证线程安全</a></li><li><a href=#使用静态嵌套类保证线程安全>使用静态嵌套类保证线程安全</a></li></ul></li><li><a href=#饿汉方式>饿汉方式</a><ul><li><a href=#简单的饿汉方式>简单的饿汉方式</a></li><li><a href=#使用枚举实现饿汉方式>使用枚举实现饿汉方式</a></li></ul></li><li><a href=#总结>总结</a></li><li><a href=#实现源码>实现源码</a></li><li><a href=#参考资料>参考资料</a></li></ul></nav></div><div></div></aside></div><div id=footer class="pt-2 pb-3 bg-white px-4"><span class="text-small text-gray">© 2017 Binac. 本站的全部文字在<a href=https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh>署名-非商业性使用-相同方式共享 4.0 国际协议</a>之条款下提供。</span></div></div></body></html>

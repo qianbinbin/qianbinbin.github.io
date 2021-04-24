@@ -1,0 +1,59 @@
+<!doctype html><html><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>交叉编译 &ndash; Binac</title><meta name=description property="og:description" content><meta name=apple-mobile-web-app-title content="Binac"><link rel=icon href=https://binac.iofavicon-64.png><link rel=apple-touch-icon href=https://binac.ioapple-touch-icon.png><link rel=mask-icon size=any href=https://binac.iopinned-icon.svg><link rel=stylesheet href=/assets/syntax.css><link rel=stylesheet href=/assets/primer-build.css><link rel=stylesheet href=/assets/style.css><link rel=stylesheet href=/assets/custom_style.css></head><body class=bg-gray><div id=holy class="container-lg bg-white h-100"><div id=header class="px-1 bg-white"><nav class="UnderlineNav UnderlineNav--right px-2"><a class="UnderlineNav-actions muted-link h2" href=https://binac.io>Binac</a><div class=UnderlineNav-body><a class=UnderlineNav-item href=/posts/><span>Posts</span></a></div></nav></div><div role=main id=main class="holy-main markdown-body px-4 bg-white"><div><h1>交叉编译</h1><div class="rounded-2 box-shadow-medium px-3 pb-2 pt-2 mb-3"><div class="Subhead mb-2"><div class=Subhead-heading><a href=/posts/cross-compile-samba-for-ios/><div class="h2 mt-1 mb-1">移植 Samba 到 iOS 平台</div></a></div><div class=Subhead-description><a href=/tags/ios class=muted-link><span class="Label Label--gray">iOS</span></a>
+<a href=/tags/%E4%BA%A4%E5%8F%89%E7%BC%96%E8%AF%91 class=muted-link><span class="Label Label--gray">交叉编译</span></a><div class=float-md-right><span>2019-09-08</span></div></div></div><div class=text-gray>前言 iOS 越狱后可以像树莓派那样作为迷你服务器，在上面搭建 aria2、Transmission 等。但是 Cydia 上的 Samba 非常古老，而且只能在 32 位 CPU 上运行。
+<a class=muted-link href=/posts/cross-compile-samba-for-ios/>…</a></div></div><div class="rounded-2 box-shadow-medium px-3 pb-2 pt-2 mb-3"><div class="Subhead mb-2"><div class=Subhead-heading><a href=/posts/cross-compile-frp-for-ios/><div class="h2 mt-1 mb-1">交叉编译 Go 语言项目 frp for iOS</div></a></div><div class=Subhead-description><a href=/tags/ios class=muted-link><span class="Label Label--gray">iOS</span></a>
+<a href=/tags/go class=muted-link><span class="Label Label--gray">Go</span></a>
+<a href=/tags/%E4%BA%A4%E5%8F%89%E7%BC%96%E8%AF%91 class=muted-link><span class="Label Label--gray">交叉编译</span></a><div class=float-md-right><span>2019-09-03</span></div></div></div><div class=text-gray>首先安装 Go 语言环境，然后下载 frp 源码： git clone git@github.com:fatedier/frp.git cd frp Go 的交叉编译比 GCC、Clang 方便很多，只需要设置几个参数： CC=$GOPATH/misc/ios/clangwrap.sh CGO_ENABLED=1 GOOS=darwin GOARCH=arm64 go build -o ./frpc-darwin-arm64 ./cmd/frpc CC=$GOPATH/misc/ios/clangwrap.sh CGO_ENABLED=1 GOOS=darwin GOARCH=arm64 go build -o
+<a class=muted-link href=/posts/cross-compile-frp-for-ios/>…</a></div></div></div></div><div id=side class="pr-1 bg-white"><aside class=pr-3><div class="Box Box--blue p-2 mb-3 mt-5"><a href=/tags/ class=link-gray-dark><h4>Tags</h4></a><span class="css-truncate no-wrap m-1 pl-1"><a href=/tags/android class="link-gray text-emphasized css-truncate-target"><span>Android</span></a>
+<span class="text-right Counter">6</span></span>
+<span class="css-truncate no-wrap m-1 pl-1"><a href=/tags/bash class="link-gray text-emphasized css-truncate-target"><span>Bash</span></a>
+<span class="text-right Counter">1</span></span>
+<span class="css-truncate no-wrap m-1 pl-1"><a href=/tags/csapp class="link-gray text-emphasized css-truncate-target"><span>CSAPP</span></a>
+<span class="text-right Counter">3</span></span>
+<span class="css-truncate no-wrap m-1 pl-1"><a href=/tags/go class="link-gray text-emphasized css-truncate-target"><span>Go</span></a>
+<span class="text-right Counter">1</span></span>
+<span class="css-truncate no-wrap m-1 pl-1"><a href=/tags/hackintosh class="link-gray text-emphasized css-truncate-target"><span>Hackintosh</span></a>
+<span class="text-right Counter">1</span></span>
+<span class="css-truncate no-wrap m-1 pl-1"><a href=/tags/ios class="link-gray text-emphasized css-truncate-target"><span>iOS</span></a>
+<span class="text-right Counter">2</span></span>
+<span class="css-truncate no-wrap m-1 pl-1"><a href=/tags/java class="link-gray text-emphasized css-truncate-target"><span>Java</span></a>
+<span class="text-right Counter">18</span></span>
+<span class="css-truncate no-wrap m-1 pl-1"><a href=/tags/jni class="link-gray text-emphasized css-truncate-target"><span>JNI</span></a>
+<span class="text-right Counter">1</span></span>
+<span class="css-truncate no-wrap m-1 pl-1"><a href=/tags/leetcode class="link-gray text-emphasized css-truncate-target"><span>LeetCode</span></a>
+<span class="text-right Counter">12</span></span>
+<span class="css-truncate no-wrap m-1 pl-1"><a href=/tags/linux class="link-gray text-emphasized css-truncate-target"><span>Linux</span></a>
+<span class="text-right Counter">4</span></span>
+<span class="css-truncate no-wrap m-1 pl-1"><a href=/tags/macos class="link-gray text-emphasized css-truncate-target"><span>macOS</span></a>
+<span class="text-right Counter">2</span></span>
+<span class="css-truncate no-wrap m-1 pl-1"><a href=/tags/opencore class="link-gray text-emphasized css-truncate-target"><span>OpenCore</span></a>
+<span class="text-right Counter">1</span></span>
+<span class="css-truncate no-wrap m-1 pl-1"><a href=/tags/ostep class="link-gray text-emphasized css-truncate-target"><span>OSTEP</span></a>
+<span class="text-right Counter">2</span></span>
+<span class="css-truncate no-wrap m-1 pl-1"><a href=/tags/shell class="link-gray text-emphasized css-truncate-target"><span>Shell</span></a>
+<span class="text-right Counter">1</span></span>
+<span class="css-truncate no-wrap m-1 pl-1"><a href=/tags/%e4%ba%8c%e5%8f%89%e6%a0%91 class="link-gray text-emphasized css-truncate-target"><span>二叉树</span></a>
+<span class="text-right Counter">2</span></span>
+<span class="css-truncate no-wrap m-1 pl-1"><a href=/tags/%e4%ba%a4%e5%8f%89%e7%bc%96%e8%af%91 class="link-gray text-emphasized css-truncate-target"><span>交叉编译</span></a>
+<span class="text-right Counter">2</span></span>
+<span class="css-truncate no-wrap m-1 pl-1"><a href=/tags/%e4%bd%8d%e6%93%8d%e4%bd%9c class="link-gray text-emphasized css-truncate-target"><span>位操作</span></a>
+<span class="text-right Counter">4</span></span>
+<span class="css-truncate no-wrap m-1 pl-1"><a href=/tags/%e5%8a%a8%e6%80%81%e8%a7%84%e5%88%92 class="link-gray text-emphasized css-truncate-target"><span>动态规划</span></a>
+<span class="text-right Counter">2</span></span>
+<span class="css-truncate no-wrap m-1 pl-1"><a href=/tags/%e5%93%88%e5%b8%8c%e8%a1%a8 class="link-gray text-emphasized css-truncate-target"><span>哈希表</span></a>
+<span class="text-right Counter">3</span></span>
+<span class="css-truncate no-wrap m-1 pl-1"><a href=/tags/%e5%a4%9a%e7%ba%bf%e7%a8%8b class="link-gray text-emphasized css-truncate-target"><span>多线程</span></a>
+<span class="text-right Counter">1</span></span>
+<span class="css-truncate no-wrap m-1 pl-1"><a href=/tags/%e6%8d%a1%e5%9e%83%e5%9c%be class="link-gray text-emphasized css-truncate-target"><span>捡垃圾</span></a>
+<span class="text-right Counter">1</span></span>
+<span class="css-truncate no-wrap m-1 pl-1"><a href=/tags/%e6%93%8d%e4%bd%9c%e7%b3%bb%e7%bb%9f class="link-gray text-emphasized css-truncate-target"><span>操作系统</span></a>
+<span class="text-right Counter">2</span></span>
+<span class="css-truncate no-wrap m-1 pl-1"><a href=/tags/%e6%95%b0%e6%8d%ae%e7%bb%93%e6%9e%84 class="link-gray text-emphasized css-truncate-target"><span>数据结构</span></a>
+<span class="text-right Counter">2</span></span>
+<span class="css-truncate no-wrap m-1 pl-1"><a href=/tags/%e7%ae%97%e6%b3%95 class="link-gray text-emphasized css-truncate-target"><span>算法</span></a>
+<span class="text-right Counter">19</span></span>
+<span class="css-truncate no-wrap m-1 pl-1"><a href=/tags/%e8%ae%be%e8%ae%a1%e6%a8%a1%e5%bc%8f class="link-gray text-emphasized css-truncate-target"><span>设计模式</span></a>
+<span class="text-right Counter">14</span></span>
+<span class="css-truncate no-wrap m-1 pl-1"><a href=/tags/%e8%af%bb%e4%b9%a6%e7%ac%94%e8%ae%b0 class="link-gray text-emphasized css-truncate-target"><span>读书笔记</span></a>
+<span class="text-right Counter">4</span></span>
+<span class="css-truncate no-wrap m-1 pl-1"><a href=/tags/%e8%b4%aa%e5%bf%83%e7%ae%97%e6%b3%95 class="link-gray text-emphasized css-truncate-target"><span>贪心算法</span></a>
+<span class="text-right Counter">1</span></span></div></aside></div><div id=footer class="pt-2 pb-3 bg-white px-4"><span class="text-small text-gray">© 2017 Binac. 本站的全部文字在<a href=https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh>署名-非商业性使用-相同方式共享 4.0 国际协议</a>之条款下提供。</span></div></div></body></html>

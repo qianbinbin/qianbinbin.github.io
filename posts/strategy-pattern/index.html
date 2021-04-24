@@ -1,0 +1,41 @@
+<!doctype html><html><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>策略模式 Strategy Pattern &ndash; Binac</title><meta name=description property="og:description" content="在软件开发中，某一功能可以有多种实现，如果把这些实现都放在一个类中，则不利于增加、修改和替换，此时可以把可能频繁变化的逻辑抽象出来，Runn|"><meta name=apple-mobile-web-app-title content="Binac"><link rel=icon href=https://binac.iofavicon-64.png><link rel=apple-touch-icon href=https://binac.ioapple-touch-icon.png><link rel=mask-icon size=any href=https://binac.iopinned-icon.svg><link rel=stylesheet href=/assets/syntax.css><link rel=stylesheet href=/assets/primer-build.css><link rel=stylesheet href=/assets/style.css><link rel=stylesheet href=/assets/custom_style.css></head><body class=bg-gray><div id=holy class="container-lg bg-white h-100"><div id=header class="px-1 bg-white"><nav class="UnderlineNav UnderlineNav--right px-2"><a class="UnderlineNav-actions muted-link h2" href=https://binac.io>Binac</a><div class=UnderlineNav-body><a class=UnderlineNav-item href=/posts/><span>Posts</span></a></div></nav></div><div role=main id=main class="holy-main markdown-body px-4 bg-white"><div class=Subhead><div class=Subhead-heading><div class="h1 mt-3 mb-1">策略模式 Strategy Pattern</div></div><div class=Subhead-description><a href=/tags/java class=muted-link><span class="Label Label--gray">Java</span></a>
+<a href=/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F class=muted-link><span class="Label Label--gray">设计模式</span></a><div class=float-md-right><span title="Lastmod: 2020-01-27. Published at: 2020-01-27.">Published: 2020-01-27</span></div></div></div><article><section class="pb-6 mb-3 border-bottom"><p>在软件开发中，某一功能可以有多种实现，如果把这些实现都放在一个类中，则不利于增加、修改和替换，此时可以把可能频繁变化的逻辑抽象出来，<code>Runnable</code> 就采用了类似的思想。这种设计模式叫策略模式：</p><ol><li>定义了一族算法（业务规则）</li><li>封装了每个算法</li><li>这族的算法可互换代替</li></ol><p>策略模式相当于在面向对象层面实现函数式编程，于是对于 Python 等可以把方法作为参数的语言，策略模式就显得没必要了。Java 8 也引入了函数式编程的设计，例如 <code>java.util.function</code> 下的各种接口以及 lambda 表达式。</p><h2 id=实例>实例</h2><h3 id=抽象策略>抽象策略</h3><div class=highlight><pre class=chroma><code class=language-java data-lang=java><span class=kd>public</span> <span class=kd>interface</span> <span class=nc>Strategy</span> <span class=o>{</span>
+    <span class=kt>void</span> <span class=nf>execute</span><span class=o>();</span>
+<span class=o>}</span>
+</code></pre></div><h3 id=具体策略>具体策略</h3><div class=highlight><pre class=chroma><code class=language-java data-lang=java><span class=kd>public</span> <span class=kd>class</span> <span class=nc>ConcreteStrategyA</span> <span class=kd>implements</span> <span class=n>Strategy</span> <span class=o>{</span>
+    <span class=nd>@Override</span>
+    <span class=kd>public</span> <span class=kt>void</span> <span class=nf>execute</span><span class=o>()</span> <span class=o>{</span>
+        <span class=n>System</span><span class=o>.</span><span class=na>out</span><span class=o>.</span><span class=na>println</span><span class=o>(</span><span class=s>&#34;executing &#34;</span> <span class=o>+</span> <span class=k>this</span><span class=o>);</span>
+    <span class=o>}</span>
+<span class=o>}</span>
+</code></pre></div><div class=highlight><pre class=chroma><code class=language-java data-lang=java><span class=kd>public</span> <span class=kd>class</span> <span class=nc>ConcreteStrategyB</span> <span class=kd>implements</span> <span class=n>Strategy</span> <span class=o>{</span>
+    <span class=nd>@Override</span>
+    <span class=kd>public</span> <span class=kt>void</span> <span class=nf>execute</span><span class=o>()</span> <span class=o>{</span>
+        <span class=n>System</span><span class=o>.</span><span class=na>out</span><span class=o>.</span><span class=na>println</span><span class=o>(</span><span class=s>&#34;executing &#34;</span> <span class=o>+</span> <span class=k>this</span><span class=o>);</span>
+    <span class=o>}</span>
+<span class=o>}</span>
+</code></pre></div><h3 id=环境类>环境类</h3><div class=highlight><pre class=chroma><code class=language-java data-lang=java><span class=kd>public</span> <span class=kd>class</span> <span class=nc>Context</span> <span class=o>{</span>
+    <span class=kd>private</span> <span class=n>Strategy</span> <span class=n>mStrategy</span><span class=o>;</span>
+
+    <span class=kd>public</span> <span class=nf>Context</span><span class=o>(</span><span class=n>Strategy</span> <span class=n>strategy</span><span class=o>)</span> <span class=o>{</span>
+        <span class=k>this</span><span class=o>.</span><span class=na>mStrategy</span> <span class=o>=</span> <span class=n>strategy</span><span class=o>;</span>
+    <span class=o>}</span>
+
+    <span class=kd>public</span> <span class=kt>void</span> <span class=nf>setStrategy</span><span class=o>(</span><span class=n>Strategy</span> <span class=n>strategy</span><span class=o>)</span> <span class=o>{</span>
+        <span class=k>this</span><span class=o>.</span><span class=na>mStrategy</span> <span class=o>=</span> <span class=n>strategy</span><span class=o>;</span>
+    <span class=o>}</span>
+
+    <span class=kd>public</span> <span class=kt>void</span> <span class=nf>execute</span><span class=o>()</span> <span class=o>{</span>
+        <span class=n>mStrategy</span><span class=o>.</span><span class=na>execute</span><span class=o>();</span>
+    <span class=o>}</span>
+<span class=o>}</span>
+</code></pre></div><h3 id=测试>测试</h3><div class=highlight><pre class=chroma><code class=language-java data-lang=java><span class=n>Context</span> <span class=n>context</span> <span class=o>=</span> <span class=k>new</span> <span class=n>Context</span><span class=o>(</span><span class=k>new</span> <span class=n>ConcreteStrategyA</span><span class=o>());</span>
+<span class=n>context</span><span class=o>.</span><span class=na>execute</span><span class=o>();</span>
+<span class=n>context</span><span class=o>.</span><span class=na>setStrategy</span><span class=o>(</span><span class=k>new</span> <span class=n>ConcreteStrategyB</span><span class=o>());</span>
+<span class=n>context</span><span class=o>.</span><span class=na>execute</span><span class=o>();</span>
+<span class=n>context</span><span class=o>.</span><span class=na>setStrategy</span><span class=o>(()</span> <span class=o>-&gt;</span> <span class=n>System</span><span class=o>.</span><span class=na>out</span><span class=o>.</span><span class=na>println</span><span class=o>(</span><span class=s>&#34;executing lambda expression&#34;</span><span class=o>));</span>
+<span class=n>context</span><span class=o>.</span><span class=na>execute</span><span class=o>();</span>
+</code></pre></div><div class=highlight><pre class=chroma><code class=language-shell data-lang=shell>executing io.binac.designpattern.strategy.ConcreteStrategyA@6325a3ee
+executing io.binac.designpattern.strategy.ConcreteStrategyB@1d16f93d
+executing lambda expression
+</code></pre></div><h2 id=实现源码>实现源码</h2><p><a href=https://github.com/qianbinbin/DesignPattern/tree/master/src/main/java/io/binac/designpattern/strategy>https://github.com/qianbinbin/DesignPattern/tree/master/src/main/java/io/binac/designpattern/strategy</a></p><h2 id=参考资料>参考资料</h2><ol><li><a href=https://zh.wikipedia.org/wiki/%E7%AD%96%E7%95%A5%E6%A8%A1%E5%BC%8F>策略模式 - 维基百科，自由的百科全书</a></li><li><a href=https://design-patterns.readthedocs.io/zh_CN/latest/behavioral_patterns/strategy.html>5. 策略模式 — Graphic Design Patterns</a></li></ol></section><section><script src=https://utteranc.es/client.js repo=qianbinbin/qianbinbin.github.io issue-term=pathname theme=github-light crossorigin=anonymous async></script></section></article></div><div id=side class="pr-1 bg-white"><aside class=pr-3><div id=toc class="Box Box--blue mb-3"><b>策略模式 Strategy Pattern</b><nav id=TableOfContents><ul><li><a href=#实例>实例</a><ul><li><a href=#抽象策略>抽象策略</a></li><li><a href=#具体策略>具体策略</a></li><li><a href=#环境类>环境类</a></li><li><a href=#测试>测试</a></li></ul></li><li><a href=#实现源码>实现源码</a></li><li><a href=#参考资料>参考资料</a></li></ul></nav></div><div></div></aside></div><div id=footer class="pt-2 pb-3 bg-white px-4"><span class="text-small text-gray">© 2017 Binac. 本站的全部文字在<a href=https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh>署名-非商业性使用-相同方式共享 4.0 国际协议</a>之条款下提供。</span></div></div></body></html>

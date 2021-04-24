@@ -1,0 +1,129 @@
+<!doctype html><html><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Linux 自动备份脚本 &ndash; Binac</title><meta name=description property="og:description" content="写了个用于 Linux 备份的脚本。 Bash 脚本 其中几个用于配置的常量： EXCLUDE 所有不备份的绝对路径，以空格分隔，路径中不能包含空格等特殊字符 FILE_NAME_PREFIX 备份的文件名前缀 FILE_NAME 备|"><meta name=apple-mobile-web-app-title content="Binac"><link rel=icon href=https://binac.iofavicon-64.png><link rel=apple-touch-icon href=https://binac.ioapple-touch-icon.png><link rel=mask-icon size=any href=https://binac.iopinned-icon.svg><link rel=stylesheet href=/assets/syntax.css><link rel=stylesheet href=/assets/primer-build.css><link rel=stylesheet href=/assets/style.css><link rel=stylesheet href=/assets/custom_style.css></head><body class=bg-gray><div id=holy class="container-lg bg-white h-100"><div id=header class="px-1 bg-white"><nav class="UnderlineNav UnderlineNav--right px-2"><a class="UnderlineNav-actions muted-link h2" href=https://binac.io>Binac</a><div class=UnderlineNav-body><a class=UnderlineNav-item href=/posts/><span>Posts</span></a></div></nav></div><div role=main id=main class="holy-main markdown-body px-4 bg-white"><div class=Subhead><div class=Subhead-heading><div class="h1 mt-3 mb-1">Linux 自动备份脚本</div></div><div class=Subhead-description><a href=/tags/linux class=muted-link><span class="Label Label--gray">Linux</span></a>
+<a href=/tags/bash class=muted-link><span class="Label Label--gray">Bash</span></a>
+<a href=/tags/shell class=muted-link><span class="Label Label--gray">Shell</span></a><div class=float-md-right><span title="Lastmod: 2020-04-18. Published at: 2020-04-18.">Published: 2020-04-18</span></div></div></div><article><section class="pb-6 mb-3 border-bottom"><p>写了个用于 Linux 备份的脚本。</p><h2 id=bash-脚本>Bash 脚本</h2><p>其中几个用于配置的常量：</p><ul><li><p>EXCLUDE
+所有不备份的绝对路径，以空格分隔，路径中不能包含空格等特殊字符</p></li><li><p>FILE_NAME_PREFIX
+备份的文件名前缀</p></li><li><p>FILE_NAME
+备份的文件名，默认是文件名前缀+时间</p></li><li><p>TEMP_PATH
+临时文件存放路径</p></li><li><p>BACKUP_PATH
+备份文件存放路径</p></li><li><p>BACKUP_MAX
+保留备份文件的最大数目，超过时将清理旧备份</p></li><li><p>COPY_TO_REMOTE
+是否复制到远程路径</p></li><li><p>REMOTE_PATH
+需要保存的远程路径，例如使用 Rclone 挂载的路径</p></li></ul><figure style=margin:0><figcaption class=text-right><a href=/code/linux-backup-script/backup.sh class="text-small text-gray">linux-backup-script/backup.sh</a></figcaption><div class=highlight><pre class=chroma><code class=language-sh data-lang=sh><span class=cp>#!/bin/bash
+</span><span class=cp></span>
+<span class=nb>set</span> -o pipefail
+
+<span class=nv>EXCLUDE</span><span class=o>=</span><span class=s2>&#34;/boot /dev /lost+found /media /mnt /proc /run /sys /tmp /var/cache /var/tmp&#34;</span>
+
+<span class=nv>FILE_NAME_PREFIX</span><span class=o>=</span><span class=s2>&#34;armbian-backup&#34;</span>
+<span class=nv>FILE_NAME</span><span class=o>=</span><span class=s2>&#34;</span><span class=si>${</span><span class=nv>FILE_NAME_PREFIX</span><span class=si>}</span><span class=s2>_</span><span class=k>$(</span>date +%Y%m%d-%H%M<span class=k>)</span><span class=s2>&#34;</span>
+
+<span class=nv>TEMP_PATH</span><span class=o>=</span><span class=s2>&#34;/var/tmp&#34;</span>
+<span class=nv>BACKUP_PATH</span><span class=o>=</span><span class=s2>&#34;/mnt/sdcard/armbian-backup&#34;</span>
+<span class=nv>BACKUP_MAX</span><span class=o>=</span><span class=m>3</span>
+<span class=nv>COPY_TO_REMOTE</span><span class=o>=</span><span class=nb>true</span>
+<span class=nv>REMOTE_PATH</span><span class=o>=</span><span class=s2>&#34;/mnt/onedrive/armbian-backup&#34;</span>
+
+log<span class=o>()</span> <span class=o>{</span>
+  <span class=nb>echo</span> <span class=s2>&#34;</span><span class=k>$(</span>date +%F-%T<span class=k>)</span><span class=s2>&#34;</span> <span class=s2>&#34;</span><span class=nv>$@</span><span class=s2>&#34;</span>
+<span class=o>}</span>
+
+<span class=o>[</span> <span class=s2>&#34;</span><span class=k>$(</span>whoami<span class=k>)</span><span class=s2>&#34;</span> !<span class=o>=</span> root <span class=o>]</span> <span class=o>&amp;&amp;</span> log <span class=s2>&#34;Please run as root&#34;</span> <span class=o>&amp;&amp;</span> <span class=nb>exit</span> <span class=m>1</span>
+
+<span class=o>[</span> -d <span class=nv>$TEMP_PATH</span> <span class=o>]</span> <span class=o>||</span> rm -f <span class=nv>$TEMP_PATH</span> <span class=o>&amp;&amp;</span> mkdir -p <span class=nv>$TEMP_PATH</span> <span class=o>&amp;&amp;</span> chmod <span class=m>777</span> <span class=nv>$TEMP_PATH</span>
+<span class=o>[</span> -d <span class=nv>$BACKUP_PATH</span> <span class=o>]</span> <span class=o>||</span> rm -f <span class=nv>$BACKUP_PATH</span> <span class=o>&amp;&amp;</span> mkdir -p <span class=nv>$BACKUP_PATH</span>
+
+check_space<span class=o>()</span> <span class=o>{</span>
+  <span class=c1># KiB</span>
+  <span class=nb>local</span> avail
+  <span class=nv>avail</span><span class=o>=</span><span class=k>$(</span>df -k <span class=s2>&#34;</span><span class=nv>$1</span><span class=s2>&#34;</span> <span class=p>|</span> sed -n <span class=s2>&#34;2p&#34;</span> <span class=p>|</span> awk <span class=s1>&#39;{print $4}&#39;</span><span class=k>)</span>
+  <span class=c1># reserve 512MiB</span>
+  <span class=o>[</span> <span class=k>$((</span>avail <span class=o>-</span> <span class=nv>$2</span><span class=k>))</span> -gt <span class=k>$((</span><span class=m>1024</span> <span class=o>*</span> <span class=m>512</span><span class=k>))</span> <span class=o>]</span>
+<span class=o>}</span>
+
+<span class=nv>EXCLUDE_OPT</span><span class=o>=</span><span class=s2>&#34;&#34;</span>
+<span class=k>for</span> f in <span class=nv>$EXCLUDE</span><span class=p>;</span> <span class=k>do</span> <span class=nv>EXCLUDE_OPT</span><span class=o>=</span><span class=s2>&#34;</span><span class=nv>$EXCLUDE_OPT</span><span class=s2>--exclude=</span><span class=nv>$f</span><span class=s2> &#34;</span><span class=p>;</span> <span class=k>done</span>
+<span class=c1># shellcheck disable=SC2086</span>
+<span class=nv>size</span><span class=o>=</span><span class=k>$(</span>du -sh <span class=nv>$EXCLUDE_OPT</span> / <span class=p>|</span> awk <span class=s1>&#39;{print $1}&#39;</span><span class=k>)</span>
+log <span class=s2>&#34;Total size is about: </span><span class=nv>$size</span><span class=s2>&#34;</span>
+<span class=c1># shellcheck disable=SC2086</span>
+<span class=nv>size</span><span class=o>=</span><span class=k>$(</span>du -sk <span class=nv>$EXCLUDE_OPT</span> / <span class=p>|</span> awk <span class=s1>&#39;{print $1}&#39;</span><span class=k>)</span>
+
+<span class=nv>tmp_path</span><span class=o>=</span><span class=nv>$TEMP_PATH</span>
+check_space <span class=nv>$tmp_path</span> <span class=s2>&#34;</span><span class=nv>$size</span><span class=s2>&#34;</span> <span class=o>||</span> <span class=nv>tmp_path</span><span class=o>=</span><span class=nv>$BACKUP_PATH</span>
+<span class=k>if</span> ! check_space <span class=nv>$tmp_path</span> <span class=s2>&#34;</span><span class=nv>$size</span><span class=s2>&#34;</span><span class=p>;</span> <span class=k>then</span>
+  log <span class=s2>&#34;Space not enough:&#34;</span>
+  df -h <span class=nv>$tmp_path</span>
+  <span class=nb>exit</span> <span class=m>1</span>
+<span class=k>fi</span>
+
+<span class=nv>TARBALL</span><span class=o>=</span><span class=s2>&#34;</span><span class=nv>$tmp_path</span><span class=s2>/</span><span class=nv>$FILE_NAME</span><span class=s2>.tar&#34;</span>
+log <span class=s2>&#34;Archiving to: </span><span class=nv>$TARBALL</span><span class=s2>&#34;</span>
+<span class=c1># shellcheck disable=SC2086</span>
+tar -cpf - <span class=nv>$EXCLUDE_OPT</span> / <span class=p>|</span> pv &gt;<span class=s2>&#34;</span><span class=nv>$TARBALL</span><span class=s2>&#34;</span>
+<span class=k>if</span> <span class=o>[</span> <span class=nv>$?</span> -lt <span class=m>2</span> <span class=o>]</span><span class=p>;</span> <span class=k>then</span>
+  log <span class=s2>&#34;Successfully saved to:&#34;</span> <span class=o>&amp;&amp;</span> ls -lh <span class=s2>&#34;</span><span class=nv>$TARBALL</span><span class=s2>&#34;</span>
+<span class=k>else</span>
+  log <span class=s2>&#34;Error happened while archieving&#34;</span>
+  rm -f <span class=s2>&#34;</span><span class=nv>$TARBALL</span><span class=s2>&#34;</span>
+  <span class=nb>exit</span> <span class=m>1</span>
+<span class=k>fi</span>
+
+<span class=nb>echo</span>
+<span class=nv>BACKUP</span><span class=o>=</span><span class=s2>&#34;</span><span class=nv>$BACKUP_PATH</span><span class=s2>/</span><span class=nv>$FILE_NAME</span><span class=s2>.tar.xz&#34;</span>
+log <span class=s2>&#34;Compressing to: </span><span class=nv>$BACKUP</span><span class=s2>&#34;</span>
+<span class=nv>size</span><span class=o>=</span><span class=k>$(</span>du -sk <span class=s2>&#34;</span><span class=nv>$TARBALL</span><span class=s2>&#34;</span> <span class=p>|</span> awk <span class=s1>&#39;{print $1}&#39;</span><span class=k>)</span>
+<span class=k>if</span> dd <span class=k>if</span><span class=o>=</span><span class=s2>&#34;</span><span class=nv>$TARBALL</span><span class=s2>&#34;</span> <span class=nv>bs</span><span class=o>=</span>8M <span class=nv>status</span><span class=o>=</span>none <span class=p>|</span> pv -s <span class=s2>&#34;</span><span class=nv>$size</span><span class=s2>&#34;</span>K <span class=p>|</span> xz -T0 &gt;<span class=s2>&#34;</span><span class=nv>$BACKUP</span><span class=s2>&#34;</span><span class=p>;</span> <span class=k>then</span>
+  log <span class=s2>&#34;Successfully saved to:&#34;</span> <span class=o>&amp;&amp;</span> ls -lh <span class=s2>&#34;</span><span class=nv>$BACKUP</span><span class=s2>&#34;</span>
+  log <span class=s2>&#34;Removing </span><span class=nv>$TARBALL</span><span class=s2>&#34;</span> <span class=o>&amp;&amp;</span> rm -f <span class=s2>&#34;</span><span class=nv>$TARBALL</span><span class=s2>&#34;</span>
+<span class=k>else</span>
+  rm -f <span class=s2>&#34;</span><span class=nv>$TARBALL</span><span class=s2>&#34;</span>
+  rm -f <span class=s2>&#34;</span><span class=nv>$BACKUP</span><span class=s2>&#34;</span>
+  log <span class=s2>&#34;Failed to compress&#34;</span> <span class=o>&amp;&amp;</span> <span class=nb>exit</span> <span class=m>1</span>
+<span class=k>fi</span>
+
+<span class=nv>count</span><span class=o>=</span><span class=k>$(</span>find <span class=nv>$BACKUP_PATH</span> -mindepth <span class=m>1</span> -maxdepth <span class=m>1</span> -type f -name <span class=s2>&#34;</span><span class=nv>$FILE_NAME_PREFIX</span><span class=s2>*.tar.xz&#34;</span> <span class=p>|</span> wc -l<span class=k>)</span>
+<span class=k>for</span> f in <span class=s2>&#34;</span><span class=nv>$BACKUP_PATH</span><span class=s2>&#34;</span>/<span class=s2>&#34;</span><span class=nv>$FILE_NAME_PREFIX</span><span class=s2>&#34;</span>*.tar.xz<span class=p>;</span> <span class=k>do</span>
+  <span class=o>[</span> <span class=s2>&#34;</span><span class=nv>$count</span><span class=s2>&#34;</span> -le <span class=nv>$BACKUP_MAX</span> <span class=o>]</span> <span class=o>&amp;&amp;</span> <span class=nb>break</span>
+  log <span class=s2>&#34;Removing old backup: </span><span class=nv>$f</span><span class=s2>&#34;</span> <span class=o>&amp;&amp;</span> rm -f <span class=s2>&#34;</span><span class=nv>$f</span><span class=s2>&#34;</span>
+  <span class=o>((</span>count -<span class=o>=</span> 1<span class=o>))</span>
+<span class=k>done</span>
+
+<span class=o>[</span> <span class=nv>$COPY_TO_REMOTE</span> !<span class=o>=</span> <span class=nb>true</span> <span class=o>]</span> <span class=o>&amp;&amp;</span> <span class=nb>exit</span> <span class=m>0</span>
+
+<span class=nb>echo</span>
+<span class=o>[</span> -d <span class=nv>$REMOTE_PATH</span> <span class=o>]</span> <span class=o>||</span> rm -f <span class=nv>$REMOTE_PATH</span> <span class=o>&amp;&amp;</span> mkdir -p <span class=nv>$REMOTE_PATH</span>
+<span class=nv>size</span><span class=o>=</span><span class=k>$(</span>du -sk <span class=s2>&#34;</span><span class=nv>$BACKUP</span><span class=s2>&#34;</span> <span class=p>|</span> awk <span class=s1>&#39;{print $1}&#39;</span><span class=k>)</span>
+<span class=k>if</span> ! check_space <span class=nv>$REMOTE_PATH</span> <span class=s2>&#34;</span><span class=nv>$size</span><span class=s2>&#34;</span><span class=p>;</span> <span class=k>then</span>
+  log <span class=s2>&#34;Space not enough:&#34;</span>
+  df -h <span class=nv>$REMOTE_PATH</span>
+  <span class=nb>exit</span> <span class=m>1</span>
+<span class=k>fi</span>
+
+<span class=nv>BACKUP_REMOTE</span><span class=o>=</span><span class=s2>&#34;</span><span class=nv>$REMOTE_PATH</span><span class=s2>/</span><span class=nv>$FILE_NAME</span><span class=s2>.tar.xz&#34;</span>
+log <span class=s2>&#34;Copying to remote: </span><span class=nv>$BACKUP_REMOTE</span><span class=s2>&#34;</span>
+<span class=k>if</span> pv <span class=s2>&#34;</span><span class=nv>$BACKUP</span><span class=s2>&#34;</span> &gt;<span class=s2>&#34;</span><span class=nv>$BACKUP_REMOTE</span><span class=s2>&#34;</span><span class=p>;</span> <span class=k>then</span>
+  log <span class=s2>&#34;Successfully saved to:&#34;</span> <span class=o>&amp;&amp;</span> ls -lh <span class=s2>&#34;</span><span class=nv>$BACKUP_REMOTE</span><span class=s2>&#34;</span>
+<span class=k>else</span>
+  log <span class=s2>&#34;Error happened while copying&#34;</span>
+  rm -f <span class=s2>&#34;</span><span class=nv>$BACKUP_REMOTE</span><span class=s2>&#34;</span>
+  <span class=nb>exit</span> <span class=m>1</span>
+<span class=k>fi</span>
+</code></pre></div></figure><p>将脚本放到 <code>/root/bin/</code> 下并添加执行权限。</p><p>总体过程是，先用 <code>tar</code> 打包存放到 <code>TEMP_PATH</code>，再使用 <code>xz</code> 压缩为最终备份文件并存放到 <code>BACKUP_PATH</code>，如果超出最大数则清理旧备份，最后复制到远程目录。</p><h2 id=systemd-定时任务>systemd 定时任务</h2><p>将以下两个文件存放到 <code>/lib/systemd/system/</code> 下：</p><figure style=margin:0><figcaption class=text-right><a href=/code/linux-backup-script/backup.service class="text-small text-gray">linux-backup-script/backup.service</a></figcaption><div class=highlight><pre class=chroma><code class=language-service data-lang=service><span class=k>[Unit]</span>
+<span class=na>Description</span><span class=o>=</span><span class=s>Run backup</span>
+
+<span class=k>[Service]</span>
+<span class=na>ExecStart</span><span class=o>=</span><span class=s>/bin/bash -c &#34;/root/bin/backup.sh &gt;&gt;/var/log/backup.log 2&gt;&amp;1 &amp;&amp; echo &gt;&gt;/var/log/backup.log&#34;</span>
+</code></pre></div></figure><figure style=margin:0><figcaption class=text-right><a href=/code/linux-backup-script/backup.timer class="text-small text-gray">linux-backup-script/backup.timer</a></figcaption><pre><code class=language-timer data-lang=timer>[Unit]
+Description=Run backup weekly
+
+[Timer]
+OnCalendar=Mon, 03:00
+AccuracySec=1h
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+</code></pre></figure><p>这里设置为每周一 03:00 开始备份，<code>AccuracySec=1h</code> 表示可以有一小时的容错，这是为了减少唤醒 CPU。</p><p>运行并使其开机启动：</p><div class=highlight><pre class=chroma><code class=language-sh data-lang=sh>$ sudo systemctl daemon-reload
+$ sudo systemctl start backup.timer
+$ sudo systemctl <span class=nb>enable</span> backup.timer
+</code></pre></div><p><code>systemctl list-timers</code> 可以查看所有定时任务。</p></section><section><script src=https://utteranc.es/client.js repo=qianbinbin/qianbinbin.github.io issue-term=pathname theme=github-light crossorigin=anonymous async></script></section></article></div><div id=side class="pr-1 bg-white"><aside class=pr-3><div id=toc class="Box Box--blue mb-3"><b>Linux 自动备份脚本</b><nav id=TableOfContents><ul><li><a href=#bash-脚本>Bash 脚本</a></li><li><a href=#systemd-定时任务>systemd 定时任务</a></li></ul></nav></div><div></div></aside></div><div id=footer class="pt-2 pb-3 bg-white px-4"><span class="text-small text-gray">© 2017 Binac. 本站的全部文字在<a href=https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh>署名-非商业性使用-相同方式共享 4.0 国际协议</a>之条款下提供。</span></div></div></body></html>

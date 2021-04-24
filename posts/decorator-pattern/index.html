@@ -1,0 +1,87 @@
+<!doctype html><html><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>装饰器模式 Decorator Pattern &ndash; Binac</title><meta name=description property="og:description" content="在面向对象编程中，要扩展一个类或对象的功能，可以使用继承机制。 举例来说，咖啡店可能会提供拿铁、卡布奇诺、美式咖啡、意式浓缩等供客人选择，我们|"><meta name=apple-mobile-web-app-title content="Binac"><link rel=icon href=https://binac.iofavicon-64.png><link rel=apple-touch-icon href=https://binac.ioapple-touch-icon.png><link rel=mask-icon size=any href=https://binac.iopinned-icon.svg><link rel=stylesheet href=/assets/syntax.css><link rel=stylesheet href=/assets/primer-build.css><link rel=stylesheet href=/assets/style.css><link rel=stylesheet href=/assets/custom_style.css></head><body class=bg-gray><div id=holy class="container-lg bg-white h-100"><div id=header class="px-1 bg-white"><nav class="UnderlineNav UnderlineNav--right px-2"><a class="UnderlineNav-actions muted-link h2" href=https://binac.io>Binac</a><div class=UnderlineNav-body><a class=UnderlineNav-item href=/posts/><span>Posts</span></a></div></nav></div><div role=main id=main class="holy-main markdown-body px-4 bg-white"><div class=Subhead><div class=Subhead-heading><div class="h1 mt-3 mb-1">装饰器模式 Decorator Pattern</div></div><div class=Subhead-description><a href=/tags/java class=muted-link><span class="Label Label--gray">Java</span></a>
+<a href=/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F class=muted-link><span class="Label Label--gray">设计模式</span></a><div class=float-md-right><span title="Lastmod: 2017-06-22. Published at: 2017-06-22.">Published: 2017-06-22</span></div></div></div><article><section class="pb-6 mb-3 border-bottom"><p>在面向对象编程中，要扩展一个类或对象的功能，可以使用继承机制。</p><p>举例来说，咖啡店可能会提供拿铁、卡布奇诺、美式咖啡、意式浓缩等供客人选择，我们可以先定义一个 Coffee 类，并在其中声明价格、成分等方法，然后为每种咖啡继承它：Latte、Cappuccino、Americano、Espresso 等，每个类中都实现自己的一套价格、成分信息，这些类都是预先定义好的。</p><p>我们可以像这样调用：</p><div class=highlight><pre class=chroma><code class=language-java data-lang=java><span class=n>Coffee</span> <span class=n>coffee</span> <span class=o>=</span> <span class=k>new</span> <span class=n>Latte</span><span class=o>();</span>
+<span class=n>System</span><span class=o>.</span><span class=na>out</span><span class=o>.</span><span class=na>println</span><span class=o>(</span><span class=s>&#34;Cost: &#34;</span> <span class=o>+</span> <span class=n>getCost</span><span class=o>()</span> <span class=o>+</span> <span class=s>&#34;; Ingredients: &#34;</span> <span class=o>+</span> <span class=n>getIngredients</span><span class=o>());</span>
+</code></pre></div><p>然而在遇到有定制化需求的客人时，我们遇到了麻烦。他可能会要求把浓缩咖啡、牛奶、奶油、巧克力、甚至酒等进行组合，混合为一种新的咖啡。这就需要在编译时静态地定义这种新的咖啡类型，而定制咖啡的方式有太多种，为每一种组合都定义一个子类不太现实。</p><p>装饰器模式（或装饰模式、修饰模式），是面向对象编程领域中，一种动态地往一个特定对象中添加新的行为的设计模式。装饰模式相比生成子类更为灵活，这样可以给某个对象而不是整个类添加一些功能。</p><h2 id=模式结构>模式结构</h2><p>装饰器模式包含如下角色：</p><ul><li><p>Component
+抽象组件，定义一个接口，以规范准备动态添加新的行为的对象</p></li><li><p>ConcreteComponent
+具体组件，实现 Component 接口，是被装饰对象的基础类</p></li><li><p>Decorator
+抽象装饰器，是实现 Component 的抽象类，也是所有装饰器的父类，并在其中维护了一个 Component 对象，Decorator 把 Component 对象的行为封装（装饰）起来</p></li><li><p>ConcreteDecorator
+具体装饰器，继承 Decorator 类，根据需要添加一些特定的行为</p></li></ul><p>UML 类图如下（图片来自 <a href=https://en.wikipedia.org/wiki/Decorator_pattern>https://en.wikipedia.org/wiki/Decorator_pattern</a>）：</p><p><img src=https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/Decorator_UML_class_diagram.svg/757px-Decorator_UML_class_diagram.svg.png alt></p><h2 id=实例>实例</h2><h3 id=抽象组件-component>抽象组件 Component</h3><p>仍然以咖啡为例，先定义一个 Coffee 抽象类或接口作为抽象组件 Component：</p><div class=highlight><pre class=chroma><code class=language-java data-lang=java><span class=kd>public</span> <span class=kd>abstract</span> <span class=kd>class</span> <span class=nc>Coffee</span> <span class=o>{</span>
+    <span class=kd>public</span> <span class=kd>abstract</span> <span class=kt>int</span> <span class=nf>getCost</span><span class=o>();</span>
+
+    <span class=kd>public</span> <span class=kd>abstract</span> <span class=n>String</span> <span class=nf>getIngredients</span><span class=o>();</span>
+
+    <span class=nd>@Override</span>
+    <span class=kd>public</span> <span class=n>String</span> <span class=nf>toString</span><span class=o>()</span> <span class=o>{</span>
+        <span class=k>return</span> <span class=s>&#34;Cost: &#34;</span> <span class=o>+</span> <span class=n>getCost</span><span class=o>()</span> <span class=o>+</span> <span class=s>&#34;; Ingredients: &#34;</span> <span class=o>+</span> <span class=n>getIngredients</span><span class=o>();</span>
+    <span class=o>}</span>
+<span class=o>}</span>
+</code></pre></div><p>它具有获取价格和成分的行为。</p><h3 id=具体组件-concretecomponent>具体组件 ConcreteComponent</h3><p>很多咖啡都是以意式浓缩 Espresso 为基础进行调制的，那么被装饰的基础类当然就是：</p><div class=highlight><pre class=chroma><code class=language-java data-lang=java><span class=kd>public</span> <span class=kd>class</span> <span class=nc>Espresso</span> <span class=kd>extends</span> <span class=n>Coffee</span> <span class=o>{</span>
+    <span class=nd>@Override</span>
+    <span class=kd>public</span> <span class=kt>int</span> <span class=nf>getCost</span><span class=o>()</span> <span class=o>{</span>
+        <span class=k>return</span> <span class=n>22</span><span class=o>;</span>
+    <span class=o>}</span>
+
+    <span class=nd>@Override</span>
+    <span class=kd>public</span> <span class=n>String</span> <span class=nf>getIngredients</span><span class=o>()</span> <span class=o>{</span>
+        <span class=k>return</span> <span class=s>&#34;espresso&#34;</span><span class=o>;</span>
+    <span class=o>}</span>
+<span class=o>}</span>
+</code></pre></div><h3 id=抽象装饰器-decorator>抽象装饰器 Decorator</h3><div class=highlight><pre class=chroma><code class=language-java data-lang=java><span class=kd>public</span> <span class=kd>abstract</span> <span class=kd>class</span> <span class=nc>CoffeeDecorator</span> <span class=kd>extends</span> <span class=n>Coffee</span> <span class=o>{</span>
+    <span class=kd>private</span> <span class=kd>final</span> <span class=n>Coffee</span> <span class=n>mCoffee</span><span class=o>;</span>
+
+    <span class=kd>public</span> <span class=nf>CoffeeDecorator</span><span class=o>(</span><span class=n>Coffee</span> <span class=n>coffee</span><span class=o>)</span> <span class=o>{</span>
+        <span class=k>this</span><span class=o>.</span><span class=na>mCoffee</span> <span class=o>=</span> <span class=n>coffee</span><span class=o>;</span>
+    <span class=o>}</span>
+
+    <span class=nd>@Override</span>
+    <span class=kd>public</span> <span class=kt>int</span> <span class=nf>getCost</span><span class=o>()</span> <span class=o>{</span>
+        <span class=k>return</span> <span class=n>mCoffee</span><span class=o>.</span><span class=na>getCost</span><span class=o>();</span>
+    <span class=o>}</span>
+
+    <span class=nd>@Override</span>
+    <span class=kd>public</span> <span class=n>String</span> <span class=nf>getIngredients</span><span class=o>()</span> <span class=o>{</span>
+        <span class=k>return</span> <span class=n>mCoffee</span><span class=o>.</span><span class=na>getIngredients</span><span class=o>();</span>
+    <span class=o>}</span>
+<span class=o>}</span>
+</code></pre></div><p>它维护了一个私有 Coffee 对象，通过构造方法传入，然后将 Coffee 对象的行为封装起来。</p><h3 id=具体装饰器-concretedecorator>具体装饰器 ConcreteDecorator</h3><p>咖啡可以加奶，那么牛奶就可以作为一种装饰器：</p><div class=highlight><pre class=chroma><code class=language-java data-lang=java><span class=kd>public</span> <span class=kd>class</span> <span class=nc>WithMilk</span> <span class=kd>extends</span> <span class=n>CoffeeDecorator</span> <span class=o>{</span>
+    <span class=kd>public</span> <span class=nf>WithMilk</span><span class=o>(</span><span class=n>Coffee</span> <span class=n>coffee</span><span class=o>)</span> <span class=o>{</span>
+        <span class=kd>super</span><span class=o>(</span><span class=n>coffee</span><span class=o>);</span>
+    <span class=o>}</span>
+
+    <span class=nd>@Override</span>
+    <span class=kd>public</span> <span class=kt>int</span> <span class=nf>getCost</span><span class=o>()</span> <span class=o>{</span>
+        <span class=k>return</span> <span class=kd>super</span><span class=o>.</span><span class=na>getCost</span><span class=o>()</span> <span class=o>+</span> <span class=n>6</span><span class=o>;</span>
+    <span class=o>}</span>
+
+    <span class=nd>@Override</span>
+    <span class=kd>public</span> <span class=n>String</span> <span class=nf>getIngredients</span><span class=o>()</span> <span class=o>{</span>
+        <span class=k>return</span> <span class=kd>super</span><span class=o>.</span><span class=na>getIngredients</span><span class=o>()</span> <span class=o>+</span> <span class=s>&#34;, milk&#34;</span><span class=o>;</span>
+    <span class=o>}</span>
+<span class=o>}</span>
+</code></pre></div><p>在重写方法时可以自定义一些行为，例如加牛奶后价格和成分都会变化。</p><p>也可以定义巧克力粉作为一种装饰器：</p><div class=highlight><pre class=chroma><code class=language-java data-lang=java><span class=kd>public</span> <span class=kd>class</span> <span class=nc>WithSprinkles</span> <span class=kd>extends</span> <span class=n>CoffeeDecorator</span> <span class=o>{</span>
+    <span class=kd>public</span> <span class=nf>WithSprinkles</span><span class=o>(</span><span class=n>Coffee</span> <span class=n>coffee</span><span class=o>)</span> <span class=o>{</span>
+        <span class=kd>super</span><span class=o>(</span><span class=n>coffee</span><span class=o>);</span>
+    <span class=o>}</span>
+
+    <span class=nd>@Override</span>
+    <span class=kd>public</span> <span class=kt>int</span> <span class=nf>getCost</span><span class=o>()</span> <span class=o>{</span>
+        <span class=k>return</span> <span class=kd>super</span><span class=o>.</span><span class=na>getCost</span><span class=o>()</span> <span class=o>+</span> <span class=n>3</span><span class=o>;</span>
+    <span class=o>}</span>
+
+    <span class=nd>@Override</span>
+    <span class=kd>public</span> <span class=n>String</span> <span class=nf>getIngredients</span><span class=o>()</span> <span class=o>{</span>
+        <span class=k>return</span> <span class=kd>super</span><span class=o>.</span><span class=na>getIngredients</span><span class=o>()</span> <span class=o>+</span> <span class=s>&#34;, sprinkles&#34;</span><span class=o>;</span>
+    <span class=o>}</span>
+<span class=o>}</span>
+</code></pre></div><p>同样可以定义其它装饰器。</p><h3 id=测试>测试</h3><div class=highlight><pre class=chroma><code class=language-java data-lang=java><span class=n>Coffee</span> <span class=n>coffee</span> <span class=o>=</span> <span class=k>new</span> <span class=n>Espresso</span><span class=o>();</span>
+<span class=n>System</span><span class=o>.</span><span class=na>out</span><span class=o>.</span><span class=na>println</span><span class=o>(</span><span class=n>coffee</span><span class=o>);</span>
+
+<span class=n>coffee</span> <span class=o>=</span> <span class=k>new</span> <span class=n>WithMilk</span><span class=o>(</span><span class=n>coffee</span><span class=o>);</span>
+<span class=n>System</span><span class=o>.</span><span class=na>out</span><span class=o>.</span><span class=na>println</span><span class=o>(</span><span class=n>coffee</span><span class=o>);</span>
+
+<span class=n>coffee</span> <span class=o>=</span> <span class=k>new</span> <span class=n>WithSprinkles</span><span class=o>(</span><span class=n>coffee</span><span class=o>);</span>
+<span class=n>System</span><span class=o>.</span><span class=na>out</span><span class=o>.</span><span class=na>println</span><span class=o>(</span><span class=n>coffee</span><span class=o>);</span>
+</code></pre></div><p>输出：</p><div class=highlight><pre class=chroma><code class=language-shell data-lang=shell>Cost: 22<span class=p>;</span> Ingredients: espresso
+Cost: 28<span class=p>;</span> Ingredients: espresso, milk
+Cost: 31<span class=p>;</span> Ingredients: espresso, milk, sprinkles
+</code></pre></div><p>于是，我们成功地在运行时动态扩展了对象的行为。</p><h2 id=实现源码>实现源码</h2><p><a href=https://github.com/qianbinbin/DesignPattern/tree/master/src/main/java/io/binac/designpattern/decorator>https://github.com/qianbinbin/DesignPattern/tree/master/src/main/java/io/binac/designpattern/decorator</a></p><h2 id=参考资料>参考资料</h2><ol><li><a href=https://en.wikipedia.org/wiki/Decorator_pattern>Decorator pattern - Wikipedia</a></li></ol></section><section><script src=https://utteranc.es/client.js repo=qianbinbin/qianbinbin.github.io issue-term=pathname theme=github-light crossorigin=anonymous async></script></section></article></div><div id=side class="pr-1 bg-white"><aside class=pr-3><div id=toc class="Box Box--blue mb-3"><b>装饰器模式 Decorator Pattern</b><nav id=TableOfContents><ul><li><a href=#模式结构>模式结构</a></li><li><a href=#实例>实例</a><ul><li><a href=#抽象组件-component>抽象组件 Component</a></li><li><a href=#具体组件-concretecomponent>具体组件 ConcreteComponent</a></li><li><a href=#抽象装饰器-decorator>抽象装饰器 Decorator</a></li><li><a href=#具体装饰器-concretedecorator>具体装饰器 ConcreteDecorator</a></li><li><a href=#测试>测试</a></li></ul></li><li><a href=#实现源码>实现源码</a></li><li><a href=#参考资料>参考资料</a></li></ul></nav></div><div></div></aside></div><div id=footer class="pt-2 pb-3 bg-white px-4"><span class="text-small text-gray">© 2017 Binac. 本站的全部文字在<a href=https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh>署名-非商业性使用-相同方式共享 4.0 国际协议</a>之条款下提供。</span></div></div></body></html>

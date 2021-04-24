@@ -5,6 +5,7 @@ tags:
 - LeetCode
 - 算法
 - 位操作
+enableKatex: true
 ---
 
 LeetCode 的一道题，在一个 int 数组中，其余数值均出现了 3 次，只有一个数值出现了 1 次，求这个数：

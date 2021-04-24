@@ -4,6 +4,7 @@ date: 2019-01-03 19:06:44
 tags:
 - 算法
 - 位操作
+enableKatex: true
 ---
 
 起因是看到了这个帖子[如果高中生能证明哥德巴赫猜想，会被清华北大数学系保送吗？ - 知乎](https://www.zhihu.com/question/306537777)，emmm...

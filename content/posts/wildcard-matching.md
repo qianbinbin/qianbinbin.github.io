@@ -6,6 +6,7 @@ tags:
 - 算法
 - 动态规划
 - 贪心算法
+enableKatex: true
 ---
 
 通配符匹配问题：
@@ -33,14 +34,7 @@ tags:
 
 设 $f(i, j)$ 表示 `s` 前 $i$ 个字符与 `p` 前 $j$ 个字符是否匹配，当 $i \le 1$ 时不难写出递推公式：
 
-$$
-f(i, j) =
-\begin{cases}
-false & \text{s[i - 1] 与 p[j - 1] 不匹配}\\
-f(i - 1, j - 1) & \text{s[i - 1] 与 p[j - 1] 匹配}\\
-f(i, j - 1) 或 f(i - 1, j) & \text{p[i - 1] 为 *}
-\end{cases}
-$$
+$$f(i, j) = \begin{cases} false & \text{s[i - 1] 与 p[j - 1] 不匹配} \\\ f(i - 1, j - 1) & \text{s[i - 1] 与 p[j - 1] 匹配} \\\ f(i, j - 1) 或 f(i - 1, j) & \text{p[i - 1] 为 *} \end{cases}$$
 
 对边界情况提前做特殊处理即可。C 语言实现：
 

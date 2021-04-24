@@ -4,6 +4,7 @@ date: 2017-07-24 22:47:04
 tags:
 - LeetCode
 - 算法
+enableKatex: true
 ---
 
 这是 LeetCode 上的一道题，求两个有序数组的中位数：
@@ -77,19 +78,12 @@ B[0], B[1], ..., B[j - 1] | B[j], B[j + 1], ..., B[n - 1]
 
 如果满足两个条件：
 
-- $i + j = \begin{cases} m - i + n - j, & \text{$m + n$ 为偶数}\\
-m - i + n - j + 1, & \text{$m + n$ 为奇数}
-\end{cases}$
+- $i + j = \begin{cases} m - i + n - j, & \text{$m + n$ 为偶数} \\\ m - i + n - j + 1, & \text{$m + n$ 为奇数} \end{cases}$
 - 左边所有元素 $\le x \le$ 右边所有元素，
 
 则找到了适当的划分位置，且
 
-$$
-x = \begin{cases}
-(\max\{A[i - 1], B[j - 1]\} + \min\{A[i + 1], B[j + 1]\}) \div 2, & \text{$m + n$ 为偶数}\\
-\max\{A[i - 1], B[j - 1]\}, & \text{$m + n$ 为奇数}
-\end{cases}
-$$
+$$x = \begin{cases} \frac{1}{2} (\max\\{A[i - 1], B[j - 1]\\} + \min\\{A[i + 1], B[j + 1]\\}), & \text{$m + n$ 为偶数} \\\ \max\\{A[i - 1], B[j - 1]\\}, & \text{$m + n$ 为奇数} \end{cases}$$
 
 由此问题转化为：查找这样的 $i$，且同时满足以上两个条件，即可得出中位数 $x$。
 
@@ -101,17 +95,7 @@ j = (m + n + 1) / 2 - i;
 
 - 若不考虑下标越界情况，由于两个数组升序，第二个条件等价于：
 
-$$
-\begin{cases}
-A[i - 1] \le x \leq A[i]&\\
-B[j - 1] \le x \leq B[j]
-\end{cases}
-\iff
-\begin{cases}
-A[i - 1] \le B[j]&\\
-B[j - 1] \le A[i]
-\end{cases}
-$$
+$$\begin{cases} A[i - 1] \le x \leq A[i]& \\\ B[j - 1] \le x \leq B[j] \end{cases} \iff \begin{cases} A[i - 1] \le B[j]& \\\ B[j - 1] \le A[i] \end{cases}$$
 
 ## 二分查找
 
@@ -119,23 +103,11 @@ $$
 
 现考察 $j$ 的范围，$j = \frac{m + n + k}{2} - i$，其中
 
-$$
-k = \begin{cases}
-0, & \text{$m + n$ 为偶数}\\
-1, & \text{$m + n$ 为奇数}
-\end{cases}
-$$
+$$k = \begin{cases} 0, & \text{$m + n$ 为偶数} \\\ 1, & \text{$m + n$ 为奇数} \end{cases}$$
 
 $j$ 随 $i$ 递减，只需
 
-$$
-\begin{cases}
-j_{max} = (m + n + k) \div 2 - 0 \le n&\\
-j_{min} = (m + n + k) \div 2 - m \ge 0
-\end{cases}
-\iff
-m \le n - k
-$$
+$$\begin{cases} j_{max} = \frac{m + n + k}{2} - 0 \le n&\\\ j_{min} = \frac {m + n + k}{2} - m \ge 0 \end{cases} \iff m \le n - k$$
 
 即可保证 $0 \leq j \leq n$。
 
@@ -154,7 +126,7 @@ $$
 
 若不考虑下标越界，则有以下几种情形：
 
-- $\begin{cases} A[i-1] \le B[j] &\\ B[j-1] \le A[i] \end{cases}$，此时 $i$ 查找成功。
+- $\begin{cases} A[i-1] \le B[j] & \\\ B[j-1] \le A[i] \end{cases}$，此时 $i$ 查找成功。
 - $A[i-1] > B[j]$，此时 $i$ 过大，应丢弃后半部分。
 - $B[j-1] > A[i]$，此时 $i$ 过小，应丢弃前半部分。
 
@@ -167,7 +139,7 @@ $$
 
 结合越界情况，会出现以下三种情形：
 
-- $\begin{cases} i=0 \ 或\ j=n \ 或\ A[i-1] \le B[j] &\\ j=0 \ 或\ i=m \ 或\ B[j-1] \le A[i] \end{cases}$，此时 $i$ 查找成功。
+- $\begin{cases} i=0 \ 或\ j=n \ 或\ A[i-1] \le B[j] & \\\ j=0 \ 或\ i=m \ 或\ B[j-1] \le A[i] \end{cases}$，此时 $i$ 查找成功。
 - $i>0 \ 且\ j < n \ 且\ A[i-1] > B[j]$，此时 $i$ 过大。
 - $j>0 \ 且\ i < m \ 且\ B[j-1] > A[i]$，此时 $i$ 过小。
 
@@ -175,7 +147,7 @@ $$
 
 也可以反过来考虑，合适的 $0 \le i \le m$ 必定存在，先考虑 $i$ 过大和过小的情形。
 
-例如，若 $i$ 过大，要在 $< i$ 中查找，不可能有 $i = 0$ 或 $j = n$，因为 $i$ 减小同时 $j$ 增大后必定越界，而 $A[i-1] > B[j]$ 是一定成立的，所以 $i$ 过大 $\iff \begin{cases} i>0 &\\ j < n &\\ A[i-1] > B[j] \end{cases}$。排除过大和过小的情形，剩下只能是查找成功的情形。
+例如，若 $i$ 过大，要在 $< i$ 中查找，不可能有 $i = 0$ 或 $j = n$，因为 $i$ 减小同时 $j$ 增大后必定越界，而 $A[i-1] > B[j]$ 是一定成立的，所以 $i$ 过大 $\iff \begin{cases} i>0 & \\\ j < n & \\\ A[i-1] > B[j] \end{cases}$。排除过大和过小的情形，剩下只能是查找成功的情形。
 
 ## 计算中位数
 
@@ -185,7 +157,7 @@ $$
 
 - 若 $i = 0$，左边最大值即为 $B[j - 1]$，此时 $j > 0$ 必成立。
 - 若 $j = 0$，左边最大值即为 $A[i - 1]$，此时 $i > 0$ 必成立。
-- 若 $\begin{cases} i > 0 &\\ j > 0 \end{cases}$，左边最大值为 $\max\{A[i - 1], B[j - 1]\}$。
+- 若 $\begin{cases} i > 0 & \\\ j > 0 \end{cases}$，左边最大值为 $\max\\{A[i - 1], B[j - 1]\\}$。
 
 ## 时间复杂度
 

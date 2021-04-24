@@ -4,6 +4,7 @@ date: 2019-05-08 22:23:01
 tags:
 - LeetCode
 - 算法
+enableKatex: true
 ---
 
 <https://leetcode.com/problems/perfect-squares/>
@@ -24,7 +25,7 @@ tags:
 
 ## 动态规划
 
-$$ f(i) = \min\{f(i - s)\} + 1, 其中 s 为平方数且 1 \le s \le i$$
+$$ f(i) = \min\\{f(i - s)\\} + 1, 其中 s 为平方数且 1 \le s \le i$$
 
 ```cpp
 class Solution {

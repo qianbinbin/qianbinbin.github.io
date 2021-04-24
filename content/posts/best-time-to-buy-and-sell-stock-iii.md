@@ -5,6 +5,7 @@ tags:
 - LeetCode
 - 算法
 - 动态规划
+enableKatex: true
 ---
 
 股票买入卖出的最佳时间问题：
@@ -47,11 +48,11 @@ tags:
 
 对于只能买卖一次的情况，可以轻松求解：遍历数组，保存截止目前最小值，并不断更新最大利润，这也可以用动态规划来解释，递推公式为：
 
-$$f(i) = \max\{f(i - 1), prices[i] - price_{min}\}$$
+$$f(i) = \max\\{f(i - 1), prices[i] - price_{min}\\}$$
 
 $price_{min}$ 也可以用递推公式表示：
 
-$$price_{min}(i) = \min\{price_{min}(i - 1), prices[i]\}$$
+$$price_{min}(i) = \min\\{price_{min}(i - 1), prices[i]\\}$$
 
 ## 最多买卖两次的情况
 
@@ -61,15 +62,15 @@ $$price_{min}(i) = \min\{price_{min}(i - 1), prices[i]\}$$
 
 参考只允许买卖一次的问题，很容易得出以下递推公式：
 
-$$release_1(i) = \max\{release_1(i - 1), prices[i] + hold_1(i - 1)\}$$
+$$release_1(i) = \max\\{release_1(i - 1), prices[i] + hold_1(i - 1)\\}$$
 
-$$hold_1(i) = \max\{hold_1(i - 1), -prices[i]\}$$
+$$hold_1(i) = \max\\{hold_1(i - 1), -prices[i]\\}$$
 
 第二次买卖递推公式：
 
-$$release_2(i) = \max\{release_2(i - 1), prices[i] + hold_2(i - 1)\}$$
+$$release_2(i) = \max\\{release_2(i - 1), prices[i] + hold_2(i - 1)\\}$$
 
-$$hold_2(i) = \max\{hold_2(i - 1), release_1(i - 1) - prices[i]\}$$
+$$hold_2(i) = \max\\{hold_2(i - 1), release_1(i - 1) - prices[i]\\}$$
 
 注意先后顺序，由于卖出时要用到之前买入的剩余资产，因此应先计算卖出，再计算买入。同样地，应先计算第二次买卖，再计算第一次买卖。如果顺序打乱，即使得到的结果是正确的，但算法思想就不对了。
 

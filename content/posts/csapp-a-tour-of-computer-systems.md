@@ -4,6 +4,7 @@ date: 2018-12-24 21:30:09
 tags:
 - CSAPP
 - 读书笔记
+enableKatex: true
 ---
 
 ## 1.1 信息就是二进制位+上下文

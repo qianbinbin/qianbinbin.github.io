@@ -4,6 +4,7 @@ date: 2018-12-25 15:02:26
 tags:
 - CSAPP
 - 读书笔记
+enableKatex: true
 ---
 
 ## 2.1 信息存储
@@ -85,19 +86,11 @@ Java 对整数类型的取值范围和表示是非常明确的，它要求采用
 
 补码转无符号数：
 
-$$T2U_w(x) = \begin{cases}
-x + 2^w, & x < 0\\
-x, & {x \ge 0}
-\end{cases}\\
-= x + x_{w-1}2^w$$
+$$T2U_w(x) = \begin{cases} x + 2^w, & x < 0 \\\ x, & {x \ge 0} \end{cases} \\\ = x + x_{w-1}2^w$$
 
 无符号数转补码：
 
-$$U2T_w(u) = \begin{cases}
-u, & u \le TMax_w\\
-u - 2^w, & u > TMax_w
-\end{cases}\\
-= -u_{w-1}2^w + u$$
+$$U2T_w(u) = \begin{cases} u, & u \le TMax_w \\\ u - 2^w, & u > TMax_w \end{cases} \\\ = -u_{w-1}2^w + u$$
 
 ### 2.2.5 C 语言中的有符号数与无符号数
 
@@ -134,10 +127,8 @@ $$B2T_{w+1}([x_{w-1}, x_{w-1}, x_{w-2}, ..., x_0]) = B2T_w([x_{w-1}, x_{w-2}, ..
 
 将左边展开：
 
-$$B2T_{w+1}([x_{w-1}, x_{w-1}, x_{w-2}, ..., x_0]) = -x_{w-1}2^w + \sum_{i=0}^{w-1}x_i2^i\\
-= -x_{w-1}2^w + x_{w-1}2^{w-1} + \sum_{i=0}^{w-2}x_i2^i\\
-= -x_{w-1}2^{w-1} + \sum_{i=0}^{w-2}x_i2^i\\
-= B2T_w([x_{w-1}, x_{w-2}, ..., x_0])
+$$
+B2T_{w+1}([x_{w-1}, x_{w-1}, x_{w-2}, ..., x_0]) \\\ = -x_{w-1}2^w + \sum_{i=0}^{w-1}x_i2^i \\\ = -x_{w-1}2^w + x_{w-1}2^{w-1} + \sum_{i=0}^{w-2}x_i2^i \\\ = -x_{w-1}2^{w-1} + \sum_{i=0}^{w-2}x_i2^i \\\ = B2T_w([x_{w-1}, x_{w-2}, ..., x_0])
 $$
 
 归纳即可证明。
@@ -154,10 +145,7 @@ C 语言标准规定，先作位扩展，再作有符号和无符号数之间的
 
 无符号整数 $x$ 和 $y$ 相加，把和 $x + y$ 截断为 $w$ 位得到无符号数结果。
 
-$$x +_w^u y = \begin{cases}
-x + y, & x + y < 2^w\\
-x + y - 2^w, & 2^w \le x + y < 2^{w+1}
-\end{cases}$$
+$$x +_w^u y = \begin{cases} x + y, & x + y < 2^w \\\ x + y - 2^w, & 2^w \le x + y < 2^{w+1} \end{cases}$$
 
 **原理**：检测无符号数加法中的溢出：
 
@@ -179,10 +167,7 @@ C 语言实现：
 
 对满足 $0 \le x < 2^w$ 的任意 $x$，其 $w$ 位无符号数的非
 
-$$-_w^ux = \begin{cases}
-x, & x = 0\\
-2^w - x, & x > 0
-\end{cases}$$
+$$-_w^ux = \begin{cases} x, & x = 0 \\\ 2^w - x, & x > 0 \end{cases}$$
 
 ### 2.3.2 补码加法
 
@@ -190,17 +175,11 @@ x, & x = 0\\
 
 **原理**：对 $-2^{w-1} \le x,y \le 2^{w-1} - 1$ 的整数 $x$ 和 $y$，有：
 
-$$x +_w^t y = \begin{cases}
-x + y - 2^w, & 2^{w-1} \le x + y\\
-x + y, & -2^{w-1} \le x + y < 2^{w-1}\\
-x + y + 2^w, & x + y < -2^{w-1}
-\end{cases}$$
+$$x +_w^t y = \begin{cases} x + y - 2^w, & 2^{w-1} \le x + y \\\ x + y, & -2^{w-1} \le x + y < 2^{w-1} \\\ x + y + 2^w, & x + y < -2^{w-1} \end{cases}$$
 
 **推导**：
 
-$$x +_w^t y = U2T_w(T2U_w(x) +_w^u T2U_w(y))\\
-= U2T_w[(x_{w-1}2^w + x + y_{w-1}2^w + y)\ mod\ 2^w]\\
-= U2T_w[(x + y)\ mod\ 2^w]$$
+$$x +\_w^t y \\\ = U2T\_w(T2U\_w(x) +\_w^u T2U\_w(y)) \\\ = U2T\_w[(x\_{w-1}2^w + x + y\_{w-1}2^w + y)\ mod\ 2^w] \\\ = U2T\_w[(x + y)\ mod\ 2^w] (x' \cdot y')\ mod\ 2^w \\\ = ((x + x\_{w-1}2^w)(y + y\_{w-1}2^w)\ mod\ 2^w \\\ = (x \cdot y + (xy\_{w-1} + yx\_{w-1})2^w + 2^{2w})\ mod\ 2^w \\\ = (x \cdot y)\ mod\ 2^w$$
 
 设 $z = x + y$，$z' = z \ mod\ 2^w$，$z'' = U2T_w(z') = x +_w^t y$，分 4 种情况讨论：
 
@@ -239,10 +218,7 @@ C 语言实现：
 
 对满足 $TMin_w \le x \le TMax_w$ 的 $x$，其补码的非
 
-$$-_w^tx = \begin{cases}
-TMin_w, & x = TMin_w\\
--x, & x > TMin_w
-\end{cases}$$
+$$-_w^tx = \begin{cases} TMin_w, & x = TMin_w \\\ -x, & x > TMin_w \end{cases}$$
 
 计算补码位级表示的非的几种方法：
 
@@ -282,9 +258,7 @@ $$T2B_w(x *_w^t y) = U2B_w(x' *_w^u y')$$
 
 $x' = x + x_{w-1}2^w, y' = y + x_{w-1}2^w$，则
 
-$$(x' \cdot y')\ mod\ 2^w = ((x + x_{w-1}2^w)(y + y_{w-1}2^w)\ mod\ 2^w\\
-= (x \cdot y + (xy_{w-1} + yx_{w-1})2^w + 2^{2w})\ mod\ 2^w\\
-= (x \cdot y)\ mod\ 2^w$$
+$$(x' \cdot y')\ mod\ 2^w = ((x + x_{w-1}2^w)(y + y_{w-1}2^w)\ mod\ 2^w \\\ = (x \cdot y + (xy_{w-1} + yx_{w-1})2^w + 2^{2w})\ mod\ 2^w \\\ = (x \cdot y)\ mod\ 2^w$$
 
 对补码乘法公式两边应用 $T2U_w$ 得
 

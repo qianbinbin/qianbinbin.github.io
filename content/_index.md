@@ -12,7 +12,7 @@ type: "top"
     margin-right: auto;
     max-width: 36rem;">
 
-    <img src="/favicon-64.png" height=128 width=128 />
+    <img src="/favicon-64.png" />
 
     <p/>
 

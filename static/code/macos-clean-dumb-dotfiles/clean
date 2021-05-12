@@ -1,0 +1,9 @@
+#!/bin/sh
+
+if [ "$#" -eq 0 ]; then
+  echo "usage: clean [path ...]" && exit 1
+fi
+for path in "$@"; do
+  /usr/bin/find "$path" -name .DS_Store -type f -delete
+  /usr/sbin/dot_clean "$path"
+done

@@ -6,7 +6,9 @@
 	<string>clean-users</string>
 	<key>ProgramArguments</key>
 	<array>
-		<string>/Users/username/.local/bin/clean /Users /Volumes</string>
+		<string>/Users/qianbinbin/.local/bin/clean</string>
+		<string>/Users</string>
+		<string>/Volumes</string>
 	</array>
 	<key>StartCalendarInterval</key>
 	<array>

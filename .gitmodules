@@ -13,3 +13,6 @@
 [submodule "static/code/ostep-homework"]
 	path = static/code/ostep-homework
 	url = git@github.com:qianbinbin/ostep-homework.git
+[submodule "static/code/leetcode"]
+	path = static/code/leetcode
+	url = git@github.com:qianbinbin/leetcode.git

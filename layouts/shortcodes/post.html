@@ -1,0 +1,7 @@
+<a href="{{ relref . (.Get 0) }}">
+    {{- if .Get 1 -}}
+        {{- .Get 1 | safeHTML -}}
+    {{- else -}}
+        {{- with .Page.GetPage (.Get 0) -}}{{- .Title -}}{{- end -}}
+    {{- end -}}
+</a>

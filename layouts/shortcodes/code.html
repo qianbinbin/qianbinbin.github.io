@@ -1,0 +1,21 @@
+<figure style="margin:0 0 1.5em 0">
+    {{- $path := print "/code/" (.Get "file") -}}
+    {{- $local := print "/static" $path -}}
+
+    <figcaption style="text-align: right">
+        <a href="{{ $path | relURL }}" style="color: lightslategrey;font-size: 0.8em">{{ .Get "file" }}</a>
+    </figcaption>
+    {{- $source := readFile $local -}}
+    {{- $source = split $source "\n" -}}
+
+    {{- $lang := .Get "lang" | default (path.Ext $local) -}}
+    {{- if hasPrefix $lang "." -}} {{- $lang = substr $lang 1 -}} {{- end -}}
+    {{- $from := .Get "from" | default 1 -}}
+    {{- $to := .Get "to" | default (len $source) -}}
+    {{- $options := .Get "options" | default "" -}}
+
+    {{- $source = after (sub $from 1) $source | first (sub $to (sub $from 1)) -}}
+    {{- $source = delimit $source "\n" -}}
+
+    {{- highlight $source $lang $options -}}
+</figure>

@@ -5,7 +5,7 @@ tags:
 - LeetCode
 - 算法
 - 哈希表
-enableKatex: true
+math: true
 ---
 
 找出数组中首个缺失的正整数：

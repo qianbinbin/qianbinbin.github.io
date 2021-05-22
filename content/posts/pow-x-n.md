@@ -5,7 +5,7 @@ tags:
 - LeetCode
 - 算法
 - 位操作
-enableKatex: true
+math: true
 ---
 
 求一个浮点数的整数次幂：

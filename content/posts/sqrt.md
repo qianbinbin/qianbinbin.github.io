@@ -4,7 +4,7 @@ date: 2018-04-30 15:58:14
 tags:
 - LeetCode
 - 算法
-enableKatex: true
+math: true
 ---
 
 在精度要求较低的情况下，可以用二分查找实现开平方，例如 [Sqrt(x) - LeetCode](https://leetcode.com/problems/sqrtx/) 就只需返回 `int`，即精确到个位。

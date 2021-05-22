@@ -4,7 +4,7 @@ date: 2019-05-08 22:23:01
 tags:
 - LeetCode
 - 算法
-enableKatex: true
+math: true
 ---
 
 <https://leetcode.com/problems/perfect-squares/>

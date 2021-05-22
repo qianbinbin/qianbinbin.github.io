@@ -5,7 +5,7 @@ tags:
 - OSTEP
 - 操作系统
 - 读书笔记
-enableKatex: true
+math: true
 ---
 
 ## 第 4 章 抽象：进程

@@ -4,7 +4,7 @@ date: 2017-07-24 22:47:04
 tags:
 - LeetCode
 - 算法
-enableKatex: true
+math: true
 ---
 
 这是 LeetCode 上的一道题，求两个有序数组的中位数：

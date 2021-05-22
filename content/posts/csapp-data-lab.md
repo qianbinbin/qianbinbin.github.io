@@ -5,7 +5,7 @@ tags:
 - CSAPP
 - 算法
 - 位操作
-enableKatex: true
+math: true
 ---
 
 Data Lab 的题[^1]，第一眼觉得不难，仔细一看发现限制非常严格，比如只允许部分位运算符等，难度一下子就上去了，所以花了不少时间。

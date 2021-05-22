@@ -5,7 +5,7 @@ tags:
 - LeetCode
 - 算法
 - 二叉树
-enableKatex: true
+math: true
 ---
 
 给定一个正整数 n，生成结点值为 1 ~ n 的所有二叉查找树：

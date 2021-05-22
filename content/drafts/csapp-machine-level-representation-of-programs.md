@@ -8,7 +8,7 @@ tags:
 - 汇编
 - GCC
 - 编译
-enableKatex: true
+math: true
 ---
 
 本文运行环境为 i7-7700HQ + Linux debian 4.19.0-9-amd64 + GCC 8.3.0。

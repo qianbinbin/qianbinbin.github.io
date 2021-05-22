@@ -4,7 +4,7 @@ date: 2018-12-25 15:02:26
 tags:
 - CSAPP
 - 读书笔记
-enableKatex: true
+math: true
 ---
 
 ## 2.1 信息存储

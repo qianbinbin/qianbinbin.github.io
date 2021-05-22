@@ -6,7 +6,7 @@ tags:
 - 算法
 - 动态规划
 - 贪心算法
-enableKatex: true
+math: true
 ---
 
 通配符匹配问题：

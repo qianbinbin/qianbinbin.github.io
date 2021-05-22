@@ -4,7 +4,7 @@ date: 2017-12-01 22:34:49
 tags:
 - LeetCode
 - 算法
-enableKatex: true
+math: true
 ---
 
 判断一个单链表中是否存在环，并找出环的入口：

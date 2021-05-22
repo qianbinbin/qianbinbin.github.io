@@ -4,7 +4,7 @@ date: 2017-10-14 19:30:34
 tags:
 - LeetCode
 - 算法
-enableKatex: true
+math: true
 ---
 
 加油站问题，LeetCode 链接：

@@ -5,7 +5,7 @@ tags:
 - LeetCode
 - 算法
 - 动态规划
-enableKatex: true
+math: true
 ---
 
 股票买入卖出的最佳时间问题：

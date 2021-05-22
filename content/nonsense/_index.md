@@ -1,5 +1,4 @@
 ---
-title: "Nonsense"
-menu: "main"
+title: "妄言"
 weight: 3
 ---

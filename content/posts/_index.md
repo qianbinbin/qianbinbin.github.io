@@ -1,5 +1,4 @@
 ---
-title: "Posts"
-menu: "main"
+title: "文章"
 weight: 1
 ---

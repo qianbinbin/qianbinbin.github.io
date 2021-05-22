@@ -1,18 +1,49 @@
 baseURL = "https://binac.io/"
 title = "Binac"
-theme = "primer"
-paginate = 10
-enableInlineShortcodes = true
-hasCJKLanguage = true
-pygmentsCodeFences = true
-pygmentsUseClasses = true
-copyright = '© 2017 Binac.  本站的全部文字在<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">署名-非商业性使用-相同方式共享 4.0 国际协议</a>之条款下提供。'
 
-[taxonomies]
-tag = "tags"
+theme = "notepadium"
+paginate = 8
+
+languageCode = "zh-cn"
+defaultContentLanguage = "zh"
+hasCJKLanguage = true
+
+enableRobotsTXT = true
+
+copyright = '© 2017-2021 Binac.'
+
+sectionPagesMenu = "main"
+
+[[menu.main]]
+name = "标签"  # hack: fix title in content/tags/_index.md
+url = "/tags/"
+weight = 5
+
+[markup.highlight]
+codeFences = true
+noClasses = false
+
+[markup.goldmark.renderer]
+unsafe = true  # enable raw HTML in Markdown
 
 [params]
-useIcon = true
-math = false
-enableUtterances = true
+# style = "auto"  # default: auto. light: light theme, dark: dark theme, auto: based on system.
+# dateFormat = "Monday, January 2, 2006"  # if unset, default is "2006-01-02"
+logo = "/favicons/favicon.png"  # if you have a logo png
+slogan = "Binac is not a cat."
+
+# Use '' to disable license
+license = '本站的全部文字在<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">署名-非商业性使用-相同方式共享 4.0 国际协议</a>之条款下提供。'
+
+[params.math]
+enable = false  # optional: true, false. Enable globally, default: false. You can always enable math on per page.
+use = "katex"  # option: "katex", "mathjax". default: "katex"
+
+[params.comments]
 utterancesRepo = "qianbinbin/qianbinbin.github.io"
+enable = true
+
+[params.syntax]
+use = "none"  # builtin: "prismjs", "hljs". "none" means Chroma
+theme = "github"
+darkTheme = "github-dark"  # apply this theme in dark mode

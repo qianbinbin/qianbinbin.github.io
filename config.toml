@@ -10,6 +10,8 @@ hasCJKLanguage = true
 
 enableRobotsTXT = true
 
+googleAnalytics = "G-N7VZY53PLB"
+
 copyright = '© 2017-2021 Binac.'
 
 sectionPagesMenu = "main"

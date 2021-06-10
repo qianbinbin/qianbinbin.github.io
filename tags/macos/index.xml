@@ -1,7 +1,25 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>macOS on Binac</title><link>https://binac.io/tags/macos/</link><description>Recent content in macOS on Binac</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><copyright>© 2017-2021 Binac.</copyright><lastBuildDate>Tue, 11 May 2021 23:25:01 +0800</lastBuildDate><atom:link href="https://binac.io/tags/macos/index.xml" rel="self" type="application/rss+xml"/><item><title>Nic Pizzolatto：我是如何创作《真探》的</title><link>https://binac.io/tuya/how-nic-pizzolatto-wrote-true-detective/</link><pubDate>Wed, 09 Jun 2021 22:09:45 +0800</pubDate><guid>https://binac.io/tuya/how-nic-pizzolatto-wrote-true-detective/</guid><description>
 &lt;div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
 &lt;iframe src="https://www.youtube.com/embed/2hPn-23N8q4" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;" allowfullscreen title="YouTube Video">&lt;/iframe>
-&lt;/div></description></item><item><title>macOS 清除 ._*、.DS_Store 隐藏垃圾文件</title><link>https://binac.io/posts/macos-clean-dumb-dotfiles/</link><pubDate>Tue, 11 May 2021 23:25:01 +0800</pubDate><guid>https://binac.io/posts/macos-clean-dumb-dotfiles/</guid><description>&lt;p>众所周知，macOS 会自作聪明地生成一些隐藏的垃圾文件。&lt;/p>
+&lt;/div></description></item><item><title>Pixel Pete 的像素画系列教程</title><link>https://binac.io/tuya/pixel-art-tutorials-by-pixel-pete/</link><pubDate>Wed, 09 Jun 2021 21:01:48 +0800</pubDate><guid>https://binac.io/tuya/pixel-art-tutorials-by-pixel-pete/</guid><description>&lt;p>这是对 &lt;a href="https://www.youtube.com/channel/UC7OO80qJzGTLOj_6-0dmOiA"target="_blank" rel="noopener noreferrer">Pixel Pete&lt;/a>
+像素画系列教程的笔记。&lt;/p>
+&lt;h2 id="pixel-art-101">Pixel Art 101&lt;/h2>
+&lt;h3 id="2-风格">2. 风格&lt;/h3>
+&lt;div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+&lt;iframe src="https://www.youtube.com/embed/peUx7xoU0F8" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;" allowfullscreen title="YouTube Video">&lt;/iframe>
+&lt;/div>
+&lt;p>像素画是专注于风格和创意的艺术，而不是写实。&lt;/p>
+&lt;p>像素画有不同的风格，比如 1 bit 风格的 Downwell，无描边的 Moonlighter。&lt;/p>
+&lt;p>用 16x16 呈现几种不同风格，通常优先展现人物脸部，一般是大头小身。&lt;/p>
+&lt;p>以下为本人练习：&lt;/p>
+&lt;span class="image-container">&lt;span class="link" >&lt;a href="https://binac.io/images/pixel-art-tutorials-by-pixel-pete/styles.png"
+target="_blank">&lt;img class="img" src="https://binac.io/images/pixel-art-tutorials-by-pixel-pete/styles.png"/>&lt;/a>&lt;/span>&lt;span class="caption">
+&lt;span class="title">分别为 1 bit 风格、硬描边&amp;#43;阴影、硬描边&amp;#43;阴影&amp;#43;高光、阴影描边&amp;#43;阴影&amp;#43;高光&lt;/span class="image-container-caption">
+&lt;/span>
+&lt;/span>
+&lt;p>可以看到质感完全不同。&lt;/p>
+&lt;p>越往右工作量越大，因为其他部分美术也要用同样的标准，还要加上动画。这还只是 16x16，如果用 32x32，像素数就变成 4 倍，工作量更恐怖。&lt;/p>
+&lt;p>像素画真是下限极低、上限极高的艺术。&lt;/p></description></item><item><title>macOS 清除 ._*、.DS_Store 隐藏垃圾文件</title><link>https://binac.io/posts/macos-clean-dumb-dotfiles/</link><pubDate>Tue, 11 May 2021 23:25:01 +0800</pubDate><guid>https://binac.io/posts/macos-clean-dumb-dotfiles/</guid><description>&lt;p>众所周知，macOS 会自作聪明地生成一些隐藏的垃圾文件。&lt;/p>
 &lt;p>想出这个主意的人真是个鬼才，反正只要表面好看就行，全然不顾那些希望高度把控系统的强迫症患者，更别说泄露隐私的风险了。&lt;/p>
 &lt;!-- more -->
 &lt;p>垃圾文件主要是 &lt;code>._*&lt;/code> 和 &lt;code>.DS_Store&lt;/code>，对于前者，可以用 macOS 自带的 &lt;code>dot_clean&lt;/code> 工具清除（看来苹果自己也知道这是垃圾文件啊），对于后者，只能用 &lt;code>find&lt;/code> 命令查找删除了。&lt;/p>
@@ -1307,118 +1325,6 @@ Final value : &lt;span class="m">137298&lt;/span>
 &lt;li id="fn:1" role="doc-endnote">
 &lt;p>&lt;a href="https://www.madrau.com/support/support/faq_files/ns_I_want_to_use_a_HiDPI_resolutio.html"target="_blank" rel="noopener noreferrer">I want to use a HiDPI resolution that is half the native size of the monitor, but this doesn&amp;rsquo;t work&lt;/a>
 &amp;#160;&lt;a href="#fnref:1" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
-&lt;/li>
-&lt;/ol>
-&lt;/section></description></item><item><title>自制 OpenCore EFI 让联想 M73 Tiny 吃上黑苹果</title><link>https://binac.io/posts/opencore-efi-for-lenovo-thinkcentre-m73-tiny-desktop/</link><pubDate>Sun, 04 Oct 2020 00:20:11 +0000</pubDate><guid>https://binac.io/posts/opencore-efi-for-lenovo-thinkcentre-m73-tiny-desktop/</guid><description>&lt;p>看了&lt;a href="https://www.bilibili.com/video/av499052441/"target="_blank" rel="noopener noreferrer">【图捡垃圾】90%人都够用的黑苹果小主机只要600块，附详细安装教程&lt;/a>
-，忽然想到自己老本本里还有两条 DDR3 内存和祖传的 MLC 固态，而且视频里的 i3-4170 性能相当于 2020 年 MacBook Air 使用的 i3-1000NG4，上网办公完全够用，何不组一台家用上网机呢？&lt;/p>
-&lt;!-- more -->
-&lt;p>不过如果是全新装机的话，就不建议用这个平台了，8G 的 DDR3 比 DDR4 还贵，不值得。&lt;/p>
-&lt;p>实际去买的时候发现 JS 纷纷涨价。i3-4170 更夸张，视频发布时 180 的价格已经涨到了 250 以上，还不一定有货。&lt;/p>
-&lt;p>于是我从四代 CPU 中挑选了 i3-4330，两者性能相当，4330 频率略低、缓存略高，TDP 相同。但 4170 的 4400 核显需要进行额外的配置才能让 macOS 识别，否则可能会有奇怪的 bug，而 4330 的 4600 核显可以直接驱动，重要的是价格还没那么夸张。&lt;/p>
-&lt;p>选购 CPU 时，可以从同代里横向比较，综合考虑性能、价格和散热。我在实际使用时有风扇狂转的情况，小闷罐单热管还是压不住四代桌面 i3，打算以后有机会再加散热片。如果只是轻度上网办公，使用带 T 的 CPU 是个不错的主意。&lt;/p>
-&lt;p>然后就是自制 OpenCore EFI&lt;sup id="fnref:1">&lt;a href="#fn:1" class="footnote-ref" role="doc-noteref">1&lt;/a>&lt;/sup> 了，理论上 4600 核显的四代 CPU 都能使用。过程很长，可以参考 GitHub 提交记录&lt;sup id="fnref:2">&lt;a href="#fn:2" class="footnote-ref" role="doc-noteref">2&lt;/a>&lt;/sup>。&lt;/p>
-&lt;p>&lt;img src="https://github.com/qianbinbin/hackintosh-m73-tiny/raw/macOS-Catalina-10.15/images/screenshot-20201002-22.29.51.png"
-alt/>&lt;/p>
-&lt;h2 id="规格">规格&lt;/h2>
-&lt;p>之所以列出规格，是因为不同的型号和 BIOS 版本可能会不适用。EFI 不保证兼容性，使用者后果自负。&lt;/p>
-&lt;table>
-&lt;thead>
-&lt;tr>
-&lt;th>&lt;/th>
-&lt;th>&lt;/th>
-&lt;/tr>
-&lt;/thead>
-&lt;tbody>
-&lt;tr>
-&lt;td>产品序列号&lt;/td>
-&lt;td>PC07S4KD&lt;/td>
-&lt;/tr>
-&lt;tr>
-&lt;td>机器型号&lt;/td>
-&lt;td>10AXA2EJJP&lt;/td>
-&lt;/tr>
-&lt;tr>
-&lt;td>详细规格&lt;/td>
-&lt;td>&lt;a href="https://support.lenovo.com/us/en/solutions/PD029621">https://support.lenovo.com/us/en/solutions/PD029621&lt;/a>&lt;/td>
-&lt;/tr>
-&lt;tr>
-&lt;td>BIOS 版本&lt;/td>
-&lt;td>&lt;a href="https://pcsupport.lenovo.com/us/en/products/desktops-and-all-in-ones/thinkcentre-m-series-desktops/thinkcentre-m73/10ax/10axa2ejjp/pc07s4kd/downloads/DS038325"target="_blank" rel="noopener noreferrer">FHKT85A 23 Jun 2020&lt;/a>
-&lt;/td>
-&lt;/tr>
-&lt;tr>
-&lt;td>CPU&lt;/td>
-&lt;td>&lt;a href="https://ark.intel.com/content/www/us/en/ark/products/77769/intel-core-i3-4330-processor-4m-cache-3-50-ghz.html"target="_blank" rel="noopener noreferrer">Intel® Core™ i3-4330 Processor&lt;/a>
-&lt;/td>
-&lt;/tr>
-&lt;tr>
-&lt;td>显卡&lt;/td>
-&lt;td>Intel® HD Graphics 4600&lt;/td>
-&lt;/tr>
-&lt;tr>
-&lt;td>OpenCore 版本&lt;/td>
-&lt;td>0.6.1&lt;/td>
-&lt;/tr>
-&lt;tr>
-&lt;td>macOS 版本&lt;/td>
-&lt;td>Catalina 10.15&lt;/td>
-&lt;/tr>
-&lt;/tbody>
-&lt;/table>
-&lt;h2 id="使用方法">使用方法&lt;/h2>
-&lt;ol>
-&lt;li>
-&lt;p>&lt;a href="https://dortania.github.io/OpenCore-Install-Guide/installer-guide/"target="_blank" rel="noopener noreferrer">创建 USB&lt;/a>
-。&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>挂载 USB 中的 EFI 分区（连接电脑时会自动挂载），删除其中所有文件，并把 &lt;a href="https://github.com/qianbinbin/hackintosh-m73-tiny/tree/macOS-Catalina-10.15/BOOT/EFI"target="_blank" rel="noopener noreferrer">EFI 文件夹&lt;/a>
-复制进去。&lt;/p>
-&lt;p>名为 &lt;code>BOOT&lt;/code> 的 EFI 分区结构应该形如：&lt;/p>
-&lt;pre>&lt;code>BOOT
-└── EFI
-├── BOOT
-│   └── BOOTx64.efi
-└── OC
-├── ACPI
-├── Bootstrap
-├── Drivers
-├── Kexts
-├── OpenCore.efi
-├── Resources
-├── Tools
-└── config.plist
-&lt;/code>&lt;/pre>&lt;/li>
-&lt;li>
-&lt;p>以 &lt;code>iMac14,1&lt;/code> &lt;a href="https://dortania.github.io/OpenCore-Install-Guide/config-laptop.plist/haswell.html#platforminfo"target="_blank" rel="noopener noreferrer">生成 SMBIOS 信息&lt;/a>
-，并在 &lt;code>config.plist&lt;/code> 中设置 &lt;code>SystemSerialNumber&lt;/code>、&lt;code>MLB&lt;/code> 和 &lt;code>SystemUUID&lt;/code> 的值。&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>如有必要，更新 BIOS 版本。&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>&lt;a href="https://dortania.github.io/OpenCore-Install-Guide/config-laptop.plist/haswell.html#intel-bios-settings"target="_blank" rel="noopener noreferrer">配置 BIOS&lt;/a>
-。&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>从 USB 启动，安装 macOS。&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>可选地加入适当的 &lt;a href="https://dortania.github.io/OpenCore-Install-Guide/ktext.html#wifi-and-bluetooth"target="_blank" rel="noopener noreferrer">Kexts 文件&lt;/a>
-来驱动 Intel 无线网卡或非苹果的博通无线网卡。&lt;/p>
-&lt;/li>
-&lt;/ol>
-&lt;h2 id="参考资料">参考资料&lt;/h2>
-&lt;section class="footnotes" role="doc-endnotes">
-&lt;hr>
-&lt;ol>
-&lt;li id="fn:1" role="doc-endnote">
-&lt;p>&lt;a href="https://dortania.github.io/OpenCore-Install-Guide/"target="_blank" rel="noopener noreferrer">OpenCore Install Guide&lt;/a>
-&amp;#160;&lt;a href="#fnref:1" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
-&lt;/li>
-&lt;li id="fn:2" role="doc-endnote">
-&lt;p>&lt;a href="https://github.com/qianbinbin/hackintosh-m73-tiny"target="_blank" rel="noopener noreferrer">qianbinbin/hackintosh-m73-tiny: OpenCore EFI for Lenovo ThinkCentre M73 Tiny Desktop&lt;/a>
-&amp;#160;&lt;a href="#fnref:2" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
 &lt;/li>
 &lt;/ol>
 &lt;/section></description></item></channel></rss>

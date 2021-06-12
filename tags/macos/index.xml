@@ -19,7 +19,51 @@ target="_blank">&lt;img class="img" src="https://binac.io/images/pixel-art-tutor
 &lt;/span>
 &lt;p>可以看到质感完全不同。&lt;/p>
 &lt;p>越往右工作量越大，因为其他部分美术也要用同样的标准，还要加上动画。这还只是 16x16，如果用 32x32，像素数就变成 4 倍，工作量更恐怖。&lt;/p>
-&lt;p>像素画真是下限极低、上限极高的艺术。&lt;/p></description></item><item><title>macOS 清除 ._*、.DS_Store 隐藏垃圾文件</title><link>https://binac.io/posts/macos-clean-dumb-dotfiles/</link><pubDate>Tue, 11 May 2021 23:25:01 +0800</pubDate><guid>https://binac.io/posts/macos-clean-dumb-dotfiles/</guid><description>&lt;p>众所周知，macOS 会自作聪明地生成一些隐藏的垃圾文件。&lt;/p>
+&lt;p>像素画真是下限极低、上限极高的艺术。&lt;/p>
+&lt;h3 id="3-game-boy">3. Game Boy&lt;/h3>
+&lt;div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+&lt;iframe src="https://www.youtube.com/embed/mNGnQMPUFxw" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;" allowfullscreen title="YouTube Video">&lt;/iframe>
+&lt;/div>
+&lt;span class="image-container">&lt;span class="link" >&lt;a href="https://binac.io/images/pixel-art-tutorials-by-pixel-pete/GameBoyCharactersSprites.png"
+target="_blank">&lt;img class="img" src="https://binac.io/images/pixel-art-tutorials-by-pixel-pete/GameBoyCharactersSprites.png"/>&lt;/a>&lt;/span>
+&lt;/span>
+&lt;p>GB 只有 4 种颜色，优先强调人物特征。&lt;/p>
+&lt;span class="image-container">&lt;span class="link" >&lt;a href="https://binac.io/images/pixel-art-tutorials-by-pixel-pete/Fox.png"
+target="_blank">&lt;img class="img" src="https://binac.io/images/pixel-art-tutorials-by-pixel-pete/Fox.png"/>&lt;/a>&lt;/span>
+&lt;/span>
+&lt;p>比如狐狸就可以强调耳朵、吻和尾巴，对其使用高光。&lt;/p>
+&lt;h3 id="4-家具">4. 家具&lt;/h3>
+&lt;div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+&lt;iframe src="https://www.youtube.com/embed/3DWVitIDHQo" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;" allowfullscreen title="YouTube Video">&lt;/iframe>
+&lt;/div>
+&lt;span class="image-container">&lt;span class="link" >&lt;a href="https://binac.io/images/pixel-art-tutorials-by-pixel-pete/bed.png"
+target="_blank">&lt;img class="img" src="https://binac.io/images/pixel-art-tutorials-by-pixel-pete/bed.png"/>&lt;/a>&lt;/span>&lt;span class="caption">
+&lt;span class="title">床&lt;/span class="image-container-caption">
+&lt;/span>
+&lt;/span>
+&lt;span class="image-container">&lt;span class="link" >&lt;a href="https://binac.io/images/pixel-art-tutorials-by-pixel-pete/furniture-01.png"
+target="_blank">&lt;img class="img" src="https://binac.io/images/pixel-art-tutorials-by-pixel-pete/furniture-01.png"/>&lt;/a>&lt;/span>&lt;span class="caption">
+&lt;span class="title">家具&lt;/span class="image-container-caption">
+&lt;/span>
+&lt;/span>
+&lt;p>给家具上色的两个小技巧：&lt;/p>
+&lt;ul>
+&lt;li>高光：选择上侧的颜色，调低饱和度，调高明度，用在前侧和上侧弯折处。&lt;/li>
+&lt;li>描边：选择内部颜色，调低明度，从弯折处以上描边，好像有光从上方打下来。&lt;/li>
+&lt;/ul>
+&lt;p>改成床：&lt;/p>
+&lt;span class="image-container">&lt;span class="link" >&lt;a href="https://binac.io/images/pixel-art-tutorials-by-pixel-pete/furniture-02.png"
+target="_blank">&lt;img class="img" src="https://binac.io/images/pixel-art-tutorials-by-pixel-pete/furniture-02.png"/>&lt;/a>&lt;/span>&lt;span class="caption">
+&lt;span class="title">床&lt;/span class="image-container-caption">
+&lt;/span>
+&lt;/span>
+&lt;ul>
+&lt;li>高度调低。&lt;/li>
+&lt;li>靠背用黑色，与前侧一致。&lt;/li>
+&lt;li>靠背上侧更亮一些，好像更靠近光源。&lt;/li>
+&lt;/ul>
+&lt;p>一个阴影小技巧：选择较深的颜色，Alpha 通道调到一半，然后加到较浅的颜色上，获得中间的阴影色。&lt;/p>
+&lt;p>床腿阴影，可以造成部分在侧面部分在床底下的错觉。&lt;/p></description></item><item><title>macOS 清除 ._*、.DS_Store 隐藏垃圾文件</title><link>https://binac.io/posts/macos-clean-dumb-dotfiles/</link><pubDate>Tue, 11 May 2021 23:25:01 +0800</pubDate><guid>https://binac.io/posts/macos-clean-dumb-dotfiles/</guid><description>&lt;p>众所周知，macOS 会自作聪明地生成一些隐藏的垃圾文件。&lt;/p>
 &lt;p>想出这个主意的人真是个鬼才，反正只要表面好看就行，全然不顾那些希望高度把控系统的强迫症患者，更别说泄露隐私的风险了。&lt;/p>
 &lt;!-- more -->
 &lt;p>垃圾文件主要是 &lt;code>._*&lt;/code> 和 &lt;code>.DS_Store&lt;/code>，对于前者，可以用 macOS 自带的 &lt;code>dot_clean&lt;/code> 工具清除（看来苹果自己也知道这是垃圾文件啊），对于后者，只能用 &lt;code>find&lt;/code> 命令查找删除了。&lt;/p>

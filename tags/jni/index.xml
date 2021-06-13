@@ -4,6 +4,10 @@
 &lt;/div></description></item><item><title>Pixel Pete 的像素画系列教程</title><link>https://binac.io/tuya/pixel-art-tutorials-by-pixel-pete/</link><pubDate>Wed, 09 Jun 2021 21:01:48 +0800</pubDate><guid>https://binac.io/tuya/pixel-art-tutorials-by-pixel-pete/</guid><description>&lt;p>这是对 &lt;a href="https://www.youtube.com/channel/UC7OO80qJzGTLOj_6-0dmOiA"target="_blank" rel="noopener noreferrer">Pixel Pete&lt;/a>
 像素画系列教程的笔记。&lt;/p>
 &lt;h2 id="pixel-art-101">Pixel Art 101&lt;/h2>
+&lt;h3 id="1-软件">1. 软件&lt;/h3>
+&lt;div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+&lt;iframe src="https://www.youtube.com/embed/51u9ZgrEThg" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;" allowfullscreen title="YouTube Video">&lt;/iframe>
+&lt;/div>
 &lt;h3 id="2-风格">2. 风格&lt;/h3>
 &lt;div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
 &lt;iframe src="https://www.youtube.com/embed/peUx7xoU0F8" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;" allowfullscreen title="YouTube Video">&lt;/iframe>
@@ -70,7 +74,7 @@ target="_blank">&lt;img class="img" src="https://binac.io/images/pixel-art-tutor
 &lt;/div>
 &lt;p>高饱和度颜色通常偏卡通和娱乐，例如任天堂游戏。低饱和度偏写实，可以用严肃的剧情。Calm colors 通常是低饱和度的，例如 Garden Story。&lt;/p>
 &lt;p>调色板从红黄蓝三原色开始，选择不同的颜色传达不同的情绪，参考别人的作品。&lt;/p>
-&lt;p>举例来说，做游戏可以先选择草丛颜色，以此为基础在上面画其他物品，使颜色与之匹配。在选取草丛绿色后，保持饱和度和明度不变，调整色度获得红黄蓝 dark 版本。&lt;/p>
+&lt;p>举例来说，做游戏可以先选择草的颜色，以此为基础在上面画其他物品，使颜色与之匹配。在选取草绿色后，保持饱和度和明度不变，调整色度获得红黄蓝 dark 版本。&lt;/p>
 &lt;p>调高饱和度和明度调到最高获得明亮版三原色，调整 dark 版本，使得它们与明亮版的视觉差距差不多，依靠视觉感受而不是数值。&lt;/p>
 &lt;span class="image-container">&lt;span class="link" >&lt;a href="https://binac.io/images/pixel-art-tutorials-by-pixel-pete/color-palette.png"
 target="_blank">&lt;img class="img" src="https://binac.io/images/pixel-art-tutorials-by-pixel-pete/color-palette.png"/>&lt;/a>&lt;/span>&lt;span class="caption">
@@ -82,7 +86,52 @@ target="_blank">&lt;img class="img" src="https://binac.io/images/pixel-art-tutor
 &lt;li>要获得橙色，新建红色图层，透明度调一半，将其与黄色图层重叠，获得橙色。&lt;/li>
 &lt;li>调色板创建渐变。&lt;/li>
 &lt;li>可以从作品中创建调色板。&lt;/li>
-&lt;/ul></description></item><item><title>macOS 清除 ._*、.DS_Store 隐藏垃圾文件</title><link>https://binac.io/posts/macos-clean-dumb-dotfiles/</link><pubDate>Tue, 11 May 2021 23:25:01 +0800</pubDate><guid>https://binac.io/posts/macos-clean-dumb-dotfiles/</guid><description>&lt;p>众所周知，macOS 会自作聪明地生成一些隐藏的垃圾文件。&lt;/p>
+&lt;/ul>
+&lt;h3 id="6-阴影">6. 阴影&lt;/h3>
+&lt;div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+&lt;iframe src="https://www.youtube.com/embed/jO9ruYaCJmU" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;" allowfullscreen title="YouTube Video">&lt;/iframe>
+&lt;/div>
+&lt;p>加阴影通常要调低明度，还可以结合调整饱和度和色度来获得不同的效果。&lt;/p>
+&lt;p>描边也可以用暖色/冷色体现不同的感觉，即色度调成红/蓝，饱和度调高，明度调低。&lt;/p>
+&lt;p>要体现立体感，描边+边缘高光+侧面渐变。&lt;/p>
+&lt;p>边缘高光多次叠加，可以体现金属光泽。&lt;/p>
+&lt;p>高光时色度可以稍微右移，阴影时左移。&lt;/p>
+&lt;span class="image-container">&lt;span class="link" >&lt;a href="https://binac.io/images/pixel-art-tutorials-by-pixel-pete/shading.png"
+target="_blank">&lt;img class="img" src="https://binac.io/images/pixel-art-tutorials-by-pixel-pete/shading.png"/>&lt;/a>&lt;/span>&lt;span class="caption">
+&lt;span class="title">阴影&lt;/span class="image-container-caption">
+&lt;/span>
+&lt;/span>
+&lt;h3 id="7-石头">7. 石头&lt;/h3>
+&lt;div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+&lt;iframe src="https://www.youtube.com/embed/DIB7VorgJno" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;" allowfullscreen title="YouTube Video">&lt;/iframe>
+&lt;/div>
+&lt;p>做影子的一个小技巧：新建图层并涂黑，透明度调一半左右，下移，与原图片合并，形成影子。&lt;/p>
+&lt;h3 id="8-草">8. 草&lt;/h3>
+&lt;div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+&lt;iframe src="https://www.youtube.com/embed/TE1Wock0VBY" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;" allowfullscreen title="YouTube Video">&lt;/iframe>
+&lt;/div>
+&lt;p>草不适合用复杂的质地，否则会感觉杂乱，看不清主体。&lt;/p>
+&lt;span class="image-container">&lt;span class="link" >&lt;a href="https://binac.io/images/pixel-art-tutorials-by-pixel-pete/grass.png"
+target="_blank">&lt;img class="img" src="https://binac.io/images/pixel-art-tutorials-by-pixel-pete/grass.png"/>&lt;/a>&lt;/span>&lt;span class="caption">
+&lt;span class="title">草&lt;/span class="image-container-caption">
+&lt;/span>
+&lt;/span>
+&lt;h3 id="9-树">9. 树&lt;/h3>
+&lt;div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+&lt;iframe src="https://www.youtube.com/embed/V92YHgQY-uo" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;" allowfullscreen title="YouTube Video">&lt;/iframe>
+&lt;/div>
+&lt;p>草作为背景的话饱和度不能太高。&lt;/p>
+&lt;p>高光和阴影技巧基本一样，越往上色度越黄、饱和度越低、明度越高。主要是用形状和来体现立体感。&lt;/p>
+&lt;h3 id="10-水">10. 水&lt;/h3>
+&lt;div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+&lt;iframe src="https://www.youtube.com/embed/BeNpNmEANpw" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;" allowfullscreen title="YouTube Video">&lt;/iframe>
+&lt;/div>
+&lt;p>本人练习：&lt;/p>
+&lt;span class="image-container">&lt;span class="link" >&lt;a href="https://binac.io/images/pixel-art-tutorials-by-pixel-pete/water.png"
+target="_blank">&lt;img class="img" src="https://binac.io/images/pixel-art-tutorials-by-pixel-pete/water.png"/>&lt;/a>&lt;/span>&lt;span class="caption">
+&lt;span class="title">水&lt;/span class="image-container-caption">
+&lt;/span>
+&lt;/span></description></item><item><title>macOS 清除 ._*、.DS_Store 隐藏垃圾文件</title><link>https://binac.io/posts/macos-clean-dumb-dotfiles/</link><pubDate>Tue, 11 May 2021 23:25:01 +0800</pubDate><guid>https://binac.io/posts/macos-clean-dumb-dotfiles/</guid><description>&lt;p>众所周知，macOS 会自作聪明地生成一些隐藏的垃圾文件。&lt;/p>
 &lt;p>想出这个主意的人真是个鬼才，反正只要表面好看就行，全然不顾那些希望高度把控系统的强迫症患者，更别说泄露隐私的风险了。&lt;/p>
 &lt;!-- more -->
 &lt;p>垃圾文件主要是 &lt;code>._*&lt;/code> 和 &lt;code>.DS_Store&lt;/code>，对于前者，可以用 macOS 自带的 &lt;code>dot_clean&lt;/code> 工具清除（看来苹果自己也知道这是垃圾文件啊），对于后者，只能用 &lt;code>find&lt;/code> 命令查找删除了。&lt;/p>

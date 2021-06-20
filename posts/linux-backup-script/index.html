@@ -1,4 +1,4 @@
-<!doctype html><html lang=zh><meta charset=utf-8><meta name=generator content="Hugo 0.83.1"><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name=color-scheme content="light dark"><meta name=supported-color-schemes content="light dark"><link rel=icon href=/favicons/favicon.svg><title>Linux 自动备份脚本&nbsp;&ndash;&nbsp;Binac</title><link rel=stylesheet href=/css/core.min.61b91e81d79f165d026f2d80f0dba19db378139af6d096f00f3a5cfadb03a39d8340a6e3db267e55d080659145d089b1.css integrity=sha384-YbkegdefFl0Cby2A8NuhnbN4E5r20JbwDzpc+tsDo52DQKbj2yZ+VdCAZZFF0Imx><meta name=twitter:card content="summary"><meta name=twitter:title content="Linux 自动备份脚本"><body><section id=header><div class="header wrap"><span class="header left-side"><a class="site home" href=/><img class="site logo" src=/favicons/favicon.svg alt><span class="site name">Binac</span></a></span>
+<!doctype html><html lang=zh><meta charset=utf-8><meta name=generator content="Hugo 0.84.0"><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name=color-scheme content="light dark"><meta name=supported-color-schemes content="light dark"><link rel=icon href=/favicons/favicon.svg><title>Linux 自动备份脚本&nbsp;&ndash;&nbsp;Binac</title><link rel=stylesheet href=/css/core.min.61b91e81d79f165d026f2d80f0dba19db378139af6d096f00f3a5cfadb03a39d8340a6e3db267e55d080659145d089b1.css integrity=sha384-YbkegdefFl0Cby2A8NuhnbN4E5r20JbwDzpc+tsDo52DQKbj2yZ+VdCAZZFF0Imx><meta name=twitter:card content="summary"><meta name=twitter:title content="Linux 自动备份脚本"><body><section id=header><div class="header wrap"><span class="header left-side"><a class="site home" href=/><img class="site logo" src=/favicons/favicon.svg alt><span class="site name">Binac</span></a></span>
 <span class="header right-side"><div class="nav wrap"><nav class=nav><a class="nav item active" href=/posts/ title=文章>文章</a>
 <a class="nav item" href=/nonsense/ title=妄言>妄言</a>
 <a class="nav item" href=/tuya/ title=涂鸦>涂鸦</a>
@@ -115,17 +115,17 @@ log <span class=s2>&#34;Copying to remote: </span><span class=nv>$BACKUP_REMOTE<
 
 <span class=k>[Service]</span>
 <span class=na>ExecStart</span><span class=o>=</span><span class=s>/bin/bash -c &#34;/root/bin/backup.sh &gt;&gt;/var/log/backup.log 2&gt;&amp;1 &amp;&amp; echo &gt;&gt;/var/log/backup.log&#34;</span>
-</code></pre></div></figure><figure style="margin:0 0 1.5em"><figcaption style=text-align:right><a href=/code/linux-backup-script/backup.timer style=color:lightslategrey;font-size:.8em>linux-backup-script/backup.timer</a></figcaption><pre><code class=language-timer data-lang=timer>[Unit]
-Description=Run backup weekly
+</code></pre></div></figure><figure style="margin:0 0 1.5em"><figcaption style=text-align:right><a href=/code/linux-backup-script/backup.timer style=color:lightslategrey;font-size:.8em>linux-backup-script/backup.timer</a></figcaption><div class=highlight><pre class=chroma><code class=language-timer data-lang=timer><span class=k>[Unit]</span>
+<span class=na>Description</span><span class=o>=</span><span class=s>Run backup weekly</span>
 
-[Timer]
-OnCalendar=Mon, 03:00
-AccuracySec=1h
-Persistent=true
+<span class=k>[Timer]</span>
+<span class=na>OnCalendar</span><span class=o>=</span><span class=s>Mon, 03:00</span>
+<span class=na>AccuracySec</span><span class=o>=</span><span class=s>1h</span>
+<span class=na>Persistent</span><span class=o>=</span><span class=s>true</span>
 
-[Install]
-WantedBy=timers.target
-</code></pre></figure><p>这里设置为每周一 03:00 开始备份，<code>AccuracySec=1h</code> 表示可以有一小时的容错，这是为了减少唤醒 CPU。</p><p>运行并使其开机启动：</p><div class=highlight><pre class=chroma><code class=language-sh data-lang=sh>$ sudo systemctl daemon-reload
+<span class=k>[Install]</span>
+<span class=na>WantedBy</span><span class=o>=</span><span class=s>timers.target</span>
+</code></pre></div></figure><p>这里设置为每周一 03:00 开始备份，<code>AccuracySec=1h</code> 表示可以有一小时的容错，这是为了减少唤醒 CPU。</p><p>运行并使其开机启动：</p><div class=highlight><pre class=chroma><code class=language-sh data-lang=sh>$ sudo systemctl daemon-reload
 $ sudo systemctl start backup.timer
 $ sudo systemctl <span class=nb>enable</span> backup.timer
 </code></pre></div><p><code>systemctl list-timers</code> 可以查看所有定时任务。</p></article><section class="article labels"><a class=tag href=/tags/linux/>Linux</a><a class=tag href=/tags/bash/>Bash</a><a class=tag href=/tags/shell/>Shell</a></section><section class="article license">本站的全部文字在<a href=https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh>署名-非商业性使用-相同方式共享 4.0 国际协议</a>之条款下提供。</section></div><div class="article bottom"><section class="article navigation"><p><a class=link href=/posts/csapp-data-lab/><span class="iconfont icon-article"></span>CSAPP Data Lab</a></p><p><a class=link href=/posts/shrink-disk-image/><span class="iconfont icon-article"></span>缩减 IMG 镜像文件</a></p></section><section class="article discussion"><script>function loadComment(){let a=document.createElement('script');a.src='https://utteranc.es/client.js',a.setAttribute('repo','qianbinbin/qianbinbin.github.io'),a.setAttribute('issue-term','pathname'),a.setAttribute('theme','preferred-color-scheme'),a.setAttribute('crossorigin','anonymous'),a.setAttribute('async',''),document.querySelector('section.article.discussion').innerHTML='',document.querySelector('section.article.discussion').appendChild(a)}loadComment(),window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{loadComment()})</script></section></div></section><section id=footer><div class=footer-wrap><p class=copyright>© 2017-2021 Binac.</p></div></section><script async src="https://www.googletagmanager.com/gtag/js?id=G-N7VZY53PLB"></script><script>var doNotTrack=!1;if(!doNotTrack){window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date),gtag('config','G-N7VZY53PLB',{anonymize_ip:!1})}</script></body></html>

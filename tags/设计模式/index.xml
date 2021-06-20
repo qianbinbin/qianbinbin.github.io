@@ -131,7 +131,28 @@ target="_blank">&lt;img class="img" src="https://binac.io/images/pixel-art-tutor
 target="_blank">&lt;img class="img" src="https://binac.io/images/pixel-art-tutorials-by-pixel-pete/water.png"/>&lt;/a>&lt;/span>&lt;span class="caption">
 &lt;span class="title">水&lt;/span class="image-container-caption">
 &lt;/span>
-&lt;/span></description></item><item><title>macOS 清除 ._*、.DS_Store 隐藏垃圾文件</title><link>https://binac.io/posts/macos-clean-dumb-dotfiles/</link><pubDate>Tue, 11 May 2021 23:25:01 +0800</pubDate><guid>https://binac.io/posts/macos-clean-dumb-dotfiles/</guid><description>&lt;p>众所周知，macOS 会自作聪明地生成一些隐藏的垃圾文件。&lt;/p>
+&lt;/span>
+&lt;h3 id="11-灌木">11. 灌木&lt;/h3>
+&lt;div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+&lt;iframe src="https://www.youtube.com/embed/XVoFyCPFzkY" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;" allowfullscreen title="YouTube Video">&lt;/iframe>
+&lt;/div>
+&lt;span class="image-container">&lt;span class="link" >&lt;a href="https://binac.io/images/pixel-art-tutorials-by-pixel-pete/Pixel%20Pete%20Bushes.png"
+target="_blank">&lt;img class="img" src="https://binac.io/images/pixel-art-tutorials-by-pixel-pete/Pixel%20Pete%20Bushes.png"/>&lt;/a>&lt;/span>&lt;span class="caption">
+&lt;span class="title">灌木&lt;/span class="image-container-caption">
+&lt;/span>
+&lt;/span>
+&lt;h3 id="12-按钮">12. 按钮&lt;/h3>
+&lt;div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+&lt;iframe src="https://www.youtube.com/embed/wiQJqddh4f8" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;" allowfullscreen title="YouTube Video">&lt;/iframe>
+&lt;/div>
+&lt;h3 id="13-terraria-武士">13. Terraria 武士&lt;/h3>
+&lt;div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+&lt;iframe src="https://www.youtube.com/embed/4lVPleCJXaU" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;" allowfullscreen title="YouTube Video">&lt;/iframe>
+&lt;/div>
+&lt;h3 id="15-改进-sprite">15. 改进 Sprite&lt;/h3>
+&lt;div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+&lt;iframe src="https://www.youtube.com/embed/7caBf4iwNSQ" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;" allowfullscreen title="YouTube Video">&lt;/iframe>
+&lt;/div></description></item><item><title>macOS 清除 ._*、.DS_Store 隐藏垃圾文件</title><link>https://binac.io/posts/macos-clean-dumb-dotfiles/</link><pubDate>Tue, 11 May 2021 23:25:01 +0800</pubDate><guid>https://binac.io/posts/macos-clean-dumb-dotfiles/</guid><description>&lt;p>众所周知，macOS 会自作聪明地生成一些隐藏的垃圾文件。&lt;/p>
 &lt;p>想出这个主意的人真是个鬼才，反正只要表面好看就行，全然不顾那些希望高度把控系统的强迫症患者，更别说泄露隐私的风险了。&lt;/p>
 &lt;!-- more -->
 &lt;p>垃圾文件主要是 &lt;code>._*&lt;/code> 和 &lt;code>.DS_Store&lt;/code>，对于前者，可以用 macOS 自带的 &lt;code>dot_clean&lt;/code> 工具清除（看来苹果自己也知道这是垃圾文件啊），对于后者，只能用 &lt;code>find&lt;/code> 命令查找删除了。&lt;/p>

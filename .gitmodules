@@ -16,3 +16,6 @@
 [submodule "themes/notepadium"]
 	path = themes/notepadium
 	url = git@github.com:qianbinbin/hugo-notepadium.git
+[submodule "static/code/moebooru-crawler"]
+	path = static/code/moebooru-crawler
+	url = git@github.com:qianbinbin/moebooru-crawler.git

@@ -1,0 +1,1 @@
+zz="";if [[ "$(which su)" ]];then zz="su 0";fi;base=/data/local/tmp/.m ;export CLASSPATH=$base/hg ;export ANDROID_DATA=$base ;$zz mkdir -p $base/dalvik-cache ;if [[ -z "$($zz app_process $base/hg hg $1 $2)" ]];then app_process $base/hg hg $1 $2;fi;$zz chmod 777 $2

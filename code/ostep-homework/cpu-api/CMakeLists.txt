@@ -1,0 +1,8 @@
+add_executable(cpu-api-p1 p1.c)
+add_executable(cpu-api-p2 p2.c)
+add_executable(cpu-api-p3 p3.c)
+add_executable(cpu-api-p4 p4.c)
+add_executable(cpu-api-p5 p5.c)
+add_executable(cpu-api-p6 p6.c)
+add_executable(cpu-api-p7 p7.c)
+add_executable(cpu-api-p8 p8.c)

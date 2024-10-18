@@ -1,0 +1,148 @@
+<!doctype html><html lang=zh><meta charset=utf-8><meta name=generator content="Hugo 0.136.2"><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name=color-scheme content="light dark"><meta name=supported-color-schemes content="light dark"><link rel=icon href=/favicons/favicon.svg><title>Transmission 屏蔽迅雷等吸血客户端&nbsp;&ndash;&nbsp;Binac</title><link rel=stylesheet href=/css/core.min.d30edcc615d78b7f8a2a9e5f1b66bd074a7ad2e94b579fa5902d0967ce0f7684b300ef3a9e15d41af82c75f3fb951d4b.css integrity=sha384-0w7cxhXXi3+KKp5fG2a9B0p60ulLV5+lkC0JZ84PdoSzAO86nhXUGvgsdfP7lR1L><meta name=twitter:card content="summary">
+<meta name=twitter:title content="Transmission 屏蔽迅雷等吸血客户端"><body><section id=header><div class="header wrap"><span class="header left-side"><a class="site home" href=/><img class="site logo" src=/favicons/favicon.svg alt><span class="site name">Binac</span></a></span>
+<span class="header right-side"><div class="nav wrap"><nav class=nav><a class='nav item active' href=/posts/ title=文章>文章</a>
+<a class='nav item' href=/nonsense/ title=妄言>妄言</a>
+<a class='nav item' href=/tuya/ title=涂鸦>涂鸦</a>
+<a class='nav item' href=/tags/ title>标签</a></nav></div></span></div></section><section id=content><div class=article-container><section class="article header"><h1 class="article title">Transmission 屏蔽迅雷等吸血客户端</h1><p class="article date">2022-04-26</p></section><article class="article markdown-body"><p>一直跟你索取数据，你有求必应地给它了，等你跟它请求的时候，不好意思，没有，不信你看我进度，我可是 0% 啊！</p><p>——这就是吸血。</p><p>然而 BT 协议非常宽松，大多数开源客户端并不屏蔽吸血客户端，有些客户端如 qee，可以通过 Peer/Client ID 识别它们并屏蔽。</p><p>个人使用的 Transmission 就只能屏蔽 IP，而且作者表示不会加入屏蔽客户端这种功能<sup id=fnref:1><a href=#fn:1 class=footnote-ref role=doc-noteref>1</a></sup>。我只好写了个 Shell 脚本<sup id=fnref:2><a href=#fn:2 class=footnote-ref role=doc-noteref>2</a></sup>，检测到特定客户端就屏蔽它的 IP。</p><p>transmission-remote 的 API 并不能获取 Peer ID，只有 Client ID，也就是根据客户端名称屏蔽的，通过 <code>CLIENTS</code> 来设置。</p><p>由于 IP 动态分配，也建议设置一下 <code>TIMEOUT_SECONDS</code>，这样每过一段时间就会清空黑名单。至于 NAT 共用 IP 什么的，那就不在考虑范围内了，误伤就误伤了吧。</p><p>另一个问题是加入黑名单后即使 reload 了也不会立即生效，这个我已经提了 issue<sup id=fnref:3><a href=#fn:3 class=footnote-ref role=doc-noteref>3</a></sup>。目前暂时的解决方法是设置 <code>RESTART_TORRENT=true</code> 重启该任务。</p><figure style="margin:0 0 1.5em"><figcaption style=text-align:right><a href=/code/transmission-block/trans-block.sh style=color:lightslategrey;font-size:.8em>trans-block.sh</a></figcaption><div class=highlight><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl><span class=cp>#!/usr/bin/env sh
+</span></span></span><span class=line><span class=cl><span class=cp></span>
+</span></span><span class=line><span class=cl><span class=nv>HOST</span><span class=o>=</span><span class=s2>&#34;localhost:9091&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nv>AUTH</span><span class=o>=</span><span class=s2>&#34;username:password&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nv>CLIENTS</span><span class=o>=</span><span class=s2>&#34;xunlei thunder gt[[:digit:]]\{4\} xl0012 xf dandanplay dl3760 qq libtorrent&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nv>LIST</span><span class=o>=</span><span class=s2>&#34;</span><span class=nv>$HOME</span><span class=s2>/.config/transmission-daemon/blocklists/leechers.txt&#34;</span>
+</span></span><span class=line><span class=cl><span class=nv>BIN</span><span class=o>=</span><span class=s2>&#34;</span><span class=nv>$LIST</span><span class=s2>.bin&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Clear blocklist</span>
+</span></span><span class=line><span class=cl><span class=c1># 0=disable</span>
+</span></span><span class=line><span class=cl><span class=c1># TIMEOUT_SECONDS=$((60 * 60 * 24)) # 24 hours</span>
+</span></span><span class=line><span class=cl><span class=nv>TIMEOUT_SECONDS</span><span class=o>=</span><span class=m>0</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Restart related torrents immediately if leechers detected</span>
+</span></span><span class=line><span class=cl><span class=nv>RESTART_TORRENT</span><span class=o>=</span><span class=nb>true</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>error<span class=o>()</span> <span class=o>{</span> <span class=nb>echo</span> <span class=s2>&#34;</span><span class=nv>$@</span><span class=s2>&#34;</span> &gt;<span class=p>&amp;</span>2<span class=p>;</span> <span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nv>HASH_SHORT</span><span class=o>=</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>error_with_hash_tag<span class=o>()</span> <span class=o>{</span> error <span class=s2>&#34;[</span><span class=nv>$HASH_SHORT</span><span class=s2>]&#34;</span> <span class=s2>&#34;</span><span class=nv>$@</span><span class=s2>&#34;</span><span class=p>;</span> <span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nv>pattern</span><span class=o>=</span><span class=k>$(</span><span class=nb>echo</span> <span class=s2>&#34;</span><span class=nv>$CLIENTS</span><span class=s2>&#34;</span> <span class=p>|</span> xargs -0 <span class=p>|</span> sed <span class=s1>&#39;s/ /\\)\\|\\(/g&#39;</span><span class=k>)</span>
+</span></span><span class=line><span class=cl><span class=nv>pattern</span><span class=o>=</span><span class=s2>&#34;\(\(</span><span class=nv>$pattern</span><span class=s2>\)\)&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>trans_reload<span class=o>()</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>  error <span class=s2>&#34;Reloading&#34;</span>
+</span></span><span class=line><span class=cl>  <span class=c1># reload: https://github.com/transmission/transmission/blob/main/docs/Editing-Configuration-Files.md#reload-settings</span>
+</span></span><span class=line><span class=cl>  killall -HUP transmission-daemon
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>block_leechers<span class=o>()</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>  <span class=nv>peers</span><span class=o>=</span><span class=k>$(</span>transmission-remote <span class=s2>&#34;</span><span class=nv>$HOST</span><span class=s2>&#34;</span> --auth <span class=s2>&#34;</span><span class=nv>$AUTH</span><span class=s2>&#34;</span> --torrent <span class=s2>&#34;</span><span class=nv>$1</span><span class=s2>&#34;</span> --info-peers<span class=k>)</span>
+</span></span><span class=line><span class=cl>  <span class=nv>leechers</span><span class=o>=</span><span class=k>$(</span><span class=nb>echo</span> <span class=s2>&#34;</span><span class=nv>$peers</span><span class=s2>&#34;</span> <span class=p>|</span> grep -i <span class=s2>&#34;</span><span class=nv>$pattern</span><span class=s2>&#34;</span><span class=k>)</span>
+</span></span><span class=line><span class=cl>  <span class=nv>result</span><span class=o>=</span><span class=m>1</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=k>while</span> <span class=nv>IFS</span><span class=o>=</span> <span class=nb>read</span> -r leecher<span class=p>;</span> <span class=k>do</span>
+</span></span><span class=line><span class=cl>    <span class=o>[</span> -z <span class=s2>&#34;</span><span class=nv>$leecher</span><span class=s2>&#34;</span> <span class=o>]</span> <span class=o>&amp;&amp;</span> <span class=k>continue</span>
+</span></span><span class=line><span class=cl>    <span class=c1># https://en.wikipedia.org/wiki/PeerGuardian#P2P_plaintext_format</span>
+</span></span><span class=line><span class=cl>    <span class=nv>client</span><span class=o>=</span><span class=k>$(</span><span class=nb>echo</span> <span class=s2>&#34;</span><span class=nv>$leecher</span><span class=s2>&#34;</span> <span class=p>|</span> awk <span class=s1>&#39;{ print $6 }&#39;</span><span class=k>)</span>
+</span></span><span class=line><span class=cl>    <span class=nv>client</span><span class=o>=</span><span class=k>$(</span><span class=nb>echo</span> <span class=s2>&#34;</span><span class=nv>$leecher</span><span class=s2>&#34;</span> <span class=p>|</span> grep -o -- <span class=s2>&#34;</span><span class=nv>$client</span><span class=s2>.*</span>$<span class=s2>&#34;</span><span class=k>)</span>
+</span></span><span class=line><span class=cl>    <span class=nv>ip</span><span class=o>=</span><span class=k>$(</span><span class=nb>echo</span> <span class=s2>&#34;</span><span class=nv>$leecher</span><span class=s2>&#34;</span> <span class=p>|</span> awk <span class=s1>&#39;{ print $1 }&#39;</span><span class=k>)</span>
+</span></span><span class=line><span class=cl>    <span class=nv>line</span><span class=o>=</span><span class=s2>&#34;</span><span class=nv>$client</span><span class=s2>:</span><span class=nv>$ip</span><span class=s2>-</span><span class=nv>$ip</span><span class=s2>&#34;</span>
+</span></span><span class=line><span class=cl>    error_with_hash_tag <span class=s2>&#34;Blocking leecher&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> grep -qs -- <span class=s2>&#34;</span><span class=nv>$line</span><span class=s2>&#34;</span> <span class=s2>&#34;</span><span class=nv>$LIST</span><span class=s2>&#34;</span><span class=p>;</span> <span class=k>then</span>
+</span></span><span class=line><span class=cl>      error_with_hash_tag <span class=s2>&#34;Duplicate: </span><span class=nv>$line</span><span class=s2>&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=k>else</span>
+</span></span><span class=line><span class=cl>      <span class=nb>echo</span> <span class=s2>&#34;</span><span class=nv>$line</span><span class=s2>&#34;</span>
+</span></span><span class=line><span class=cl>      <span class=nb>echo</span> <span class=s2>&#34;</span><span class=nv>$line</span><span class=s2>&#34;</span> &gt;&gt;<span class=s2>&#34;</span><span class=nv>$LIST</span><span class=s2>&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=k>fi</span>
+</span></span><span class=line><span class=cl>    <span class=nv>result</span><span class=o>=</span><span class=m>0</span>
+</span></span><span class=line><span class=cl>  <span class=k>done</span> <span class=s>&lt;&lt;EOF
+</span></span></span><span class=line><span class=cl><span class=s>$leechers
+</span></span></span><span class=line><span class=cl><span class=s>EOF</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=k>return</span> <span class=nv>$result</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>trans_restart_torrent<span class=o>()</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>  error_with_hash_tag <span class=s2>&#34;Restarting&#34;</span>
+</span></span><span class=line><span class=cl>  <span class=nv>retry_max</span><span class=o>=</span><span class=m>5</span>
+</span></span><span class=line><span class=cl>  <span class=k>for</span> _ in <span class=k>$(</span>seq <span class=m>0</span> <span class=s2>&#34;</span><span class=nv>$retry_max</span><span class=s2>&#34;</span><span class=k>)</span><span class=p>;</span> <span class=k>do</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> transmission-remote <span class=s2>&#34;</span><span class=nv>$HOST</span><span class=s2>&#34;</span> --auth <span class=s2>&#34;</span><span class=nv>$AUTH</span><span class=s2>&#34;</span> --torrent <span class=s2>&#34;</span><span class=nv>$1</span><span class=s2>&#34;</span> --stop <span class=p>|</span> grep -qs success<span class=p>;</span> <span class=k>then</span>
+</span></span><span class=line><span class=cl>      <span class=nb>break</span>
+</span></span><span class=line><span class=cl>    <span class=k>fi</span>
+</span></span><span class=line><span class=cl>    sleep <span class=m>1</span>
+</span></span><span class=line><span class=cl>  <span class=k>done</span>
+</span></span><span class=line><span class=cl>  <span class=nv>stopped</span><span class=o>=</span><span class=nb>false</span>
+</span></span><span class=line><span class=cl>  <span class=k>for</span> _ in <span class=k>$(</span>seq <span class=m>0</span> <span class=s2>&#34;</span><span class=nv>$retry_max</span><span class=s2>&#34;</span><span class=k>)</span><span class=p>;</span> <span class=k>do</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> transmission-remote <span class=s2>&#34;</span><span class=nv>$HOST</span><span class=s2>&#34;</span> --auth <span class=s2>&#34;</span><span class=nv>$AUTH</span><span class=s2>&#34;</span> --torrent <span class=s2>&#34;</span><span class=nv>$1</span><span class=s2>&#34;</span> --info <span class=p>|</span> grep -qs <span class=s1>&#39;State: Stopped&#39;</span><span class=p>;</span> <span class=k>then</span>
+</span></span><span class=line><span class=cl>      error_with_hash_tag <span class=s2>&#34;Stopped&#34;</span>
+</span></span><span class=line><span class=cl>      <span class=nv>stopped</span><span class=o>=</span><span class=nb>true</span>
+</span></span><span class=line><span class=cl>      <span class=nb>break</span>
+</span></span><span class=line><span class=cl>    <span class=k>fi</span>
+</span></span><span class=line><span class=cl>    sleep <span class=m>1</span>
+</span></span><span class=line><span class=cl>  <span class=k>done</span>
+</span></span><span class=line><span class=cl>  <span class=k>if</span> <span class=o>[</span> <span class=s2>&#34;</span><span class=nv>$stopped</span><span class=s2>&#34;</span> <span class=o>=</span> <span class=nb>false</span> <span class=o>]</span><span class=p>;</span> <span class=k>then</span>
+</span></span><span class=line><span class=cl>    error_with_hash_tag <span class=s2>&#34;Unable to stop, skipping&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=m>1</span>
+</span></span><span class=line><span class=cl>  <span class=k>fi</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=k>for</span> _ in <span class=k>$(</span>seq <span class=m>0</span> <span class=s2>&#34;</span><span class=nv>$retry_max</span><span class=s2>&#34;</span><span class=k>)</span><span class=p>;</span> <span class=k>do</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> transmission-remote <span class=s2>&#34;</span><span class=nv>$HOST</span><span class=s2>&#34;</span> --auth <span class=s2>&#34;</span><span class=nv>$AUTH</span><span class=s2>&#34;</span> --torrent <span class=s2>&#34;</span><span class=nv>$1</span><span class=s2>&#34;</span> --start <span class=p>|</span> grep -qs success<span class=p>;</span> <span class=k>then</span>
+</span></span><span class=line><span class=cl>      <span class=nb>break</span>
+</span></span><span class=line><span class=cl>    <span class=k>fi</span>
+</span></span><span class=line><span class=cl>    sleep <span class=m>1</span>
+</span></span><span class=line><span class=cl>  <span class=k>done</span>
+</span></span><span class=line><span class=cl>  <span class=k>for</span> _ in <span class=k>$(</span>seq <span class=m>0</span> <span class=s2>&#34;</span><span class=nv>$retry_max</span><span class=s2>&#34;</span><span class=k>)</span><span class=p>;</span> <span class=k>do</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> transmission-remote <span class=s2>&#34;</span><span class=nv>$HOST</span><span class=s2>&#34;</span> --auth <span class=s2>&#34;</span><span class=nv>$AUTH</span><span class=s2>&#34;</span> --torrent <span class=s2>&#34;</span><span class=nv>$1</span><span class=s2>&#34;</span> --info <span class=p>|</span> grep -qs <span class=s1>&#39;State: Stopped&#39;</span><span class=p>;</span> <span class=k>then</span>
+</span></span><span class=line><span class=cl>      sleep <span class=m>1</span>
+</span></span><span class=line><span class=cl>      <span class=k>continue</span>
+</span></span><span class=line><span class=cl>    <span class=k>fi</span>
+</span></span><span class=line><span class=cl>    error_with_hash_tag <span class=s2>&#34;Started&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=nv>stopped</span><span class=o>=</span><span class=nb>false</span>
+</span></span><span class=line><span class=cl>    <span class=nb>break</span>
+</span></span><span class=line><span class=cl>  <span class=k>done</span>
+</span></span><span class=line><span class=cl>  <span class=k>if</span> <span class=o>[</span> <span class=s2>&#34;</span><span class=nv>$stopped</span><span class=s2>&#34;</span> <span class=o>=</span> <span class=nb>true</span> <span class=o>]</span><span class=p>;</span> <span class=k>then</span>
+</span></span><span class=line><span class=cl>    error_with_hash_tag <span class=s2>&#34;Unable to start&#34;</span>
+</span></span><span class=line><span class=cl>    error_with_hash_tag <span class=s2>&#34;You may have to start manually&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=m>1</span>
+</span></span><span class=line><span class=cl>  <span class=k>fi</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nv>start</span><span class=o>=</span><span class=k>$(</span>date +%s<span class=k>)</span>
+</span></span><span class=line><span class=cl><span class=k>while</span> true<span class=p>;</span> <span class=k>do</span>
+</span></span><span class=line><span class=cl>  <span class=nv>diff</span><span class=o>=</span><span class=k>$(($(</span>date +%s<span class=k>)</span> <span class=o>-</span> start<span class=k>))</span>
+</span></span><span class=line><span class=cl>  <span class=k>if</span> <span class=o>[</span> <span class=nv>$TIMEOUT_SECONDS</span> -ne <span class=m>0</span> <span class=o>]</span> <span class=o>&amp;&amp;</span> <span class=o>[</span> <span class=nv>$diff</span> -ge <span class=nv>$TIMEOUT_SECONDS</span> <span class=o>]</span><span class=p>;</span> <span class=k>then</span>
+</span></span><span class=line><span class=cl>    error <span class=s2>&#34;Clearing blocklist&#34;</span>
+</span></span><span class=line><span class=cl>    rm -f <span class=s2>&#34;</span><span class=nv>$LIST</span><span class=s2>&#34;</span>
+</span></span><span class=line><span class=cl>    rm -f <span class=s2>&#34;</span><span class=nv>$BIN</span><span class=s2>&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=nv>start</span><span class=o>=</span><span class=k>$(</span>date +%s<span class=k>)</span>
+</span></span><span class=line><span class=cl>    trans_reload
+</span></span><span class=line><span class=cl>  <span class=k>fi</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=nv>hashes</span><span class=o>=</span><span class=k>$(</span>transmission-remote <span class=s2>&#34;</span><span class=nv>$HOST</span><span class=s2>&#34;</span> --auth <span class=s2>&#34;</span><span class=nv>$AUTH</span><span class=s2>&#34;</span> --torrent all --info <span class=p>|</span> grep Hash <span class=p>|</span> awk <span class=s1>&#39;{ print $2 }&#39;</span><span class=k>)</span>
+</span></span><span class=line><span class=cl>  <span class=k>for</span> h in <span class=nv>$hashes</span><span class=p>;</span> <span class=k>do</span>
+</span></span><span class=line><span class=cl>    <span class=nv>HASH_SHORT</span><span class=o>=</span><span class=s2>&#34;</span><span class=k>$(</span><span class=nb>echo</span> <span class=s2>&#34;</span><span class=nv>$h</span><span class=s2>&#34;</span> <span class=p>|</span> cut -c -8<span class=k>)</span><span class=s2>&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> block_leechers <span class=s2>&#34;</span><span class=nv>$h</span><span class=s2>&#34;</span><span class=p>;</span> <span class=k>then</span>
+</span></span><span class=line><span class=cl>      trans_reload
+</span></span><span class=line><span class=cl>      <span class=k>if</span> <span class=o>[</span> <span class=nv>$RESTART_TORRENT</span> <span class=o>=</span> <span class=nb>true</span> <span class=o>]</span><span class=p>;</span> <span class=k>then</span>
+</span></span><span class=line><span class=cl>        trans_restart_torrent <span class=s2>&#34;</span><span class=nv>$h</span><span class=s2>&#34;</span>
+</span></span><span class=line><span class=cl>      <span class=k>fi</span>
+</span></span><span class=line><span class=cl>    <span class=k>fi</span>
+</span></span><span class=line><span class=cl>  <span class=k>done</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  sleep <span class=m>30</span>
+</span></span><span class=line><span class=cl><span class=k>done</span>
+</span></span></code></pre></div></figure><p>通过 Peer ID 或 Client ID 屏蔽只是权宜之计，且不说可以随意修改，迅雷的离线服务器也是用的 libtorrent<sup id=fnref:4><a href=#fn:4 class=footnote-ref role=doc-noteref>4</a></sup>，而且普通用户吸血也是不能这样简单判断的。如果要根据其百分比、是否上传之类的判断，实现就会比较复杂，先凑合用吧。</p><p>还有一个已知问题，目前 Transmission 黑名单不支持 IPv6<sup id=fnref:5><a href=#fn:5 class=footnote-ref role=doc-noteref>5</a></sup>，甚至应用本身也没法禁用 IPv6<sup id=fnref:6><a href=#fn:6 class=footnote-ref role=doc-noteref>6</a></sup>。如果要禁就只能系统里禁了。</p><h3 id=systemd-脚本>systemd 脚本</h3><figure style="margin:0 0 1.5em"><figcaption style=text-align:right><a href=/code/transmission-block/transmission-block.service style=color:lightslategrey;font-size:.8em>transmission-block.service</a></figcaption><div class=highlight><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl><span class=o>[</span>Unit<span class=o>]</span>
+</span></span><span class=line><span class=cl><span class=nv>Description</span><span class=o>=</span>Block Specified Clients <span class=k>for</span> Transmission
+</span></span><span class=line><span class=cl><span class=nv>Requires</span><span class=o>=</span>network.target
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=o>[</span>Service<span class=o>]</span>
+</span></span><span class=line><span class=cl><span class=nv>User</span><span class=o>=</span>debian-transmission
+</span></span><span class=line><span class=cl><span class=nv>ExecStart</span><span class=o>=</span>/path/to/trans-block.sh
+</span></span><span class=line><span class=cl><span class=nv>CPUSchedulingPolicy</span><span class=o>=</span>idle
+</span></span><span class=line><span class=cl><span class=nv>Nice</span><span class=o>=</span><span class=m>19</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=o>[</span>Install<span class=o>]</span>
+</span></span><span class=line><span class=cl><span class=nv>WantedBy</span><span class=o>=</span>multi-user.target
+</span></span></code></pre></div></figure><h2 id=加戏时间>加戏时间</h2><p>不吸血我怎么办？开会员？</p><p>更不能用。</p><p>一个号称离线下载的？</p><p>正经人谁用离线啊。</p><p>是啊。</p><p>你用离线吗？</p><p>我不用，你用吗？</p><p>玩 P2P 的能用离线下载？</p><p>用离线下载的能叫 P2P？</p><p>（异口同声）__！</p><div class=footnotes role=doc-endnotes><hr><ol><li id=fn:1><p><a href=https://github.com/transmission/transmission/issues/735#issuecomment-1016820802 target=_blank rel="noopener noreferrer">Feature request: client-based blocking · Issue #735 · transmission/transmission</a>&#160;<a href=#fnref:1 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li><li id=fn:2><p><a href=https://github.com/qianbinbin/transmission-block target=_blank rel="noopener noreferrer">qianbinbin/transmission-block: 为 Transmission 屏蔽迅雷等吸血客户端 | For Transmission to block leecher clients like Xunlei</a>&#160;<a href=#fnref:2 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li><li id=fn:3><p><a href=https://github.com/transmission/transmission/issues/2959 target=_blank rel="noopener noreferrer">when updating blocklist, check peer connections for blocked IP to disconnect · Issue #2959 · transmission/transmission</a>&#160;<a href=#fnref:3 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li><li id=fn:4><p><a href=https://github.com/c0re100/qBittorrent-Enhanced-Edition/issues/61#issuecomment-1103995750 target=_blank rel="noopener noreferrer">新的吸血客户端？客户端：libtorrent/0.15.9.0，Peer ID：AL1000 · Issue #61 · c0re100/qBittorrent-Enhanced-Edition</a>&#160;<a href=#fnref:4 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li><li id=fn:5><p><a href=https://github.com/transmission/transmission/issues/740 target=_blank rel="noopener noreferrer">ipv6 blocklist format · Issue #740 · transmission/transmission</a>&#160;<a href=#fnref:5 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li><li id=fn:6><p><a href=https://github.com/transmission/transmission/issues/86 target=_blank rel="noopener noreferrer">Transmission tries to connect IPv6 instances even ipv6 addresses are disabled. · Issue #86 · transmission/transmission</a>&#160;<a href=#fnref:6 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li></ol></div></article><section class="article labels"><a class=tag href=/tags/linux/>Linux</a><a class=tag href=/tags/shell/>Shell</a><a class=tag href=/tags/bittorrent/>BitTorrent</a></section><section class="article license"><p xmlns:cc=http://creativecommons.org/ns# style=text-align:center>本作品根据 <a href=http://creativecommons.org/licenses/by-nc-sa/4.0/ target=_blank rel="license noopener noreferrer" style=display:inline-block>署名-非商业性使用-相同方式共享 4.0 国际许可<img style=height:15px!important;margin-left:1px;vertical-align:text-bottom src=/cc-icons/cc.svg><img style=height:15px!important;margin-left:1px;vertical-align:text-bottom src=/cc-icons/by.svg><img style=height:15px!important;margin-left:1px;vertical-align:text-bottom src=/cc-icons/nc.svg><img style=height:15px!important;margin-left:1px;vertical-align:text-bottom src=/cc-icons/sa.svg></a> 进行授权。</p></section></div><div class="article bottom"><section class="article navigation"><p><a class=link href=/posts/deploy-linux-in-android/><span class="iconfont icon-article"></span>在 Android 上部署 Linux</a></p><p><a class=link href=/posts/dnsmasq-to-kill-dns-hijacking-and-ads/><span class="iconfont icon-article"></span>Dnsmasq 去 DNS 污染和广告</a></p></section><section class="article discussion"><script>function loadComment(){let e=document.createElement("script");e.src="https://utteranc.es/client.js",e.setAttribute("repo","qianbinbin/qianbinbin.github.io"),e.setAttribute("issue-term","pathname"),e.setAttribute("theme","preferred-color-scheme"),e.setAttribute("crossorigin","anonymous"),e.setAttribute("async",""),document.querySelector("section.article.discussion").innerHTML="",document.querySelector("section.article.discussion").appendChild(e)}loadComment(),window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change",()=>{loadComment()})</script></section></div></section><section id=footer><div class=footer-wrap><p class=copyright>© 2017-2024 Binac.</p></div></section><script async src="https://www.googletagmanager.com/gtag/js?id=G-N7VZY53PLB"></script><script>var dnt,doNotTrack=!1;if(!1&&(dnt=navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack,doNotTrack=dnt=="1"||dnt=="yes"),!doNotTrack){window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-N7VZY53PLB")}</script><script src=https://unpkg.com/vanilla-back-to-top@7.2.1/dist/vanilla-back-to-top.min.js></script><script>addBackToTop({diameter:42})</script></body></html>

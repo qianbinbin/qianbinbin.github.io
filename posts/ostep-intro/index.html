@@ -1,0 +1,141 @@
+<!doctype html><html lang=zh><meta charset=utf-8><meta name=generator content="Hugo 0.136.2"><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name=color-scheme content="light dark"><meta name=supported-color-schemes content="light dark"><link rel=icon href=/favicons/favicon.svg><title>OSTEP 介绍&nbsp;&ndash;&nbsp;Binac</title><link rel=stylesheet href=/css/core.min.d30edcc615d78b7f8a2a9e5f1b66bd074a7ad2e94b579fa5902d0967ce0f7684b300ef3a9e15d41af82c75f3fb951d4b.css integrity=sha384-0w7cxhXXi3+KKp5fG2a9B0p60ulLV5+lkC0JZ84PdoSzAO86nhXUGvgsdfP7lR1L><meta name=twitter:card content="summary">
+<meta name=twitter:title content="OSTEP 介绍"><body><section id=header><div class="header wrap"><span class="header left-side"><a class="site home" href=/><img class="site logo" src=/favicons/favicon.svg alt><span class="site name">Binac</span></a></span>
+<span class="header right-side"><div class="nav wrap"><nav class=nav><a class='nav item active' href=/posts/ title=文章>文章</a>
+<a class='nav item' href=/nonsense/ title=妄言>妄言</a>
+<a class='nav item' href=/tuya/ title=涂鸦>涂鸦</a>
+<a class='nav item' href=/tags/ title>标签</a></nav></div></span></div></section><section id=content><div class=article-container><section class="article header"><h1 class="article title">OSTEP 介绍</h1><p class="article date">2021-02-05</p></section><article class="article markdown-body"><h2 id=第-2-章-操作系统介绍>第 2 章 操作系统介绍</h2><h3 id=21-虚拟化-cpu>2.1 虚拟化 CPU</h3><figure style="margin:0 0 1.5em"><figcaption style=text-align:right><a href=/code/ostep-code/intro/cpu.c style=color:lightslategrey;font-size:.8em>intro/cpu.c</a></figcaption><div class=highlight><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&lt;stdio.h&gt;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&lt;stdlib.h&gt;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&#34;common.h&#34;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cp></span>
+</span></span><span class=line><span class=cl><span class=kt>int</span> <span class=nf>main</span><span class=p>(</span><span class=kt>int</span> <span class=n>argc</span><span class=p>,</span> <span class=kt>char</span> <span class=o>*</span><span class=n>argv</span><span class=p>[])</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=p>(</span><span class=n>argc</span> <span class=o>!=</span> <span class=mi>2</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=nf>fprintf</span><span class=p>(</span><span class=n>stderr</span><span class=p>,</span> <span class=s>&#34;usage: cpu &lt;string&gt;</span><span class=se>\n</span><span class=s>&#34;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>	<span class=nf>exit</span><span class=p>(</span><span class=mi>1</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=kt>char</span> <span class=o>*</span><span class=n>str</span> <span class=o>=</span> <span class=n>argv</span><span class=p>[</span><span class=mi>1</span><span class=p>];</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>while</span> <span class=p>(</span><span class=mi>1</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=nf>printf</span><span class=p>(</span><span class=s>&#34;%s</span><span class=se>\n</span><span class=s>&#34;</span><span class=p>,</span> <span class=n>str</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>	<span class=nf>Spin</span><span class=p>(</span><span class=mi>1</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span></code></pre></div></figure><p>程序会重复打印传入的字符串，<code>Spin()</code> 函数用于暂停 1 秒。</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>$ ./cpu <span class=s2>&#34;A&#34;</span>
+</span></span><span class=line><span class=cl>A
+</span></span><span class=line><span class=cl>A
+</span></span><span class=line><span class=cl>A
+</span></span><span class=line><span class=cl>A
+</span></span><span class=line><span class=cl>^C
+</span></span></code></pre></div><p>如果后台运行多个实例：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>./cpu A <span class=p>&amp;</span> ./cpu B <span class=p>&amp;</span> ./cpu C <span class=p>&amp;</span> ./cpu D <span class=p>&amp;</span>
+</span></span><span class=line><span class=cl><span class=o>[</span>1<span class=o>]</span> <span class=m>7353</span>
+</span></span><span class=line><span class=cl><span class=o>[</span>2<span class=o>]</span> <span class=m>7354</span>
+</span></span><span class=line><span class=cl><span class=o>[</span>3<span class=o>]</span> <span class=m>7355</span>
+</span></span><span class=line><span class=cl><span class=o>[</span>4<span class=o>]</span> <span class=m>7356</span>
+</span></span><span class=line><span class=cl>A
+</span></span><span class=line><span class=cl>B
+</span></span><span class=line><span class=cl>D
+</span></span><span class=line><span class=cl>C
+</span></span><span class=line><span class=cl>A
+</span></span><span class=line><span class=cl>B
+</span></span><span class=line><span class=cl>D
+</span></span><span class=line><span class=cl>C
+</span></span><span class=line><span class=cl>A
+</span></span><span class=line><span class=cl>...
+</span></span></code></pre></div><p>只有一个处理器，但 4 个程序似乎在同时运行。</p><p>将单个 CPU 转化为看似无限数量的 CPU，从而让多个程序看起来同时运行，这就是虚拟化 CPU。</p><h3 id=22-虚拟化内存>2.2 虚拟化内存</h3><figure style="margin:0 0 1.5em"><figcaption style=text-align:right><a href=/code/ostep-code/intro/mem.c style=color:lightslategrey;font-size:.8em>intro/mem.c</a></figcaption><div class=highlight><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&lt;unistd.h&gt;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&lt;stdio.h&gt;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&lt;stdlib.h&gt;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&#34;common.h&#34;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cp></span>
+</span></span><span class=line><span class=cl><span class=kt>int</span> <span class=nf>main</span><span class=p>(</span><span class=kt>int</span> <span class=n>argc</span><span class=p>,</span> <span class=kt>char</span> <span class=o>*</span><span class=n>argv</span><span class=p>[])</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kt>int</span> <span class=o>*</span><span class=n>p</span> <span class=o>=</span> <span class=nf>malloc</span><span class=p>(</span><span class=k>sizeof</span><span class=p>(</span><span class=kt>int</span><span class=p>));</span>
+</span></span><span class=line><span class=cl>    <span class=nf>assert</span><span class=p>(</span><span class=n>p</span> <span class=o>!=</span> <span class=nb>NULL</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>printf</span><span class=p>(</span><span class=s>&#34;(%d) address pointed to by p: %p</span><span class=se>\n</span><span class=s>&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>           <span class=nf>getpid</span><span class=p>(),</span> <span class=n>p</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=o>*</span><span class=n>p</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=k>while</span> <span class=p>(</span><span class=mi>1</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nf>Spin</span><span class=p>(</span><span class=mi>1</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=o>*</span><span class=n>p</span> <span class=o>=</span> <span class=o>*</span><span class=n>p</span> <span class=o>+</span> <span class=mi>1</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=nf>printf</span><span class=p>(</span><span class=s>&#34;(%d) p: %d</span><span class=se>\n</span><span class=s>&#34;</span><span class=p>,</span> <span class=nf>getpid</span><span class=p>(),</span> <span class=o>*</span><span class=n>p</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span></code></pre></div></figure><div class=highlight><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>$ ./mem <span class=p>&amp;;</span> ./mem <span class=p>&amp;</span>
+</span></span><span class=line><span class=cl><span class=o>[</span>1<span class=o>]</span> <span class=m>24113</span>
+</span></span><span class=line><span class=cl><span class=o>[</span>2<span class=o>]</span> <span class=m>24114</span>
+</span></span><span class=line><span class=cl><span class=o>(</span>24113<span class=o>)</span> address pointed to by p: 0x200000
+</span></span><span class=line><span class=cl><span class=o>(</span>24114<span class=o>)</span> address pointed to by p: 0x200000
+</span></span><span class=line><span class=cl><span class=o>(</span>24113<span class=o>)</span> p: <span class=m>1</span>
+</span></span><span class=line><span class=cl><span class=o>(</span>24114<span class=o>)</span> p: <span class=m>1</span>
+</span></span><span class=line><span class=cl><span class=o>(</span>24114<span class=o>)</span> p: <span class=m>2</span>
+</span></span><span class=line><span class=cl><span class=o>(</span>24113<span class=o>)</span> p: <span class=m>2</span>
+</span></span><span class=line><span class=cl><span class=o>(</span>24113<span class=o>)</span> p: <span class=m>3</span>
+</span></span><span class=line><span class=cl><span class=o>(</span>24114<span class=o>)</span> p: <span class=m>3</span>
+</span></span><span class=line><span class=cl><span class=o>(</span>24113<span class=o>)</span> p: <span class=m>4</span>
+</span></span><span class=line><span class=cl><span class=o>(</span>24114<span class=o>)</span> p: <span class=m>4</span>
+</span></span></code></pre></div><p>可以看到两个程序在相同地址分配了内存，并独立更新该处的值。</p><p>这就是虚拟化内存，每个进程访问自己的私有虚拟地址空间，操作系统将其映射到机器的物理内存上。</p><p>注意，直接运行是无法得到相同地址的，需要禁止地址随机化，例如使用 <code>setarch $(uname -m) -R ./mem & setarch $(uname -m) -R ./mem &</code> 来运行。</p><h3 id=23-并发>2.3 并发</h3><figure style="margin:0 0 1.5em"><figcaption style=text-align:right><a href=/code/ostep-code/intro/threads.c style=color:lightslategrey;font-size:.8em>intro/threads.c</a></figcaption><div class=highlight><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&lt;stdio.h&gt;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&lt;stdlib.h&gt;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&#34;common.h&#34;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&#34;common_threads.h&#34;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cp></span>
+</span></span><span class=line><span class=cl><span class=k>volatile</span> <span class=kt>int</span> <span class=n>counter</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> 
+</span></span><span class=line><span class=cl><span class=kt>int</span> <span class=n>loops</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=o>*</span><span class=nf>worker</span><span class=p>(</span><span class=kt>void</span> <span class=o>*</span><span class=n>arg</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kt>int</span> <span class=n>i</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=p>(</span><span class=n>i</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;</span> <span class=n>loops</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=n>counter</span><span class=o>++</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=nb>NULL</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kt>int</span> <span class=nf>main</span><span class=p>(</span><span class=kt>int</span> <span class=n>argc</span><span class=p>,</span> <span class=kt>char</span> <span class=o>*</span><span class=n>argv</span><span class=p>[])</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=p>(</span><span class=n>argc</span> <span class=o>!=</span> <span class=mi>2</span><span class=p>)</span> <span class=p>{</span> 
+</span></span><span class=line><span class=cl>	<span class=nf>fprintf</span><span class=p>(</span><span class=n>stderr</span><span class=p>,</span> <span class=s>&#34;usage: threads &lt;loops&gt;</span><span class=se>\n</span><span class=s>&#34;</span><span class=p>);</span> 
+</span></span><span class=line><span class=cl>	<span class=nf>exit</span><span class=p>(</span><span class=mi>1</span><span class=p>);</span> 
+</span></span><span class=line><span class=cl>    <span class=p>}</span> 
+</span></span><span class=line><span class=cl>    <span class=n>loops</span> <span class=o>=</span> <span class=nf>atoi</span><span class=p>(</span><span class=n>argv</span><span class=p>[</span><span class=mi>1</span><span class=p>]);</span>
+</span></span><span class=line><span class=cl>    <span class=kt>pthread_t</span> <span class=n>p1</span><span class=p>,</span> <span class=n>p2</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=nf>printf</span><span class=p>(</span><span class=s>&#34;Initial value : %d</span><span class=se>\n</span><span class=s>&#34;</span><span class=p>,</span> <span class=n>counter</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>Pthread_create</span><span class=p>(</span><span class=o>&amp;</span><span class=n>p1</span><span class=p>,</span> <span class=nb>NULL</span><span class=p>,</span> <span class=n>worker</span><span class=p>,</span> <span class=nb>NULL</span><span class=p>);</span> 
+</span></span><span class=line><span class=cl>    <span class=nf>Pthread_create</span><span class=p>(</span><span class=o>&amp;</span><span class=n>p2</span><span class=p>,</span> <span class=nb>NULL</span><span class=p>,</span> <span class=n>worker</span><span class=p>,</span> <span class=nb>NULL</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>Pthread_join</span><span class=p>(</span><span class=n>p1</span><span class=p>,</span> <span class=nb>NULL</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>Pthread_join</span><span class=p>(</span><span class=n>p2</span><span class=p>,</span> <span class=nb>NULL</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>printf</span><span class=p>(</span><span class=s>&#34;Final value   : %d</span><span class=se>\n</span><span class=s>&#34;</span><span class=p>,</span> <span class=n>counter</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span></code></pre></div></figure><p>两个线程都更新共享计数器 <code>counter</code> 的值。</p><p>编译运行：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>$ gcc -o thread thread.c -Wall -pthread
+</span></span><span class=line><span class=cl>$ ./thread <span class=m>1000</span>
+</span></span><span class=line><span class=cl>Initial value : <span class=m>0</span>
+</span></span><span class=line><span class=cl>Final value : <span class=m>2000</span>
+</span></span><span class=line><span class=cl>$ ./thread <span class=m>100000</span>
+</span></span><span class=line><span class=cl>Initial value : <span class=m>0</span>
+</span></span><span class=line><span class=cl>Final value : <span class=m>143012</span>
+</span></span><span class=line><span class=cl>$ ./thread <span class=m>100000</span>
+</span></span><span class=line><span class=cl>Initial value : <span class=m>0</span>
+</span></span><span class=line><span class=cl>Final value   : <span class=m>137298</span>
+</span></span></code></pre></div><p>一些结果与预期不同，这是因为 <code>counter</code> 自增需要 3 条指令：</p><ul><li>将 <code>counter</code> 的值从内存读取到寄存器。</li><li>将寄存器中的值自增、将寄存器中的值写回内存。</li><li>这 3 条指令不是原子方式执行。</li></ul><p>无法在本地复现此实例，原因不明，可能是并发数太少。</p><h3 id=24-持久性>2.4 持久性</h3><p>DRAM 是易失性的，需要硬件和软件来持久地保存数据。</p><p>硬件是一些 I/O 设备，如 HDD、SSD。</p><p>软件指文件系统。</p><p>与 CPU 和内存不同，操作系统不会对每个程序虚拟化磁盘。</p><figure style="margin:0 0 1.5em"><figcaption style=text-align:right><a href=/code/ostep-code/intro/io.c style=color:lightslategrey;font-size:.8em>intro/io.c</a></figcaption><div class=highlight><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&lt;stdio.h&gt;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&lt;unistd.h&gt;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&lt;assert.h&gt;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&lt;fcntl.h&gt;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&lt;sys/stat.h&gt;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&lt;sys/types.h&gt;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&lt;string.h&gt;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cp></span>
+</span></span><span class=line><span class=cl><span class=kt>int</span> <span class=nf>main</span><span class=p>(</span><span class=kt>int</span> <span class=n>argc</span><span class=p>,</span> <span class=kt>char</span> <span class=o>*</span><span class=n>argv</span><span class=p>[])</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kt>int</span> <span class=n>fd</span> <span class=o>=</span> <span class=nf>open</span><span class=p>(</span><span class=s>&#34;/tmp/file&#34;</span><span class=p>,</span> <span class=n>O_WRONLY</span> <span class=o>|</span> <span class=n>O_CREAT</span> <span class=o>|</span> <span class=n>O_TRUNC</span><span class=p>,</span> <span class=n>S_IRUSR</span> <span class=o>|</span> <span class=n>S_IWUSR</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>assert</span><span class=p>(</span><span class=n>fd</span> <span class=o>&gt;=</span> <span class=mi>0</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=kt>char</span> <span class=n>buffer</span><span class=p>[</span><span class=mi>20</span><span class=p>];</span>
+</span></span><span class=line><span class=cl>    <span class=nf>sprintf</span><span class=p>(</span><span class=n>buffer</span><span class=p>,</span> <span class=s>&#34;hello world</span><span class=se>\n</span><span class=s>&#34;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=kt>int</span> <span class=n>rc</span> <span class=o>=</span> <span class=nf>write</span><span class=p>(</span><span class=n>fd</span><span class=p>,</span> <span class=n>buffer</span><span class=p>,</span> <span class=nf>strlen</span><span class=p>(</span><span class=n>buffer</span><span class=p>));</span>
+</span></span><span class=line><span class=cl>    <span class=nf>assert</span><span class=p>(</span><span class=n>rc</span> <span class=o>==</span> <span class=p>(</span><span class=nf>strlen</span><span class=p>(</span><span class=n>buffer</span><span class=p>)));</span>
+</span></span><span class=line><span class=cl>    <span class=nf>fsync</span><span class=p>(</span><span class=n>fd</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>close</span><span class=p>(</span><span class=n>fd</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span></code></pre></div></figure><p>该程序会创建文件 <code>/tmp/file</code>，在其中写入 <code>hello world</code>。</p><p>程序向操作系统发出 3 个系统调用：</p><ul><li>对 <code>open()</code> 的调用，打开文件并创建它。</li><li><code>write()</code> 将一些数据写入文件。</li><li><code>close()</code> 关闭文件。</li></ul><p>这些系统调用会转到文件系统进行处理。</p><h3 id=25-设计目标>2.5 设计目标</h3><ul><li>提供高性能，在提供虚拟化和其它 OS 功能的情况下，减少时间或空间上的开销。</li><li>提供保护，即在程序之间以及在 OS 和应用程序之间提供保护，让进程彼此隔离。</li><li>提供高度的可靠性。</li><li>其它目标：能源效率（降低功耗）、安全性、移动性等。</li></ul><h3 id=26-简单历史>2.6 简单历史</h3><h4 id=早期-os只是一些库>早期 OS：只是一些库</h4><p>OS 基本只是一组常用函数库，程序以过程调用来访问。</p><p>OS 一次运行一个程序，计算模式通常是批处理。</p><h4 id=超越库保护>超越库：保护</h4><p>系统调用诞生。与过程调用不同，系统调用把控制转移到 OS 中同时提高硬件特权级别，用户程序以用户模式运行，这意味着硬件限制了应用程序的功能，例如不能直接进行磁盘 I/O、访问物理内存页、在网络上发送数据包等。</p><p>通常通过陷阱（trap）硬件指令发起系统调用，硬件将控制转移到陷阱处理程序，同时将特权级别提升到内核模式，在内核模式下，OS 可以完全访问系统硬件。OS 完成请求时，通过陷阱返回指令将控制权交还给用户，该指令返回到用户模式，同时将控制权交还给应用程序。</p><h4 id=多道程序时代>多道程序时代</h4><p>将大量作业加载到内存中并在它们之间快速切换，避免 I/O 时占用 CPU，提高 CPU 利用率。</p><h4 id=现代>现代</h4></article><section class="article labels"><a class=tag href=/tags/ostep/>OSTEP</a><a class=tag href=/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/>操作系统</a><a class=tag href=/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/>读书笔记</a></section><section class="article license"><p xmlns:cc=http://creativecommons.org/ns# style=text-align:center>本作品根据 <a href=http://creativecommons.org/licenses/by-nc-sa/4.0/ target=_blank rel="license noopener noreferrer" style=display:inline-block>署名-非商业性使用-相同方式共享 4.0 国际许可<img style=height:15px!important;margin-left:1px;vertical-align:text-bottom src=/cc-icons/cc.svg><img style=height:15px!important;margin-left:1px;vertical-align:text-bottom src=/cc-icons/by.svg><img style=height:15px!important;margin-left:1px;vertical-align:text-bottom src=/cc-icons/nc.svg><img style=height:15px!important;margin-left:1px;vertical-align:text-bottom src=/cc-icons/sa.svg></a> 进行授权。</p></section></div><div class="article bottom"><section class="article navigation"><p><a class=link href=/posts/ostep-cpu-virtualization/><span class="iconfont icon-article"></span>OSTEP CPU 虚拟化</a></p><p><a class=link href=/posts/a-workaround-to-bypass-rdms-failing-to-switch-to-some-hidpi-resolutions/><span class="iconfont icon-article"></span>RDM 无法切换 HiDPI 分辨率的一种临时解决办法</a></p></section><section class="article discussion"><script>function loadComment(){let e=document.createElement("script");e.src="https://utteranc.es/client.js",e.setAttribute("repo","qianbinbin/qianbinbin.github.io"),e.setAttribute("issue-term","pathname"),e.setAttribute("theme","preferred-color-scheme"),e.setAttribute("crossorigin","anonymous"),e.setAttribute("async",""),document.querySelector("section.article.discussion").innerHTML="",document.querySelector("section.article.discussion").appendChild(e)}loadComment(),window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change",()=>{loadComment()})</script></section></div></section><section id=footer><div class=footer-wrap><p class=copyright>© 2017-2024 Binac.</p></div></section><script async src="https://www.googletagmanager.com/gtag/js?id=G-N7VZY53PLB"></script><script>var dnt,doNotTrack=!1;if(!1&&(dnt=navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack,doNotTrack=dnt=="1"||dnt=="yes"),!doNotTrack){window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-N7VZY53PLB")}</script><script src=https://unpkg.com/vanilla-back-to-top@7.2.1/dist/vanilla-back-to-top.min.js></script><script>addBackToTop({diameter:42})</script></body></html>

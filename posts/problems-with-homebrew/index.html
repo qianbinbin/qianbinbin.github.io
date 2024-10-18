@@ -1,0 +1,102 @@
+<!doctype html><html lang=zh><meta charset=utf-8><meta name=generator content="Hugo 0.136.2"><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name=color-scheme content="light dark"><meta name=supported-color-schemes content="light dark"><link rel=icon href=/favicons/favicon.svg><title>Homebrew 使用中的一些问题&nbsp;&ndash;&nbsp;Binac</title><link rel=stylesheet href=/css/core.min.d30edcc615d78b7f8a2a9e5f1b66bd074a7ad2e94b579fa5902d0967ce0f7684b300ef3a9e15d41af82c75f3fb951d4b.css integrity=sha384-0w7cxhXXi3+KKp5fG2a9B0p60ulLV5+lkC0JZ84PdoSzAO86nhXUGvgsdfP7lR1L><meta name=twitter:card content="summary">
+<meta name=twitter:title content="Homebrew 使用中的一些问题"><body><section id=header><div class="header wrap"><span class="header left-side"><a class="site home" href=/><img class="site logo" src=/favicons/favicon.svg alt><span class="site name">Binac</span></a></span>
+<span class="header right-side"><div class="nav wrap"><nav class=nav><a class='nav item active' href=/posts/ title=文章>文章</a>
+<a class='nav item' href=/nonsense/ title=妄言>妄言</a>
+<a class='nav item' href=/tuya/ title=涂鸦>涂鸦</a>
+<a class='nav item' href=/tags/ title>标签</a></nav></div></span></div></section><section id=content><div class=article-container><section class="article header"><h1 class="article title">Homebrew 使用中的一些问题</h1><p class="article date">2023-03-31<span class=lastmod> • 更新于 2023-11-01</span></p></section><article class="article markdown-body"><h2 id=编译-go-项目超时>编译 Go 项目超时</h2><p>众所周知，国内网络环境编译 Go 项目会超时，只要设置国内镜像即可：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl><span class=nb>export</span> <span class=nv>GO111MODULE</span><span class=o>=</span>on
+</span></span><span class=line><span class=cl><span class=nb>export</span> <span class=nv>GOPROXY</span><span class=o>=</span>https://goproxy.cn,direct
+</span></span></code></pre></div><p><del>我想了十天十夜也不明白，源码服务器也要屏蔽？多少有点脑瘫哦。</del></p><p>然而即使设置了镜像，Homebrew 在编译 Go 项目时，不知何故<strong>不会读取用户设置</strong>，于是也会超时：</p><pre tabindex=0><code>==&gt; go build -o=/usr/local/Cellar/v2ray/5.3.0/libexec/v2ray -ldflags=-s -w -buildid= ./main
+Last 15 lines from /Users/username/Library/Logs/Homebrew/v2ray/01.go:
+proxy/vmess/encoding/auth.go:8:2: golang.org/x/crypto@v0.4.0: Get &#34;https://proxy.golang.org/golang.org/x/crypto/@v/v0.4.0.zip&#34;: dial tcp 142.251.42.241:443: i/o timeout
+common/protocol/dns/io.go:7:2: golang.org/x/net@v0.4.0: Get &#34;https://proxy.golang.org/golang.org/x/net/@v/v0.4.0.zip&#34;: dial tcp 142.251.43.17:443: i/o timeout
+app/dns/nameserver_quic.go:14:2: golang.org/x/net@v0.4.0: Get &#34;https://proxy.golang.org/golang.org/x/net/@v/v0.4.0.zip&#34;: dial tcp 142.251.43.17:443: i/o timeout
+transport/internet/http/hub.go:11:2: golang.org/x/net@v0.4.0: Get &#34;https://proxy.golang.org/golang.org/x/net/@v/v0.4.0.zip&#34;: dial tcp 142.251.43.17:443: i/o timeout
+common/strmatcher/matchers.go:9:2: golang.org/x/net@v0.4.0: Get &#34;https://proxy.golang.org/golang.org/x/net/@v/v0.4.0.zip&#34;: dial tcp 142.251.43.17:443: i/o timeout
+common/protocol/headers.go:6:2: golang.org/x/sys@v0.3.0: Get &#34;https://proxy.golang.org/golang.org/x/sys/@v/v0.3.0.zip&#34;: dial tcp [2404:6800:4012:2::2011]:443: i/o timeout
+transport/internet/filelocker_other.go:9:2: golang.org/x/sys@v0.3.0: Get &#34;https://proxy.golang.org/golang.org/x/sys/@v/v0.3.0.zip&#34;: dial tcp [2404:6800:4012:2::2011]:443: i/o timeout
+app/commander/commander.go:10:2: google.golang.org/grpc@v1.51.0: Get &#34;https://proxy.golang.org/google.golang.org/grpc/@v/v1.51.0.zip&#34;: dial tcp 142.251.43.17:443: i/o timeout
+transport/internet/grpc/dial.go:13:2: google.golang.org/grpc@v1.51.0: Get &#34;https://proxy.golang.org/google.golang.org/grpc/@v/v1.51.0.zip&#34;: dial tcp 142.251.43.17:443: i/o timeout
+app/instman/command/command_grpc.pb.go:6:2: google.golang.org/grpc@v1.51.0: Get &#34;https://proxy.golang.org/google.golang.org/grpc/@v/v1.51.0.zip&#34;: dial tcp 142.251.43.17:443: i/o timeout
+transport/internet/grpc/dial.go:14:2: google.golang.org/grpc@v1.51.0: Get &#34;https://proxy.golang.org/google.golang.org/grpc/@v/v1.51.0.zip&#34;: dial tcp 142.251.43.17:443: i/o timeout
+transport/internet/grpc/dial.go:15:2: google.golang.org/grpc@v1.51.0: Get &#34;https://proxy.golang.org/google.golang.org/grpc/@v/v1.51.0.zip&#34;: dial tcp 142.251.43.17:443: i/o timeout
+transport/internet/grpc/encoding/conn.go:13:2: google.golang.org/grpc@v1.51.0: Get &#34;https://proxy.golang.org/google.golang.org/grpc/@v/v1.51.0.zip&#34;: dial tcp 142.251.43.17:443: i/o timeout
+app/commander/service.go:7:2: google.golang.org/grpc@v1.51.0: Get &#34;https://proxy.golang.org/google.golang.org/grpc/@v/v1.51.0.zip&#34;: dial tcp 142.251.43.17:443: i/o timeout
+app/instman/command/command_grpc.pb.go:7:2: google.golang.org/grpc@v1.51.0: Get &#34;https://proxy.golang.org/google.golang.org/grpc/@v/v1.51.0.zip&#34;: dial tcp 142.251.43.17:443: i/o timeout
+</code></pre><p>Homebrew 编译时实际上调用的是 Ruby 脚本，那就可以直接修改脚本。以 <code>v2ray</code> 为例：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>❯ <span class=nb>cd</span> <span class=k>$(</span>brew --repository homebrew/core<span class=k>)</span>
+</span></span><span class=line><span class=cl>❯ git diff
+</span></span><span class=line><span class=cl>diff --git a/Formula/v2ray.rb b/Formula/v2ray.rb
+</span></span><span class=line><span class=cl>index 297d0759440..baef313f96f <span class=m>100644</span>
+</span></span><span class=line><span class=cl>--- a/Formula/v2ray.rb
+</span></span><span class=line><span class=cl>+++ b/Formula/v2ray.rb
+</span></span><span class=line><span class=cl>@@ -39,6 +39,9 @@ class V2ray &lt; Formula
+</span></span><span class=line><span class=cl>   end
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>   def install
+</span></span><span class=line><span class=cl>+    ENV<span class=o>[</span><span class=s1>&#39;GO111MODULE&#39;</span><span class=o>]</span> <span class=o>=</span> <span class=s1>&#39;on&#39;</span>
+</span></span><span class=line><span class=cl>+    ENV<span class=o>[</span><span class=s1>&#39;GOPROXY&#39;</span><span class=o>]</span> <span class=o>=</span> <span class=s1>&#39;https://goproxy.cn,direct&#39;</span>
+</span></span><span class=line><span class=cl>+
+</span></span><span class=line><span class=cl>     <span class=nv>ldflags</span> <span class=o>=</span> <span class=s2>&#34;-s -w -buildid=&#34;</span>
+</span></span><span class=line><span class=cl>     system <span class=s2>&#34;go&#34;</span>, <span class=s2>&#34;build&#34;</span>, *std_go_args<span class=o>(</span>ldflags: ldflags, output: libexec/<span class=s2>&#34;v2ray&#34;</span><span class=o>)</span>, <span class=s2>&#34;./main&#34;</span>
+</span></span></code></pre></div><p>在 <code>install</code> 编译命令前添加 <code>ENV['GO111MODULE'] = 'on'</code> 和 <code>ENV['GOPROXY'] = 'https://goproxy.cn,direct'</code> 就可以了。</p><h2 id=sha256-mismatch>sha256 mismatch</h2><p>这类问题出现频率很高，在官方仓库可以看到大量相关的 issue、commit 和 PR。</p><p>除了网络问题外，通常有两种原因。</p><h3 id=上游重新发布同一版本>上游重新发布同一版本</h3><p>这时依旧修改脚本，例如 <code>launchcontrol</code>：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>❯ <span class=nb>cd</span> <span class=k>$(</span>brew --repository homebrew/cask<span class=k>)</span>
+</span></span><span class=line><span class=cl>❯ git diff
+</span></span><span class=line><span class=cl>diff --git a/Casks/launchcontrol.rb b/Casks/launchcontrol.rb
+</span></span><span class=line><span class=cl>index 5c2db44947..db25b721a8 <span class=m>100644</span>
+</span></span><span class=line><span class=cl>--- a/Casks/launchcontrol.rb
+</span></span><span class=line><span class=cl>+++ b/Casks/launchcontrol.rb
+</span></span><span class=line><span class=cl>@@ -1,7 +1,7 @@
+</span></span><span class=line><span class=cl> cask <span class=s2>&#34;launchcontrol&#34;</span> <span class=k>do</span>
+</span></span><span class=line><span class=cl>   on_catalina :or_older <span class=k>do</span>
+</span></span><span class=line><span class=cl>     version <span class=s2>&#34;1.52.7&#34;</span>
+</span></span><span class=line><span class=cl>-    sha256 <span class=s2>&#34;16c3d89e41a99cbf43e6996681358e8e7a4bc63fa770b9f8c0bc72c5356a0b8a&#34;</span>
+</span></span><span class=line><span class=cl>+    sha256 <span class=s2>&#34;760edc3f3238ecbbc9f0c14b17ced9ac2a46c46a4ed8feec6bfb532fced37b7e&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>     livecheck <span class=k>do</span>
+</span></span><span class=line><span class=cl>       skip <span class=s2>&#34;Legacy version&#34;</span>
+</span></span></code></pre></div><p>确认没问题的话可以去提 PR。</p><h3 id=源码归档在服务端重新生成>源码归档在服务端重新生成</h3><p>GitHub 和 Gitlab 都使用 <code>git archive</code> 将源码归档为 tar 包，但不管是 GitHub<sup id=fnref:1><a href=#fn:1 class=footnote-ref role=doc-noteref>1</a></sup> 还是 Gitlab<sup id=fnref:2><a href=#fn:2 class=footnote-ref role=doc-noteref>2</a></sup>，都不保证源码归档的稳定性。</p><p>例如我发现的 Gitlab 校验变化问题：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>❯ curl -fsSL https://gitlab.com/AOMediaCodec/SVT-AV1/-/archive/v1.4.1/SVT-AV1-v1.4.1.tar.bz2 <span class=p>|</span> sha256sum
+</span></span><span class=line><span class=cl>2ddef549e1eaeecc1fc48f0d8332ea3545809e46509db69beb3a0a4bf19ef906  -
+</span></span><span class=line><span class=cl>❯ <span class=c1># 过一段时间</span>
+</span></span><span class=line><span class=cl>❯ curl -fsSL https://gitlab.com/AOMediaCodec/SVT-AV1/-/archive/v1.4.1/SVT-AV1-v1.4.1.tar.bz2 <span class=p>|</span> sha256sum
+</span></span><span class=line><span class=cl>0e988582f315fe76c909accf5e7f81b975c5bd2b850ee760d8e9fac297f70b5d  -
+</span></span></code></pre></div><p>两个 tar 包内容完全一样，只有文件夹名不同：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>❯ curl -fsSL https://gitlab.com/AOMediaCodec/SVT-AV1/-/archive/v1.4.1/SVT-AV1-v1.4.1.tar.bz2 &gt;old
+</span></span><span class=line><span class=cl>❯ <span class=c1># 过一段时间</span>
+</span></span><span class=line><span class=cl>❯ curl -fsSL https://gitlab.com/AOMediaCodec/SVT-AV1/-/archive/v1.4.1/SVT-AV1-v1.4.1.tar.bz2 &gt;new
+</span></span><span class=line><span class=cl>❯ tar xf old
+</span></span><span class=line><span class=cl>❯ ls
+</span></span><span class=line><span class=cl>SVT-AV1-v1.4.1
+</span></span><span class=line><span class=cl>❯ tar xf new
+</span></span><span class=line><span class=cl>❯ ls
+</span></span><span class=line><span class=cl>SVT-AV1-018276d714ce65d9b586f6205ee016cbd8d5425d
+</span></span><span class=line><span class=cl>SVT-AV1-v1.4.1
+</span></span><span class=line><span class=cl>❯ diff SVT-AV1-v1.4.1 SVT-AV1-018276d714ce65d9b586f6205ee016cbd8d5425d -r
+</span></span><span class=line><span class=cl>❯ <span class=nb>echo</span> <span class=nv>$?</span>
+</span></span><span class=line><span class=cl><span class=m>0</span>
+</span></span></code></pre></div><p>我也是服了某些 Homebrew 的维护者，复现不了我的问题就说是我配置问题，神他妈配置问题😅</p><p>Gitlab 官方人员解释如下：</p><pre tabindex=0><code>The root cause was discussed in a confidential issue, but I can share a general idea what went wrong.
+
+One of deployed fixes had a side-effect of changing the hash sum of the archived files.
+When it was discovered, we reverted the code.
+However, Cloudflare still responded with old archive files for some regions.
+We updated the cache and that resolved the problem.
+</code></pre><p>好了，破案了。Gitlab 也是个鬼才，归档生成机制变了也就算了，同一个老 URL，还能返回不同的文件。</p><p>要是不幸遇到这种问题，自认倒霉吧，依旧直接改脚本。鬼知道什么时候抽风。</p><p>其结果就是，明明服务商不保证自动归档的稳定性，而 Homebrew 却依赖这一点。</p><p>要保证源码包的稳定性，应该由作者官方以 release 形式发布，就像各种开源软件官网那样，然后由官方提供校验方法。</p><p>那么从全局看，怎么避免这种错误？我觉得 Homebrew 完全可以定期检查哈希值，如果变更则自动提 PR，这一点可以通过 CI/CD 自动化完成。</p><h2 id=warning-you-are-using-macos-1015>Warning: You are using macOS 10.15.</h2><pre tabindex=0><code>We (and Apple) do not provide support for this old version.
+It is expected behaviour that some formulae will fail to build in this old version.
+It is expected behaviour that Homebrew will be buggy and slow.
+Do not create any issues about this on Homebrew&#39;s GitHub repositories.
+Do not create any issues even if you think this message is unrelated.
+Any opened issues will be immediately closed without response.
+Do not ask for help from Homebrew or its maintainers on social media.
+You may ask for help in Homebrew&#39;s discussions but are unlikely to receive a response.
+Try to figure out the problem yourself and submit a fix as a pull request.
+We will review it but may or may not accept it.
+</code></pre><p>啊对对对，我知道我们老古董不配用高贵的 Homebrew，出了问题后果自负我理解。</p><p>但是你每次一大堆烦人的警告跳脸连个他妈的开关都没有？哪怕减到一行呢？</p><p>何况苹果只是对系统停止了支持，你一个包管理器，不想支持老系统直接大方说不就行了，和苹果对系统的支持有个毛线关系？难道苹果不让 Catalina 用户用 App Store 了？Ubuntu 就连 12.04 甚至更老的版本，改一下源就能继续用官方的老仓库。</p><p>对于一个非盈利的开源软件，我表示支持，但你别又当又立😅</p><p>发现我脾气逐渐暴躁，管他的，反正鬼佬看不懂中文。</p><p>编辑 <code>$(brew --repository)/Library/Homebrew/extend/os/mac/diagnostic.rb</code> 这个脚本，在 <code>check_for_unsupported_macos</code> 方法第一行直接返回：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>❯ <span class=nb>cd</span> <span class=k>$(</span>brew --repository<span class=k>)</span>
+</span></span><span class=line><span class=cl>❯ git diff
+</span></span><span class=line><span class=cl>diff --git a/Library/Homebrew/extend/os/mac/diagnostic.rb b/Library/Homebrew/extend/os/mac/diagnostic.rb
+</span></span><span class=line><span class=cl>index 1cbc907f3..37b5b91ba <span class=m>100644</span>
+</span></span><span class=line><span class=cl>--- a/Library/Homebrew/extend/os/mac/diagnostic.rb
+</span></span><span class=line><span class=cl>+++ b/Library/Homebrew/extend/os/mac/diagnostic.rb
+</span></span><span class=line><span class=cl>@@ -106,6 +106,7 @@ module Homebrew
+</span></span><span class=line><span class=cl>       end
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>       def check_for_unsupported_macos
+</span></span><span class=line><span class=cl>+        <span class=k>return</span>
+</span></span><span class=line><span class=cl>         <span class=k>return</span> <span class=k>if</span> Homebrew::EnvConfig.developer?
+</span></span><span class=line><span class=cl>         <span class=k>return</span> <span class=k>if</span> ENV<span class=o>[</span><span class=s2>&#34;HOMEBREW_INTEGRATION_TEST&#34;</span><span class=o>]</span>
+</span></span></code></pre></div><p>整个世界都清净了！</p><p>当然，后果自负。</p><div class=footnotes role=doc-endnotes><hr><ol><li id=fn:1><p><a href=https://github.blog/2023-02-21-update-on-the-future-stability-of-source-code-archives-and-hashes/ target=_blank rel="noopener noreferrer">https://github.blog/2023-02-21-update-on-the-future-stability-of-source-code-archives-and-hashes/</a>&#160;<a href=#fnref:1 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li><li id=fn:2><p><a href=https://gitlab.com/gitlab-org/gitlab/-/issues/402616 target=_blank rel="noopener noreferrer">https://gitlab.com/gitlab-org/gitlab/-/issues/402616</a>&#160;<a href=#fnref:2 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li></ol></div></article><section class="article labels"><a class=tag href=/tags/macos/>macOS</a><a class=tag href=/tags/go/>Go</a><a class=tag href=/tags/homebrew/>Homebrew</a></section><section class="article license"><p xmlns:cc=http://creativecommons.org/ns# style=text-align:center>本作品根据 <a href=http://creativecommons.org/licenses/by-nc-sa/4.0/ target=_blank rel="license noopener noreferrer" style=display:inline-block>署名-非商业性使用-相同方式共享 4.0 国际许可<img style=height:15px!important;margin-left:1px;vertical-align:text-bottom src=/cc-icons/cc.svg><img style=height:15px!important;margin-left:1px;vertical-align:text-bottom src=/cc-icons/by.svg><img style=height:15px!important;margin-left:1px;vertical-align:text-bottom src=/cc-icons/nc.svg><img style=height:15px!important;margin-left:1px;vertical-align:text-bottom src=/cc-icons/sa.svg></a> 进行授权。</p></section></div><div class="article bottom"><section class="article navigation"><p><a class=link href=/posts/send-email-with-exim4-in-linux/><span class="iconfont icon-article"></span>在 Linux 上使用 Exim4 发送邮件</a></p><p><a class=link href=/posts/deploy-linux-in-android/><span class="iconfont icon-article"></span>在 Android 上部署 Linux</a></p></section><section class="article discussion"><script>function loadComment(){let e=document.createElement("script");e.src="https://utteranc.es/client.js",e.setAttribute("repo","qianbinbin/qianbinbin.github.io"),e.setAttribute("issue-term","pathname"),e.setAttribute("theme","preferred-color-scheme"),e.setAttribute("crossorigin","anonymous"),e.setAttribute("async",""),document.querySelector("section.article.discussion").innerHTML="",document.querySelector("section.article.discussion").appendChild(e)}loadComment(),window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change",()=>{loadComment()})</script></section></div></section><section id=footer><div class=footer-wrap><p class=copyright>© 2017-2024 Binac.</p></div></section><script async src="https://www.googletagmanager.com/gtag/js?id=G-N7VZY53PLB"></script><script>var dnt,doNotTrack=!1;if(!1&&(dnt=navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack,doNotTrack=dnt=="1"||dnt=="yes"),!doNotTrack){window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-N7VZY53PLB")}</script><script src=https://unpkg.com/vanilla-back-to-top@7.2.1/dist/vanilla-back-to-top.min.js></script><script>addBackToTop({diameter:42})</script></body></html>

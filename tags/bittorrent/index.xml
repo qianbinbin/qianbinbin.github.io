@@ -1,0 +1,1403 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>BitTorrent on Binac</title><link>https://binac.org/tags/bittorrent/</link><description>Recent content in BitTorrent on Binac</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><copyright>© 2017-2024 Binac.</copyright><lastBuildDate>Tue, 26 Apr 2022 20:40:42 +0800</lastBuildDate><atom:link href="https://binac.org/tags/bittorrent/index.xml" rel="self" type="application/rss+xml"/><item><title>为邮件客户端添加 OAuth 2.0 代理</title><link>https://binac.org/posts/oauth-2.0-proxy-for-email-client/</link><pubDate>Tue, 15 Oct 2024 02:20:59 +0800</pubDate><guid>https://binac.org/posts/oauth-2.0-proxy-for-email-client/</guid><description>&lt;p>强制使用 OAuth 2.0 认证的邮件提供商越来越多，而一些老客户端并不支持，比如 macOS Catalina 自带的邮件。&lt;/p>
+&lt;p>于是尝试换 Thunderbird，然而用起来有些……粗犷。&lt;/p>
+&lt;p>找到一个开源程序 &lt;a href="https://github.com/simonrob/email-oauth2-proxy"target="_blank" rel="noopener noreferrer">email-oauth2-proxy&lt;/a>，它可以建立一个代理，让不支持 OAuth 2.0 的客户端使用 IMAP/POP/SMTP 协议继续访问邮箱，但它的文档写得实在不像给人类看的。&lt;/p>
+&lt;p>下面以 macOS Catalina 自带邮件客户端添加 Outlook 个人邮箱为例进行说明。&lt;/p>
+&lt;h2 id="安装">安装&lt;/h2>
+&lt;p>我不需要 GUI，因此直接安装：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-sh" data-lang="sh">&lt;span class="line">&lt;span class="cl">$ pipx install emailproxy
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="配置">配置&lt;/h2>
+&lt;p>建立配置文件 &lt;code>~/.config/emailproxy.conf&lt;/code>：&lt;/p>
+&lt;pre tabindex="0">&lt;code class="language-conf" data-lang="conf">[IMAP-1993]
+server_address = outlook.office365.com
+server_port = 993
+local_address = 127.0.0.1
+[SMTP-1587]
+server_address = smtp-mail.outlook.com
+server_port = 587
+server_starttls = True
+local_address = 127.0.0.1
+[your.address@example.com]
+permission_url = https://login.microsoftonline.com/common/oauth2/v2.0/authorize
+token_url = https://login.microsoftonline.com/common/oauth2/v2.0/token
+oauth2_scope = https://outlook.office.com/IMAP.AccessAsUser.All https://outlook.office.com/POP.AccessAsUser.All https://outlook.office.com/SMTP.Send offline_access
+redirect_uri = http://localhost
+client_id = 9e5f94bc-e8a4-4e73-b8be-63364c29d753
+&lt;/code>&lt;/pre>&lt;p>由程序与邮件服务器建立连接，客户端只需以 IMAP/SMTP 等协议访问本地代理，访问本地是不加密的，一般也没必要。&lt;/p>
+&lt;p>本地端口不能用默认端口（如 993/587），因为默认端口不仅需要以 root 用户运行，客户端也不能添加，否则会提示“服务器拒绝允许通过默认端口进行的连接”。这里用的是 1993/1587。&lt;/p>
+&lt;p>&lt;code>smtp-mail.outlook.com&lt;/code> 是微软用于个人免费账号的 SMTP 服务器，Office 365 账号应该是不一样的，具体自行查找相关文档。SMTP 服务启用了 STARTTLS，因此 &lt;code>server_starttls&lt;/code> 设置为 &lt;code>True&lt;/code>。&lt;/p>
+&lt;p>&lt;code>your.address@example.com&lt;/code> 改为自己的邮箱地址。&lt;/p>
+&lt;p>&lt;code>client_id&lt;/code> 用于模拟某个邮件客户端，这里的 ID 来自 &lt;a href="https://github.com/mozilla/releases-comm-central/blob/master/mailnews/base/src/OAuth2Providers.sys.mjs"target="_blank" rel="noopener noreferrer">Thunderbird&lt;/a>。&lt;/p>
+&lt;h2 id="授权">授权&lt;/h2>
+&lt;p>首次使用必须先登录授权。运行：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-sh" data-lang="sh">&lt;span class="line">&lt;span class="cl">$ emailproxy --no-gui --config-file ~/.config/emailproxy.conf --external-auth
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>典型的流程是：程序将会等待客户端登录，当收到请求时打印一个链接，用浏览器打开并授权，自动跳转到 &lt;code>redirect_uri&lt;/code> 开头的链接，回到终端输入跳转后的链接，授权成功。token 默认保存在配置文件中。&lt;/p>
+&lt;p>由于苹果自带邮箱太简陋，登录时遇到很多麻烦。&lt;/p>
+&lt;p>首先添加账号时，邮件地址不能写真实地址，否则客户端检测到是微软的域名，就自作聪明建立连接，但这显然不可能成功。可以先写无法解析的地址，例如 &lt;code>a@b&lt;/code>，之后进入下一步再修改。&lt;/p>
+&lt;p>密码可以按自己喜好填写，因为它不是与邮件提供商通信的密码，只是本地代理的密码，程序会自动记住。但再次登录时要保持一致。&lt;/p>
+&lt;p>发件和收件服务器都填写 &lt;code>localhost&lt;/code>。提示错误可以忽略。总之先建立一个账号，才能进入偏好设置进行详细设置。苹果有点过于把用户当傻子了。&lt;/p>
+&lt;p>在偏好设置中找到添加的账号，点击右侧服务器设置，用户名和密码自行设置，取消勾选“自动管理连接设置”，端口改为 1993，在“高级 IMAP 设置”里勾选“允许不安全认证”。&lt;/p>
+&lt;p>下方类似地编辑 SMTP 设置，同样将端口改为 1587，并允许不安全认证。&lt;/p>
+&lt;p>这时终端会输出需要授权的链接，类似于：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-sh" data-lang="sh">&lt;span class="line">&lt;span class="cl">$ emailproxy --no-gui --config-file ~/.config/emailproxy.conf --external-auth
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">2024-10-15 00:00:00: Initialising Email OAuth 2.0 Proxy &lt;span class="o">(&lt;/span>version 2024-09-12&lt;span class="o">)&lt;/span> from config file /path/to/.config/emailproxy.conf
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">2024-10-15 00:00:00: Starting IMAP server at 127.0.0.1:1993 &lt;span class="o">(&lt;/span>unsecured&lt;span class="o">)&lt;/span> proxying outlook.office365.com:993 &lt;span class="o">(&lt;/span>SSL/TLS&lt;span class="o">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">2024-10-15 00:00:00: Starting SMTP server at 127.0.0.1:1587 &lt;span class="o">(&lt;/span>unsecured&lt;span class="o">)&lt;/span> proxying smtp-mail.outlook.com:587 &lt;span class="o">(&lt;/span>STARTTLS&lt;span class="o">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">2024-10-15 00:00:00: Initialised Email OAuth 2.0 Proxy - listening &lt;span class="k">for&lt;/span> authentication requests. Connect your email client to begin
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">2024-10-15 00:00:00: Accepting new connection from &lt;span class="o">[&lt;/span>::ffff:127.0.0.1&lt;span class="o">]&lt;/span>:52602 to IMAP server at 127.0.0.1:1993 &lt;span class="o">(&lt;/span>unsecured&lt;span class="o">)&lt;/span> proxying outlook.office365.com:993 &lt;span class="o">(&lt;/span>SSL/TLS&lt;span class="o">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">2024-10-15 00:00:00: Authorisation request received &lt;span class="k">for&lt;/span> your.address@example.com &lt;span class="o">(&lt;/span>external auth mode&lt;span class="o">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">2024-10-15 00:00:00: Email OAuth 2.0 Proxy No-GUI external auth mode: please authorise a request &lt;span class="k">for&lt;/span> account your.address@example.com
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">2024-10-15 00:00:00: Please visit the following URL to authenticate account your.address@example.com: https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id&lt;span class="o">=&lt;/span>9e5f94bc-e8a4-4e73-b8be-63364c29d753&lt;span class="p">&amp;amp;&lt;/span>&lt;span class="nv">redirect_uri&lt;/span>&lt;span class="o">=&lt;/span>http%3A%2F%2Flocalhost&lt;span class="p">&amp;amp;&lt;/span>&lt;span class="nv">scope&lt;/span>&lt;span class="o">=&lt;/span>https%3A%2F%2Foutlook.office.com%2FIMAP.AccessAsUser.All%20https%3A%2F%2Foutlook.office.com%2FPOP.AccessAsUser.All%20https%3A%2F%2Foutlook.office.com%2FSMTP.Send%20offline_access&lt;span class="p">&amp;amp;&lt;/span>&lt;span class="nv">response_type&lt;/span>&lt;span class="o">=&lt;/span>code&lt;span class="p">&amp;amp;&lt;/span>&lt;span class="nv">access_type&lt;/span>&lt;span class="o">=&lt;/span>offline&lt;span class="p">&amp;amp;&lt;/span>&lt;span class="nv">login_hint&lt;/span>&lt;span class="o">=&lt;/span>your.address%40example.com
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Copy+paste or press &lt;span class="o">[&lt;/span>↵ Return&lt;span class="o">]&lt;/span> to visit the following URL and authenticate account your.address@example.com: https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_i
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">d&lt;/span>&lt;span class="o">=&lt;/span>9e5f94bc-e8a4-4e73-b8be-63364c29d753&lt;span class="p">&amp;amp;&lt;/span>&lt;span class="nv">redirect_uri&lt;/span>&lt;span class="o">=&lt;/span>http%3A%2F%2Flocalhost&lt;span class="p">&amp;amp;&lt;/span>&lt;span class="nv">scope&lt;/span>&lt;span class="o">=&lt;/span>https%3A%2F%2Foutlook.office.com%2FIMAP.AccessAsUser.All%20https%3A%2F%2Foutlook.office.com%2FPO
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">P.AccessAsUser.All%20https%3A%2F%2Foutlook.office.com%2FSMTP.Send%20offline_access&lt;span class="p">&amp;amp;&lt;/span>&lt;span class="nv">response_type&lt;/span>&lt;span class="o">=&lt;/span>code&lt;span class="p">&amp;amp;&lt;/span>&lt;span class="nv">access_type&lt;/span>&lt;span class="o">=&lt;/span>offline&lt;span class="p">&amp;amp;&lt;/span>&lt;span class="nv">login_hint&lt;/span>&lt;span class="o">=&lt;/span>your.address%40example.com &lt;span class="k">then&lt;/span> paste here the
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">full post-authentication URL from the browser&lt;span class="err">&amp;#39;&lt;/span>s address bar &lt;span class="o">(&lt;/span>it should start with http://localhost&lt;span class="o">)&lt;/span>:
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>打开此链接，授权后自动跳转到类似 &lt;code>http://localhost/?code=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx&lt;/code> 的地址。将此地址复制到终端回车即可授权完成。&lt;/p>
+&lt;p>至此邮箱登录成功。以后只需要运行 &lt;code>emailproxy --no-gui --config-file ~/.config/emailproxy.conf&lt;/code> 即可。&lt;/p>
+&lt;p>另外需要注意的是，账号的“邮箱行为”中，发件箱建议改为“已发送邮件”，否则发送邮件后，服务器发件箱将存在两份一模一样的邮件。但这样改后，本地发件箱将不会与服务器完全同步，例如删除本地发件箱中的邮件，服务器中仍然存在。&lt;/p>
+&lt;h2 id="自动启动">自动启动&lt;/h2>
+&lt;p>新建 &lt;code>~/Library/LaunchAgents/emailproxy.plist&lt;/code>：&lt;/p>
+&lt;pre tabindex="0">&lt;code class="language-plist" data-lang="plist">&amp;lt;?xml version=&amp;#34;1.0&amp;#34; encoding=&amp;#34;UTF-8&amp;#34;?&amp;gt;
+&amp;lt;!DOCTYPE plist PUBLIC &amp;#34;-//Apple//DTD PLIST 1.0//EN&amp;#34; &amp;#34;http://www.apple.com/DTDs/PropertyList-1.0.dtd&amp;#34;&amp;gt;
+&amp;lt;plist version=&amp;#34;1.0&amp;#34;&amp;gt;
+&amp;lt;dict&amp;gt;
+&amp;lt;key&amp;gt;Label&amp;lt;/key&amp;gt;
+&amp;lt;string&amp;gt;emailproxy&amp;lt;/string&amp;gt;
+&amp;lt;key&amp;gt;ProgramArguments&amp;lt;/key&amp;gt;
+&amp;lt;array&amp;gt;
+&amp;lt;string&amp;gt;/usr/local/bin/emailproxy&amp;lt;/string&amp;gt;
+&amp;lt;string&amp;gt;--no-gui&amp;lt;/string&amp;gt;
+&amp;lt;string&amp;gt;--config-file&amp;lt;/string&amp;gt;
+&amp;lt;string&amp;gt;/path/to/.config/emailproxy.conf&amp;lt;/string&amp;gt;
+&amp;lt;string&amp;gt;--log-file&amp;lt;/string&amp;gt;
+&amp;lt;string&amp;gt;/usr/local/var/log/emailproxy.log&amp;lt;/string&amp;gt;
+&amp;lt;/array&amp;gt;
+&amp;lt;key&amp;gt;KeepAlive&amp;lt;/key&amp;gt;
+&amp;lt;true/&amp;gt;
+&amp;lt;key&amp;gt;RunAtLoad&amp;lt;/key&amp;gt;
+&amp;lt;true/&amp;gt;
+&amp;lt;/dict&amp;gt;
+&amp;lt;/plist&amp;gt;
+&lt;/code>&lt;/pre>&lt;p>修改其中配置文件的路径，并加载：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-sh" data-lang="sh">&lt;span class="line">&lt;span class="cl">$ launchctl load /path/to/emailproxy.plist
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div></description></item><item><title>下载官方旧版本 Chrome</title><link>https://binac.org/posts/download-an-old-version-of-chrome/</link><pubDate>Tue, 30 Jul 2024 01:17:22 +0800</pubDate><guid>https://binac.org/posts/download-an-old-version-of-chrome/</guid><description>&lt;p>已经忍 Chrome 很久了，但是太依赖扩展和脚本，想换其他浏览器也没什么动力。整天提醒更新，不知道更新了个什么东西，反而把原来的功能改成依托答辩。&lt;/p>
+&lt;p>万万没想到，在三哥的英明领导下，谷歌又拉了坨大的：升级到 127.0.6533.73，下载记录没有链接了，光标移动到上面都不行，只能看到域名。&lt;/p>
+&lt;p>地铁老人手机.jpg&lt;/p>
+&lt;p>这就是地球上最流行的浏览器吗？张小龙都觉得抽象。&lt;/p>
+&lt;p>于是去找历史版本，结果谷歌居然不提供。&lt;/p>
+&lt;p>去第三方网站 uptodown.com 下载最新版，和谷歌官网的 sha256 都对不上，这尼玛谁敢用？&lt;/p>
+&lt;p>也翻了很多号称官方下载的帖子，这些工具号称是 Chrome，其实都是 Chromium，我也是服了。&lt;/p>
+&lt;p>最后终于找到了一个获取 Chrome 官方链接的 Python 脚本&lt;sup id="fnref:1">&lt;a href="#fn:1" class="footnote-ref" role="doc-noteref">1&lt;/a>&lt;/sup>，不过只能获取 macOS 版 Chrome，用 Shell 重写了一下。&lt;/p>
+&lt;p>还找到一个 Windows 适用的&lt;sup id="fnref:2">&lt;a href="#fn:2" class="footnote-ref" role="doc-noteref">2&lt;/a>&lt;/sup>，但是没试过。&lt;/p>
+&lt;h2 id="python-脚本">Python 脚本&lt;/h2>
+&lt;script src="https://gist.github.com/ryfloyd/afc8d87947a520e6094fec4878051ea8.js?file=google_chrome_update_checker.py">&lt;/script>
+&lt;p>把&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-python" data-lang="python">&lt;span class="line">&lt;span class="cl">&lt;span class="n">os_version&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s1">&amp;#39;14.2&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">target_version_prefix&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s1">&amp;#39;114&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>改一下就能用了。脚本是从 tools.google.com 获取，得到链接域名是 gvt1.com，这应该也是谷歌的域名。&lt;/p>
+&lt;h2 id="shell-脚本">Shell 脚本&lt;/h2>
+&lt;p>原理和上面一样，默认输出第一个 HTTPS 链接，用 &lt;code>-t&lt;/code> 指定大版本，&lt;code>-a&lt;/code> 打印所有链接，&lt;code>-s&lt;/code> 打印 sha256，例如：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-sh" data-lang="sh">&lt;span class="line">&lt;span class="cl">$ get-chrome.sh -t &lt;span class="m">126&lt;/span> -s
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">https://redirector.gvt1.com/edgedl/release2/chrome/c27alpqp6yqlnckxwaxrg35r2y_126.0.6478.183/GoogleChrome-126.0.6478.183.dmg
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">sha256 7bb3660120eb9e857f371b390f470a530ef2e956e6426a14b4193751684393f6
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;figure style="margin:0 0 1.5em 0">&lt;figcaption style="text-align: right">
+&lt;a href="https://binac.org/code/download-an-old-version-of-chrome/get-chrome.sh" style="color: lightslategrey;font-size: 0.8em">get-chrome.sh&lt;/a>
+&lt;/figcaption>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-sh" data-lang="sh">&lt;span class="line">&lt;span class="cl">&lt;span class="cp">#!/usr/bin/env sh
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">set&lt;/span> -e
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">UUID&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="k">$(&lt;/span>uuidgen &lt;span class="p">|&lt;/span> tr &lt;span class="s1">&amp;#39;[:upper:]&amp;#39;&lt;/span> &lt;span class="s1">&amp;#39;[:lower:]&amp;#39;&lt;/span>&lt;span class="k">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">PLATFORM&lt;/span>&lt;span class="o">=&lt;/span>mac
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">OS_VERSION&lt;/span>&lt;span class="o">=&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">TARGET_VERSION_PREFIX&lt;/span>&lt;span class="o">=&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">error&lt;span class="o">()&lt;/span> &lt;span class="o">{&lt;/span> &lt;span class="nb">printf&lt;/span> &lt;span class="s2">&amp;#34;%s\n&amp;#34;&lt;/span> &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$@&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &amp;gt;&lt;span class="p">&amp;amp;&lt;/span>2&lt;span class="p">;&lt;/span> &lt;span class="o">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">if&lt;/span> &lt;span class="o">[&lt;/span> &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="k">$(&lt;/span>uname&lt;span class="k">)&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="o">=&lt;/span> Darwin &lt;span class="o">]&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="k">then&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nv">OS_VERSION&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="k">$(&lt;/span>sw_vers -productVersion &lt;span class="p">|&lt;/span> grep -o &lt;span class="s1">&amp;#39;[[:digit:]]\+\.[[:digit:]]\+&amp;#39;&lt;/span>&lt;span class="k">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">fi&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">PRINT_ALL_LINKS&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="nb">false&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">PRINT_SHA256&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="nb">false&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">SHA_256&lt;/span>&lt;span class="o">=&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">SCRIPT&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="k">$(&lt;/span>basename &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$0&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="k">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">USAGE&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="k">$(&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> cat &lt;span class="s">&amp;lt;&amp;lt;-END
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s">Usage: $SCRIPT [&amp;lt;options&amp;gt;]
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s">Get official download link of Chrome for macOS.
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s"> -o &amp;lt;os_version&amp;gt; set OS version, e.g. &amp;#39;10.15&amp;#39;
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s"> -t &amp;lt;target_version_prefix&amp;gt; set target version prefix of Chrome, e.g. &amp;#39;126&amp;#39;
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s"> -a print all available links (by default, print first HTTPS link only)
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s"> -s print sha256 checksum
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s"> -h display this help and exit
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s">Home page: &amp;lt;https://binac.org/posts/download-an-old-version-of-chrome/&amp;gt;
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s">END&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">_exit&lt;span class="o">()&lt;/span> &lt;span class="o">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> error &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$USAGE&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">exit&lt;/span> &lt;span class="m">2&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">while&lt;/span> &lt;span class="nb">getopts&lt;/span> &lt;span class="s2">&amp;#34;asho:t:&amp;#34;&lt;/span> c&lt;span class="p">;&lt;/span> &lt;span class="k">do&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">case&lt;/span> &lt;span class="nv">$c&lt;/span> in
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> o&lt;span class="o">)&lt;/span> &lt;span class="nv">OS_VERSION&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="nv">$OPTARG&lt;/span> &lt;span class="p">;;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> t&lt;span class="o">)&lt;/span> &lt;span class="nv">TARGET_VERSION_PREFIX&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="nv">$OPTARG&lt;/span> &lt;span class="p">;;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> a&lt;span class="o">)&lt;/span> &lt;span class="nv">PRINT_ALL_LINKS&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="nb">true&lt;/span> &lt;span class="p">;;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> s&lt;span class="o">)&lt;/span> &lt;span class="nv">PRINT_SHA256&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="nb">true&lt;/span> &lt;span class="p">;;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> h&lt;span class="o">)&lt;/span> error &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$USAGE&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="o">&amp;amp;&amp;amp;&lt;/span> &lt;span class="nb">exit&lt;/span> &lt;span class="p">;;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> *&lt;span class="o">)&lt;/span> _exit &lt;span class="p">;;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">esac&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">done&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span> -z &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$OS_VERSION&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="o">]&lt;/span> &lt;span class="o">&amp;amp;&amp;amp;&lt;/span> error &lt;span class="s2">&amp;#34;OS version not set&amp;#34;&lt;/span> &lt;span class="o">&amp;amp;&amp;amp;&lt;/span> &lt;span class="nb">exit&lt;/span> &lt;span class="m">2&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">URL&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;https://tools.google.com/service/update2&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">DATA&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;&amp;lt;request protocol=\&amp;#34;3.0\&amp;#34; requestid=\&amp;#34;&lt;/span>&lt;span class="nv">$UUID&lt;/span>&lt;span class="s2">\&amp;#34;&amp;gt;
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s2"> &amp;lt;os platform=\&amp;#34;&lt;/span>&lt;span class="nv">$PLATFORM&lt;/span>&lt;span class="s2">\&amp;#34; version=\&amp;#34;&lt;/span>&lt;span class="nv">$OS_VERSION&lt;/span>&lt;span class="s2">\&amp;#34; /&amp;gt;
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s2"> &amp;lt;app appid=\&amp;#34;com.google.Chrome\&amp;#34; lang=\&amp;#34;en-us\&amp;#34;&amp;gt;
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s2"> &amp;lt;updatecheck targetversionprefix=\&amp;#34;&lt;/span>&lt;span class="nv">$TARGET_VERSION_PREFIX&lt;/span>&lt;span class="s2">\&amp;#34;/&amp;gt;
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s2"> &amp;lt;/app&amp;gt;
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s2">&amp;lt;/request&amp;gt;&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">CONTENT&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="k">$(&lt;/span>curl -fsSL -X POST &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$URL&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> -d &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$DATA&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="k">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">LINKS&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="k">$(&lt;/span>&lt;span class="nb">echo&lt;/span> &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$CONTENT&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="p">|&lt;/span> grep -o &lt;span class="s1">&amp;#39;https\?://[^&amp;#34;]*&amp;#39;&lt;/span>&lt;span class="k">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">NAME&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="k">$(&lt;/span>&lt;span class="nb">echo&lt;/span> &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$CONTENT&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="p">|&lt;/span> grep -o &lt;span class="s1">&amp;#39; name=&amp;#34;[^&amp;#34;]*&amp;#39;&lt;/span> &lt;span class="p">|&lt;/span> cut -c 8-&lt;span class="k">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">if&lt;/span> &lt;span class="o">[&lt;/span> &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$PRINT_ALL_LINKS&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nb">false&lt;/span> &lt;span class="o">]&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="k">then&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nv">LINKS&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="k">$(&lt;/span>&lt;span class="nb">echo&lt;/span> &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$LINKS&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="p">|&lt;/span> grep -o &lt;span class="s1">&amp;#39;https://[^&amp;#34;]*&amp;#39;&lt;/span> &lt;span class="p">|&lt;/span> head -1&lt;span class="k">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">fi&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">for&lt;/span> link in &lt;span class="nv">$LINKS&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="k">do&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">echo&lt;/span> &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$link$NAME&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">done&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">SHA_256&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="k">$(&lt;/span>&lt;span class="nb">echo&lt;/span> &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$CONTENT&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="p">|&lt;/span> grep -o &lt;span class="s1">&amp;#39;hash_sha256=&amp;#34;[^&amp;#34;]*&amp;#39;&lt;/span> &lt;span class="p">|&lt;/span> cut -c 14-&lt;span class="k">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">if&lt;/span> &lt;span class="o">[&lt;/span> &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$PRINT_SHA256&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nb">true&lt;/span> &lt;span class="o">]&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="k">then&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> error &lt;span class="s2">&amp;#34;sha256 &lt;/span>&lt;span class="nv">$SHA_256&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">fi&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/figure>
+&lt;div class="footnotes" role="doc-endnotes">
+&lt;hr>
+&lt;ol>
+&lt;li id="fn:1">
+&lt;p>&lt;a href="https://stackoverflow.com/a/77869298"target="_blank" rel="noopener noreferrer">https://stackoverflow.com/a/77869298&lt;/a>&amp;#160;&lt;a href="#fnref:1" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li id="fn:2">
+&lt;p>&lt;a href="https://squirrelistic.com/blog/how_to_download_older_version_of_google_chrome"target="_blank" rel="noopener noreferrer">https://squirrelistic.com/blog/how_to_download_older_version_of_google_chrome&lt;/a>&amp;#160;&lt;a href="#fnref:2" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;/div></description></item><item><title>《聊斋志异》读后感</title><link>https://binac.org/tuya/liaozhaizhiyi-duhougan/</link><pubDate>Thu, 27 Jun 2024 22:52:15 +0800</pubDate><guid>https://binac.org/tuya/liaozhaizhiyi-duhougan/</guid><description>&lt;h2 id="卷一">卷一&lt;/h2>
+&lt;h3 id="考城隍">考城隍&lt;/h3>
+&lt;blockquote>
+&lt;p>一个秀才生病卧床，忽然有人请他去考试。秀才发现考场不简单，考官居然是神仙。&lt;/p>
+&lt;p>答完题神仙很满意，让秀才去当城隍，秀才这才知道自己阳寿已尽，但老母还需供养，请求给老母送终后再上任，于是神仙让同考的张生代行九年职责。&lt;/p>
+&lt;p>秀才本来已经死了三天，遂复活。打听张生的事，果然是当天也死了。九年后母亲去世，秀才沐浴更衣也死了，岳父还见到他来告别。&lt;/p>
+&lt;/blockquote>
+&lt;p>从这篇故事可以体会古人读书入仕的愿望。活着是廪生（领取公家膳食的秀才），死了考城隍。&lt;/p>
+&lt;p>但秀才作答的文章：&lt;/p>
+&lt;blockquote>
+&lt;p>有心为善，虽善不赏；无心为恶，虽恶不罚。&lt;/p>
+&lt;/blockquote>
+&lt;p>神仙们“传赞不已”，我却认为值得商榷。&lt;/p>
+&lt;p>没有人能窥探他人的内心，难以判断有意无意（或许神仙可以，但秀才作答时并不知道考的是神仙编制）。为官者如果不能遵从客观事实，而是窥探他人内心来做判断，真不知道会乱成什么样子。&lt;/p>
+&lt;p>对于前一句，作者可能是出于对作秀出名的厌恶写的，例如《二十四孝》中的离谱故事，察举制时期的自我炒作等。&lt;/p>
+&lt;p>但是另一方面，论迹不论心，表面文章也很重要。古代有千金买马骨的故事，把诚意表现出来，让人们知道为善有嘉奖，作恶有惩罚，才能正确引领社会风气。&lt;/p>
+&lt;p>对于后一句，也不能一概而论。&lt;/p>
+&lt;p>假如一行人闯红灯，被正常行驶的车辆撞死，车主是否应该负部分责任？&lt;/p>
+&lt;p>如果仅从车主无心之过来分析，不应该。但权利和责任是对等的，车辆在马路上比行人享有更大的权利，而且是强势方，因此承担部分责任是合理的。按照我国法律，这种情况机动车一般会承担不超过百分之十的责任。&lt;/p>
+&lt;p>这是全书第一篇故事，不免令人联想到蒲松龄本人的境遇。&lt;/p>
+&lt;p>他少年得志，19 岁县、府、道试均夺得第一名，取中秀才，之后却屡屡受挫，46 岁才被补为廪生，72 岁才被补为贡生，76 岁病逝。&lt;/p>
+&lt;p>这篇文章或许是作者本人的内心投射。&lt;/p>
+&lt;h3 id="耳中人">耳中人&lt;/h3>
+&lt;blockquote>
+&lt;p>一个秀才练气功，觉得耳朵里有说话声。又一次练功时，应和声音引它出来，竟是一个三寸长的夜叉状小人。这时邻居突然来借东西，小人慌慌张张跑丢了。秀才就跟丢了魂一样，精神错乱，调养了半年才治好。&lt;/p>
+&lt;/blockquote>
+&lt;p>据说蒲松龄本人也练气功。&lt;/p>
+&lt;p>故事本身就是很普通的志怪故事。&lt;/p>
+&lt;h3 id="尸变">尸变&lt;/h3>
+&lt;blockquote>
+&lt;p>老翁和儿子在村里开了家客店，黄昏时四个商贩来投宿，但是已经客满。四人请求无论如何收留，老翁寻思儿媳刚去世，儿子出门买棺材去了，那间灵堂可以住。&lt;/p>
+&lt;p>四人于是住下。然而女尸竟然诈尸，朝客人吹气，只有一人没睡着逃了出来。女尸就追，那人路过老翁家，怕来不及就没敲门。&lt;/p>
+&lt;p>那人往县城赶，经过一间寺庙敲门求救，里面僧人听得奇怪，不开，那人就与女尸在一棵大白杨旁边周旋，最后女尸抱着树僵硬了。&lt;/p>
+&lt;p>和尚这才开门，把那人救了，报了县官。县官亲自勘验，那女尸手指插在树里，多叫了人手才拔出来。又叫人去老翁家，那边女尸没了，客人死了，正乱作一团，老翁跟着差役过来，把尸体抬了回去。&lt;/p>
+&lt;p>幸存的那人怕回乡没人信，县官还给他写了证明文书。&lt;/p>
+&lt;/blockquote>
+&lt;p>这是个灵异恐怖故事。&lt;/p>
+&lt;p>故事的寓意我不敢断言，但网友却升起了赛博法庭。&lt;/p>
+&lt;p>有的说，女尸不针对其他人，只针对投宿的四人，这四人肯定不是好玩意。（啊？其他人睡女尸旁边了吗？）&lt;/p>
+&lt;p>有的说，古代男权社会压迫女性，她丈夫去买棺木，一天都没回，肯定有鬼，所以她才变成厉鬼了。（蒲松龄：来，笔给你）&lt;/p>
+&lt;p>有的说，这四人是偷尸体的，尸变就是幸存的那个人编的。（嗯，有想象力是好事）&lt;/p>
+&lt;p>还有的说，这是政治隐喻，这四人代表普通人，店家是统治者，女尸是官吏酷政，寺庙是超脱世人的精神寄托。（有趣，但为什么要用女尸来隐喻苛政？县官又算什么？）&lt;/p>
+&lt;p>关于最大的疑点，儿媳死了却没人守灵，我来展开一些浅薄的分析：&lt;/p>
+&lt;p>女的是“新死”，有多“新”？可能是刚死不久。丈夫去买棺木，没来得及回也可以理解，老头又要看店。而且守灵一般是晚辈给去世的长辈守灵。&lt;/p>
+&lt;p>故事除了父子外，没提及家族其他人，可以认为没有子嗣。&lt;/p>
+&lt;p>但即便如此，无人守灵也有些不妥。在我老家，一般会请亲戚和朋友，几个中年男人在逝者旁打一夜牌。&lt;/p>
+&lt;p>就算客人坚决请求，老人也确实没有其他去处，住灵堂也有点抽象。&lt;/p></description></item><item><title>不要使用 grep -v 来检查文件是否不包含特定字符串</title><link>https://binac.org/posts/do-not-use-grep-with--v-to-check-whether-file-does-not-contain-a-specific-string/</link><pubDate>Tue, 02 Jan 2024 00:29:21 +0800</pubDate><guid>https://binac.org/posts/do-not-use-grep-with--v-to-check-whether-file-does-not-contain-a-specific-string/</guid><description>&lt;p>新年第一水。&lt;/p>
+&lt;p>刷到 StackOverflow 上一个回答&lt;sup id="fnref:1">&lt;a href="#fn:1" class="footnote-ref" role="doc-noteref">1&lt;/a>&lt;/sup>：&lt;/p>
+&lt;span class="image-container">&lt;span class="link" >&lt;a href="https://binac.org/images/do-not-use-grep-with--v-to-check-whether-file-does-not-contain-a-specific-string/answer.png"
+target="_blank">&lt;img class="img" src="https://binac.org/images/do-not-use-grep-with--v-to-check-whether-file-does-not-contain-a-specific-string/answer.png"/>&lt;/a>&lt;/span>
+&lt;/span>
+&lt;p>回答没毛病，但是底下这个点评的 Tom Harrison 言之凿凿地说，可以使用 &lt;code>-v&lt;/code> 来反转条件……真是如此？&lt;/p>
+&lt;p>假设有一个文件 &lt;code>test&lt;/code>，内容如下：&lt;/p>
+&lt;pre tabindex="0">&lt;code>a
+b
+&lt;/code>&lt;/pre>&lt;p>先查找文件中&lt;strong>不存在&lt;/strong>的字符串 &lt;code>c&lt;/code> 试试：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-sh" data-lang="sh">&lt;span class="line">&lt;span class="cl">$ grep c test&lt;span class="p">;&lt;/span> &lt;span class="nb">echo&lt;/span> &lt;span class="nv">$?&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="m">1&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ ! grep c test&lt;span class="p">;&lt;/span> &lt;span class="nb">echo&lt;/span> &lt;span class="nv">$?&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="m">0&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ grep -v c test&lt;span class="p">;&lt;/span> &lt;span class="nb">echo&lt;/span> &lt;span class="nv">$?&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">a
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">b
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="m">0&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>似乎没问题，两种都对。&lt;/p>
+&lt;p>再查找文件中&lt;strong>存在&lt;/strong>的字符串 &lt;code>a&lt;/code> 呢：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-sh" data-lang="sh">&lt;span class="line">&lt;span class="cl">$ grep a test&lt;span class="p">;&lt;/span> &lt;span class="nb">echo&lt;/span> &lt;span class="nv">$?&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">a
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="m">0&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ ! grep a test&lt;span class="p">;&lt;/span> &lt;span class="nb">echo&lt;/span> &lt;span class="nv">$?&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">a
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="m">1&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ grep -v a test&lt;span class="p">;&lt;/span> &lt;span class="nb">echo&lt;/span> &lt;span class="nv">$?&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">b
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="m">0&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>扯犊子了吧？&lt;/p>
+&lt;p>原因就在于，&lt;code>-v&lt;/code> 反转的是查找条件，而不是查找结果。GNU grep 的手册是这么解释 &lt;code>-v&lt;/code> 的：&lt;/p>
+&lt;pre tabindex="0">&lt;code> -v, --invert-match
+Invert the sense of matching, to select non-matching lines.
+&lt;/code>&lt;/pre>&lt;p>&lt;code>-v&lt;/code> 会匹配那些不包含 &lt;code>a&lt;/code> 的行，自然 &lt;code>b&lt;/code> 就被查找出来了。&lt;/p>
+&lt;p>你可以说这人的意思是 &lt;code>-v&lt;/code> 可以反转查找条件，问题是这里是 &lt;code>if&lt;/code> 语句，要根据结果的条件来判断，然后进行其他操作，明显这人以为 &lt;code>-v&lt;/code> 和 &lt;code>!&lt;/code> 是一样的效果。这种点评带有很大的误导性。&lt;/p>
+&lt;p>那么 &lt;code>-v&lt;/code> 能不能实现类似的功能呢？其实是可以的，只不过要结合自己的使用情境配合复杂一点的正则罢了，没必要。&lt;/p>
+&lt;p>多句嘴，StackOverflow 这个网站虽然很有用，但是对用户并不友好。&lt;/p>
+&lt;p>我连点赞的权限都没有，还有很多人在瞎点评，而且还是错误的。&lt;/p>
+&lt;p>有时好不容易搜到一个和自己类似问题，然后就有人点评让你去看某些要么屁用没有要么一堆冗余信息的链接，还说不要重复提问 blah blah……贼烦这种伪精英主义。&lt;/p>
+&lt;p>我靠，这么水的文章还是什么时候删了吧……&lt;/p>
+&lt;div class="footnotes" role="doc-endnotes">
+&lt;hr>
+&lt;ol>
+&lt;li id="fn:1">
+&lt;p>&lt;a href="https://stackoverflow.com/a/57158235"target="_blank" rel="noopener noreferrer">https://stackoverflow.com/a/57158235&lt;/a>&amp;#160;&lt;a href="#fnref:1" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;/div></description></item><item><title>视频相关的命令和脚本</title><link>https://binac.org/posts/video-related-commands-and-scripts/</link><pubDate>Wed, 22 Nov 2023 17:03:15 +0800</pubDate><guid>https://binac.org/posts/video-related-commands-and-scripts/</guid><description>&lt;h2 id="ffmpeg-实用命令">FFmpeg 实用命令&lt;/h2>
+&lt;h3 id="剪切视频而不重新转码1">剪切视频而不重新转码&lt;sup id="fnref:1">&lt;a href="#fn:1" class="footnote-ref" role="doc-noteref">1&lt;/a>&lt;/sup>&lt;/h3>
+&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-sh" data-lang="sh">&lt;span class="line">&lt;span class="cl">$ ffmpeg -ss 00:00:30.0 -to 00:00:40.0 -i input.mp4 -c copy output.mp4
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;code>-ss&lt;/code> 和 &lt;code>-to&lt;/code> 分别指定起始时间。&lt;/p>
+&lt;p>这种方式输出的视频有一定问题，最好还是转码（不要用 &lt;code>-c copy&lt;/code>）。&lt;/p>
+&lt;h3 id="codec-not-currently-supported-in-container2">codec not currently supported in container&lt;sup id="fnref:2">&lt;a href="#fn:2" class="footnote-ref" role="doc-noteref">2&lt;/a>&lt;/sup>&lt;/h3>
+&lt;p>一些视频流和音频流无法放到同一容器中，例如 WMA 音频不能与 H.264 视频兼容，解决方式是将音频也转码：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-sh" data-lang="sh">&lt;span class="line">&lt;span class="cl">$ ffmpeg -i input.wmv -c:v libx264 -c:a aac output.mp4
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="旋转视频而不转码3">旋转视频而不转码&lt;sup id="fnref:3">&lt;a href="#fn:3" class="footnote-ref" role="doc-noteref">3&lt;/a>&lt;/sup>&lt;/h3>
+&lt;p>&lt;strong>逆时针&lt;/strong>旋转 90 度：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-sh" data-lang="sh">&lt;span class="line">&lt;span class="cl">$ ffmpeg -display_rotation &lt;span class="m">90&lt;/span> -i input.mp4 -c copy output.mp4
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="裁切视频4">裁切视频&lt;sup id="fnref:4">&lt;a href="#fn:4" class="footnote-ref" role="doc-noteref">4&lt;/a>&lt;/sup>&lt;/h3>
+&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-sh" data-lang="sh">&lt;span class="line">&lt;span class="cl">$ ffmpeg -i input.mp4 -vf &lt;span class="s2">&amp;#34;crop=out_w:out_h:x:y&amp;#34;&lt;/span> -c:a copy output.mp4
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;code>crop=&lt;/code> 后以 &lt;code>:&lt;/code> 分隔的四个参数分别表示：输出宽度、输出高度、左上角横坐标、左上角纵坐标。&lt;/p>
+&lt;h3 id="循环重复5">循环重复&lt;sup id="fnref:5">&lt;a href="#fn:5" class="footnote-ref" role="doc-noteref">5&lt;/a>&lt;/sup>&lt;/h3>
+&lt;p>循环重复 3 次：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-sh" data-lang="sh">&lt;span class="line">&lt;span class="cl">$ ffmpeg -stream_loop &lt;span class="m">3&lt;/span> -i input.mp4 -c copy output.mp4
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="合并多个同类文件而不转码6">合并多个同类文件而不转码&lt;sup id="fnref:6">&lt;a href="#fn:6" class="footnote-ref" role="doc-noteref">6&lt;/a>&lt;/sup>&lt;/h3>
+&lt;p>使用一个文本保存需合并的文件路径，如 &lt;code>input.txt&lt;/code>：&lt;/p>
+&lt;pre tabindex="0">&lt;code>file &amp;#39;path/to/part1.mp4&amp;#39;
+file &amp;#39;path/to/part2.mp4&amp;#39;
+file &amp;#39;path/to/part3.mp4&amp;#39;
+&lt;/code>&lt;/pre>&lt;p>然后：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-sh" data-lang="sh">&lt;span class="line">&lt;span class="cl">$ ffmpeg -f concat -i input.txt -c copy output.mp4
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="去隔行扫描7">去隔行扫描&lt;sup id="fnref:7">&lt;a href="#fn:7" class="footnote-ref" role="doc-noteref">7&lt;/a>&lt;/sup>&lt;/h3>
+&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-sh" data-lang="sh">&lt;span class="line">&lt;span class="cl">$ ffmpeg -i input.vob -vf yadif -c:a copy output.mp4
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="视频加速减速8">视频加速/减速&lt;sup id="fnref:8">&lt;a href="#fn:8" class="footnote-ref" role="doc-noteref">8&lt;/a>&lt;/sup>&lt;/h3>
+&lt;p>加速两倍：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-sh" data-lang="sh">&lt;span class="line">&lt;span class="cl">$ ffmpeg -i input.mp4 -vf &lt;span class="s2">&amp;#34;setpts=0.5*PTS&amp;#34;&lt;/span> output.mp4
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>减速一半：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-sh" data-lang="sh">&lt;span class="line">&lt;span class="cl">$ ffmpeg -i input.mp4 -vf &lt;span class="s2">&amp;#34;setpts=2*PTS&amp;#34;&lt;/span> output.mp4
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="视频反转9">视频反转&lt;sup id="fnref:9">&lt;a href="#fn:9" class="footnote-ref" role="doc-noteref">9&lt;/a>&lt;/sup>&lt;/h3>
+&lt;p>仅反转视频：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-sh" data-lang="sh">&lt;span class="line">&lt;span class="cl">$ ffmpeg -i input.mp4 -vf reverse output.mp4
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>同时反转视频和音频：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-sh" data-lang="sh">&lt;span class="line">&lt;span class="cl">$ ffmpeg -i input.mp4 -vf reverse -af areverse output.mp4
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="hev1-转-hvc110">hev1 转 hvc1&lt;sup id="fnref:10">&lt;a href="#fn:10" class="footnote-ref" role="doc-noteref">10&lt;/a>&lt;/sup>&lt;/h3>
+&lt;p>一些 HEVC 在 macOS 上无法显示缩略图，也无法用原生 APP 打开，这是因为使用了 hev1：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-sh" data-lang="sh">&lt;span class="line">&lt;span class="cl">$ ffprobe -v error -select_streams v -show_entries &lt;span class="nv">stream&lt;/span>&lt;span class="o">=&lt;/span>codec_tag_string -of &lt;span class="nv">default&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="nv">noprint_wrappers&lt;/span>&lt;span class="o">=&lt;/span>1:nokey&lt;span class="o">=&lt;/span>&lt;span class="m">1&lt;/span> input.mp4
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">hev1
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>转换为 hvc1 即可：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-sh" data-lang="sh">&lt;span class="line">&lt;span class="cl">$ ffmpeg -i input.mp4 -tag:v hvc1 -c copy output.mp4
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ ffprobe -v error -select_streams v -show_entries &lt;span class="nv">stream&lt;/span>&lt;span class="o">=&lt;/span>codec_tag_string -of &lt;span class="nv">default&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="nv">noprint_wrappers&lt;/span>&lt;span class="o">=&lt;/span>1:nokey&lt;span class="o">=&lt;/span>&lt;span class="m">1&lt;/span> output.mp4
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">hvc1
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="脚本">脚本&lt;/h2>
+&lt;h3 id="列出码率最高的视频">列出码率最高的视频&lt;/h3>
+&lt;p>默认列出前 10 个，不支持含换行符的文件名。&lt;/p>
+&lt;p>使用 &lt;code>-v&lt;/code> 选项以首个视频流码率列出（而不是总体码率），但不支持 MKV、TS、WebM 等容器。&lt;/p>
+&lt;figure style="margin:0 0 1.5em 0">&lt;figcaption style="text-align: right">
+&lt;a href="https://binac.org/code/video-related-commands-and-scripts/top-videos-by-bitrate.sh" style="color: lightslategrey;font-size: 0.8em">top-videos-by-bitrate.sh&lt;/a>
+&lt;/figcaption>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-sh" data-lang="sh">&lt;span class="line">&lt;span class="cl">&lt;span class="cp">#!/usr/bin/env sh
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">BRIEF&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="nb">false&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">VIDEO_EXT&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;3gp avi flv m4v mkv mov mp4 mpeg mpg ts vob webm wmv&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">NUM&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="m">10&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">VIDEO_BITRATE&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="nb">false&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">SCRIPT&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="k">$(&lt;/span>basename &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$0&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="k">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">USAGE&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="k">$(&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> cat &lt;span class="s">&amp;lt;&amp;lt;-END
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s">Usage: $SCRIPT [&amp;lt;options&amp;gt;] &amp;lt;path&amp;gt;...
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s">List top videos by bitrate.
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s"> -b do not prepend bitrate to output lines
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s"> -e &amp;lt;ext&amp;gt; video file extensions, separated by spaces, case-insensitive
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s"> defaults to &amp;#39;$VIDEO_EXT&amp;#39;
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s"> -n &amp;lt;num&amp;gt; list top num video files
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s"> defaults to &amp;#39;$NUM&amp;#39;
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s"> -v list by the first video stream bitrate instead of the overall bitrate
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s"> not applicable for containers like MKV, TS, WebM, etc
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s"> -h display this help and exit
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s">Home page: &amp;lt;https://binac.org/posts/video-related-commands-and-scripts/&amp;gt;
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s">END&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">error&lt;span class="o">()&lt;/span> &lt;span class="o">{&lt;/span> &lt;span class="nb">printf&lt;/span> &lt;span class="s2">&amp;#34;%s\n&amp;#34;&lt;/span> &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$@&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &amp;gt;&lt;span class="p">&amp;amp;&lt;/span>2&lt;span class="p">;&lt;/span> &lt;span class="o">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">_exit&lt;span class="o">()&lt;/span> &lt;span class="o">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> error &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$USAGE&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">exit&lt;/span> &lt;span class="m">2&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">while&lt;/span> &lt;span class="nb">getopts&lt;/span> &lt;span class="s2">&amp;#34;bhve:n:&amp;#34;&lt;/span> c&lt;span class="p">;&lt;/span> &lt;span class="k">do&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">case&lt;/span> &lt;span class="nv">$c&lt;/span> in
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> b&lt;span class="o">)&lt;/span> &lt;span class="nv">BRIEF&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="nb">true&lt;/span> &lt;span class="p">;;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> e&lt;span class="o">)&lt;/span> &lt;span class="nv">VIDEO_EXT&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="nv">$OPTARG&lt;/span> &lt;span class="p">;;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> n&lt;span class="o">)&lt;/span> &lt;span class="nv">NUM&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="nv">$OPTARG&lt;/span> &lt;span class="p">;;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> v&lt;span class="o">)&lt;/span> &lt;span class="nv">VIDEO_BITRATE&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="nb">true&lt;/span> &lt;span class="p">;;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> h&lt;span class="o">)&lt;/span> error &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$USAGE&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="o">&amp;amp;&amp;amp;&lt;/span> &lt;span class="nb">exit&lt;/span> &lt;span class="p">;;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> *&lt;span class="o">)&lt;/span> _exit &lt;span class="p">;;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">esac&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">done&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">is_integer&lt;span class="o">()&lt;/span> &lt;span class="o">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="o">[&lt;/span> -n &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$1&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="o">]&lt;/span> &lt;span class="o">&amp;amp;&amp;amp;&lt;/span> &lt;span class="o">[&lt;/span> &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$1&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> -eq &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$1&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="o">]&lt;/span> 2&amp;gt;/dev/null
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">is_integer &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$NUM&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="o">||&lt;/span> _exit
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">shift&lt;/span> &lt;span class="k">$((&lt;/span>OPTIND &lt;span class="o">-&lt;/span> &lt;span class="m">1&lt;/span>&lt;span class="k">))&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span> &lt;span class="nv">$#&lt;/span> -eq &lt;span class="m">0&lt;/span> &lt;span class="o">]&lt;/span> &lt;span class="o">&amp;amp;&amp;amp;&lt;/span> _exit
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">min&lt;span class="o">()&lt;/span> &lt;span class="o">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="o">[&lt;/span> &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$1&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> -le &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$2&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="o">]&lt;/span> &lt;span class="o">&amp;amp;&amp;amp;&lt;/span> &lt;span class="nb">echo&lt;/span> &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$1&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="o">||&lt;/span> &lt;span class="nb">echo&lt;/span> &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$2&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">get_bitrate&lt;span class="o">()&lt;/span> &lt;span class="o">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="o">[&lt;/span> &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$VIDEO_BITRATE&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nb">false&lt;/span> &lt;span class="o">]&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="k">then&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ffprobe -v error -show_entries &lt;span class="nv">format&lt;/span>&lt;span class="o">=&lt;/span>bit_rate -of &lt;span class="nv">default&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="nv">noprint_wrappers&lt;/span>&lt;span class="o">=&lt;/span>1:nokey&lt;span class="o">=&lt;/span>&lt;span class="m">1&lt;/span> &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$1&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">else&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ffprobe -v error -select_streams v:0 -show_entries &lt;span class="nv">stream&lt;/span>&lt;span class="o">=&lt;/span>bit_rate -of &lt;span class="nv">default&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="nv">noprint_wrappers&lt;/span>&lt;span class="o">=&lt;/span>1:nokey&lt;span class="o">=&lt;/span>&lt;span class="m">1&lt;/span> &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$1&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="p">|&lt;/span> head -n &lt;span class="m">1&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">fi&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">TMP_FILE&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="k">$(&lt;/span>mktemp&lt;span class="k">)&lt;/span> &lt;span class="o">||&lt;/span> &lt;span class="nb">exit&lt;/span> &lt;span class="m">1&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">trap&lt;/span> &lt;span class="s1">&amp;#39;rm -f &amp;#34;$TMP_FILE&amp;#34;&amp;#39;&lt;/span> EXIT
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">count&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="m">0&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">grep_expression&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="k">$(&lt;/span>&lt;span class="nb">echo&lt;/span> &lt;span class="s2">&amp;#34; &lt;/span>&lt;span class="nv">$VIDEO_EXT&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="p">|&lt;/span> sed &lt;span class="s1">&amp;#39;s/ /\$|\\./g&amp;#39;&lt;/span> &lt;span class="p">|&lt;/span> cut -c3-&lt;span class="k">)&lt;/span>$&lt;span class="s2">&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">find &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$@&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> -type f &lt;span class="p">|&lt;/span> grep -i -E &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$grep_expression&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="p">|&lt;/span> &lt;span class="k">while&lt;/span> &lt;span class="nv">IFS&lt;/span>&lt;span class="o">=&lt;/span> &lt;span class="nb">read&lt;/span> -r f&lt;span class="p">;&lt;/span> &lt;span class="k">do&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> : &lt;span class="k">$((&lt;/span>&lt;span class="nv">count&lt;/span> &lt;span class="o">+=&lt;/span> &lt;span class="m">1&lt;/span>&lt;span class="k">))&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">printf&lt;/span> &lt;span class="s2">&amp;#34;Detecting videos: %s\r&amp;#34;&lt;/span> &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$count&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &amp;gt;&lt;span class="p">&amp;amp;&lt;/span>&lt;span class="m">2&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nv">br&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="k">$(&lt;/span>get_bitrate &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$f&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="k">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> is_integer &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$br&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="k">then&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">echo&lt;/span> &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="k">$(&lt;/span>numfmt --to iec &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$br&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="k">)&lt;/span>&lt;span class="s2">|&lt;/span>&lt;span class="nv">$f&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &amp;gt;&amp;gt;&lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$TMP_FILE&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">else&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">printf&lt;/span> &lt;span class="s2">&amp;#34;\n%s\n&amp;#34;&lt;/span> &lt;span class="s2">&amp;#34;Cannot get bitrate: &lt;/span>&lt;span class="nv">$f&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &amp;gt;&lt;span class="p">&amp;amp;&lt;/span>&lt;span class="m">2&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">fi&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">done&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">count&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="k">$(&lt;/span>wc -l &amp;lt;&lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$TMP_FILE&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="p">|&lt;/span> xargs&lt;span class="k">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">printf&lt;/span> &lt;span class="s2">&amp;#34;\n&amp;#34;&lt;/span> &amp;gt;&lt;span class="p">&amp;amp;&lt;/span>&lt;span class="m">2&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">if&lt;/span> &lt;span class="o">[&lt;/span> &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$count&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> -eq &lt;span class="m">0&lt;/span> &lt;span class="o">]&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="k">then&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> error &lt;span class="s2">&amp;#34;No videos found&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">exit&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">else&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> error &lt;span class="s2">&amp;#34;Detected &lt;/span>&lt;span class="nv">$count&lt;/span>&lt;span class="s2"> videos&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">fi&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">error &lt;span class="s2">&amp;#34;Top &lt;/span>&lt;span class="k">$(&lt;/span>min &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$NUM&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$count&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="k">)&lt;/span>&lt;span class="s2"> videos by bitrate:&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span> &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$BRIEF&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nb">true&lt;/span> &lt;span class="o">]&lt;/span> &lt;span class="o">||&lt;/span> &lt;span class="nb">printf&lt;/span> &lt;span class="s2">&amp;#34;%-16s%s\n&amp;#34;&lt;/span> &lt;span class="s2">&amp;#34;Bitrate&amp;#34;&lt;/span> &lt;span class="s2">&amp;#34;File&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">sort -t &lt;span class="s1">&amp;#39;|&amp;#39;&lt;/span> -k1 -hr &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$TMP_FILE&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="p">|&lt;/span> head -n &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$NUM&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="p">|&lt;/span> &lt;span class="k">while&lt;/span> &lt;span class="nv">IFS&lt;/span>&lt;span class="o">=&lt;/span> &lt;span class="nb">read&lt;/span> -r line&lt;span class="p">;&lt;/span> &lt;span class="k">do&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nv">br&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="k">$(&lt;/span>&lt;span class="nb">echo&lt;/span> &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="si">${&lt;/span>&lt;span class="nv">line&lt;/span>&lt;span class="p">%%|*&lt;/span>&lt;span class="si">}&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="p">|&lt;/span> xargs&lt;span class="k">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nv">f&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="si">${&lt;/span>&lt;span class="nv">line&lt;/span>&lt;span class="p">#*|&lt;/span>&lt;span class="si">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="o">[&lt;/span> &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$BRIEF&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nb">true&lt;/span> &lt;span class="o">]&lt;/span> &lt;span class="o">&amp;amp;&amp;amp;&lt;/span> &lt;span class="nb">echo&lt;/span> &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$f&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="o">||&lt;/span> &lt;span class="nb">printf&lt;/span> &lt;span class="s2">&amp;#34;%-16s%s\n&amp;#34;&lt;/span> &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$br&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$f&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">done&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/figure>
+&lt;p>示例：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-sh" data-lang="sh">&lt;span class="line">&lt;span class="cl">$ top-videos-by-bitrate.sh -n &lt;span class="m">3&lt;/span> /path/to/videos
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Detecting videos: &lt;span class="m">100&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Detected &lt;span class="m">100&lt;/span> videos
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Top &lt;span class="m">3&lt;/span> videos by bitrate:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Bitrate File
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">8.8M /path/to/videos/1.mp4
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">4.2M /path/to/videos/2/3.avi
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">3.8M /path/to/videos/4/5/6.mkv
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="列出占用空间最大的视频">列出占用空间最大的视频&lt;/h3>
+&lt;p>使用 du 命令检测磁盘占用空间（而不是实际大小）。&lt;/p>
+&lt;p>默认列出前 10 个，不支持含换行符的文件名。&lt;/p>
+&lt;figure style="margin:0 0 1.5em 0">&lt;figcaption style="text-align: right">
+&lt;a href="https://binac.org/code/video-related-commands-and-scripts/top-videos-by-size.sh" style="color: lightslategrey;font-size: 0.8em">top-videos-by-size.sh&lt;/a>
+&lt;/figcaption>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-sh" data-lang="sh">&lt;span class="line">&lt;span class="cl">&lt;span class="cp">#!/usr/bin/env sh
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">BRIEF&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="nb">false&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">VIDEO_EXT&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;3gp avi flv m4v mkv mov mp4 mpeg mpg ts vob webm wmv&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">NUM&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="m">10&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">SCRIPT&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="k">$(&lt;/span>basename &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$0&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="k">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">USAGE&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="k">$(&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> cat &lt;span class="s">&amp;lt;&amp;lt;-END
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s">Usage: $SCRIPT [&amp;lt;options&amp;gt;] &amp;lt;path&amp;gt;...
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s">List top videos by size.
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s"> -b do not prepend size to output lines
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s"> -e &amp;lt;ext&amp;gt; video file extensions, separated by spaces, case-insensitive
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s"> defaults to &amp;#39;$VIDEO_EXT&amp;#39;
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s"> -n &amp;lt;num&amp;gt; list top num video files
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s"> defaults to &amp;#39;$NUM&amp;#39;
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s"> -h display this help and exit
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s">Home page: &amp;lt;https://binac.org/posts/video-related-commands-and-scripts/&amp;gt;
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s">END&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">error&lt;span class="o">()&lt;/span> &lt;span class="o">{&lt;/span> &lt;span class="nb">printf&lt;/span> &lt;span class="s2">&amp;#34;%s\n&amp;#34;&lt;/span> &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$@&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &amp;gt;&lt;span class="p">&amp;amp;&lt;/span>2&lt;span class="p">;&lt;/span> &lt;span class="o">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">_exit&lt;span class="o">()&lt;/span> &lt;span class="o">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> error &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$USAGE&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">exit&lt;/span> &lt;span class="m">2&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">while&lt;/span> &lt;span class="nb">getopts&lt;/span> &lt;span class="s2">&amp;#34;bhe:n:&amp;#34;&lt;/span> c&lt;span class="p">;&lt;/span> &lt;span class="k">do&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">case&lt;/span> &lt;span class="nv">$c&lt;/span> in
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> b&lt;span class="o">)&lt;/span> &lt;span class="nv">BRIEF&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="nb">true&lt;/span> &lt;span class="p">;;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> e&lt;span class="o">)&lt;/span> &lt;span class="nv">VIDEO_EXT&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="nv">$OPTARG&lt;/span> &lt;span class="p">;;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> n&lt;span class="o">)&lt;/span> &lt;span class="nv">NUM&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="nv">$OPTARG&lt;/span> &lt;span class="p">;;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> h&lt;span class="o">)&lt;/span> error &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$USAGE&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="o">&amp;amp;&amp;amp;&lt;/span> &lt;span class="nb">exit&lt;/span> &lt;span class="p">;;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> *&lt;span class="o">)&lt;/span> _exit &lt;span class="p">;;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">esac&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">done&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">is_integer&lt;span class="o">()&lt;/span> &lt;span class="o">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="o">[&lt;/span> -n &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$1&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="o">]&lt;/span> &lt;span class="o">&amp;amp;&amp;amp;&lt;/span> &lt;span class="o">[&lt;/span> &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$1&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> -eq &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$1&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="o">]&lt;/span> 2&amp;gt;/dev/null
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">is_integer &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$NUM&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="o">||&lt;/span> _exit
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">shift&lt;/span> &lt;span class="k">$((&lt;/span>OPTIND &lt;span class="o">-&lt;/span> &lt;span class="m">1&lt;/span>&lt;span class="k">))&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span> &lt;span class="nv">$#&lt;/span> -eq &lt;span class="m">0&lt;/span> &lt;span class="o">]&lt;/span> &lt;span class="o">&amp;amp;&amp;amp;&lt;/span> _exit
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">min&lt;span class="o">()&lt;/span> &lt;span class="o">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="o">[&lt;/span> &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$1&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> -le &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$2&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="o">]&lt;/span> &lt;span class="o">&amp;amp;&amp;amp;&lt;/span> &lt;span class="nb">echo&lt;/span> &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$1&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="o">||&lt;/span> &lt;span class="nb">echo&lt;/span> &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$2&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">TMP_FILE&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="k">$(&lt;/span>mktemp&lt;span class="k">)&lt;/span> &lt;span class="o">||&lt;/span> &lt;span class="nb">exit&lt;/span> &lt;span class="m">1&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">trap&lt;/span> &lt;span class="s1">&amp;#39;rm -f &amp;#34;$TMP_FILE&amp;#34;&amp;#39;&lt;/span> EXIT
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">grep_expression&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="k">$(&lt;/span>&lt;span class="nb">echo&lt;/span> &lt;span class="s2">&amp;#34; &lt;/span>&lt;span class="nv">$VIDEO_EXT&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="p">|&lt;/span> sed &lt;span class="s1">&amp;#39;s/ /\$|\\./g&amp;#39;&lt;/span> &lt;span class="p">|&lt;/span> cut -c3-&lt;span class="k">)&lt;/span>$&lt;span class="s2">&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">find &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$@&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> -type f -exec du -h &lt;span class="o">{}&lt;/span> + &lt;span class="p">|&lt;/span> grep -i -E &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$grep_expression&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="p">|&lt;/span> sort -h -r &amp;gt;&lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$TMP_FILE&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">count&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="k">$(&lt;/span>wc -l &amp;lt;&lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$TMP_FILE&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="p">|&lt;/span> xargs&lt;span class="k">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">if&lt;/span> &lt;span class="o">[&lt;/span> &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$count&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> -eq &lt;span class="m">0&lt;/span> &lt;span class="o">]&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="k">then&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> error &lt;span class="s2">&amp;#34;No videos found&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">exit&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">else&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> error &lt;span class="s2">&amp;#34;Detected &lt;/span>&lt;span class="nv">$count&lt;/span>&lt;span class="s2"> videos&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">fi&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">error &lt;span class="s2">&amp;#34;Top &lt;/span>&lt;span class="k">$(&lt;/span>min &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$NUM&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$count&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="k">)&lt;/span>&lt;span class="s2"> videos by size:&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span> &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$BRIEF&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nb">true&lt;/span> &lt;span class="o">]&lt;/span> &lt;span class="o">||&lt;/span> &lt;span class="nb">printf&lt;/span> &lt;span class="s2">&amp;#34;%-16s%s\n&amp;#34;&lt;/span> &lt;span class="s2">&amp;#34;Size&amp;#34;&lt;/span> &lt;span class="s2">&amp;#34;File&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">head -n &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$NUM&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$TMP_FILE&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="p">|&lt;/span> &lt;span class="k">while&lt;/span> &lt;span class="nv">IFS&lt;/span>&lt;span class="o">=&lt;/span> &lt;span class="nb">read&lt;/span> -r line&lt;span class="p">;&lt;/span> &lt;span class="k">do&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nv">sz&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="k">$(&lt;/span>&lt;span class="nb">echo&lt;/span> &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="si">${&lt;/span>&lt;span class="nv">line&lt;/span>&lt;span class="p">%% *&lt;/span>&lt;span class="si">}&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="p">|&lt;/span> xargs&lt;span class="k">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nv">f&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="si">${&lt;/span>&lt;span class="nv">line&lt;/span>&lt;span class="p">#* &lt;/span>&lt;span class="si">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="o">[&lt;/span> &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$BRIEF&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nb">true&lt;/span> &lt;span class="o">]&lt;/span> &lt;span class="o">&amp;amp;&amp;amp;&lt;/span> &lt;span class="nb">echo&lt;/span> &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$f&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="o">||&lt;/span> &lt;span class="nb">printf&lt;/span> &lt;span class="s2">&amp;#34;%-16s%s\n&amp;#34;&lt;/span> &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$sz&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$f&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">done&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/figure>
+&lt;p>示例：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-sh" data-lang="sh">&lt;span class="line">&lt;span class="cl">$ top-videos-by-size.sh -n &lt;span class="m">3&lt;/span> /path/to/videos
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Detected &lt;span class="m">100&lt;/span> videos
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Top &lt;span class="m">3&lt;/span> videos by size:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Size File
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">4.2G /path/to/videos/1.mp4
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">420M /path/to/videos/2/3.avi
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">42M /path/to/videos/4/5/6.mkv
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="hevc-转码">HEVC 转码&lt;/h3>
+&lt;p>将文件批量转为 HEVC 编码，只转码首条视频流，其他视频流、音频流、字幕流原封不动。&lt;/p>
+&lt;p>默认会忽略本身已经是 hevc/av1/vp9 编码的文件，因为这些编码已经效率很高了。使用 &lt;code>-c &amp;lt;codecs&amp;gt;&lt;/code> 指定需要忽略的编码。&lt;/p>
+&lt;figure style="margin:0 0 1.5em 0">&lt;figcaption style="text-align: right">
+&lt;a href="https://binac.org/code/video-related-commands-and-scripts/hevcize.sh" style="color: lightslategrey;font-size: 0.8em">hevcize.sh&lt;/a>
+&lt;/figcaption>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-sh" data-lang="sh">&lt;span class="line">&lt;span class="cl">&lt;span class="cp">#!/usr/bin/env sh
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">ARGUMENTS&lt;/span>&lt;span class="o">=&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">CODEC_WHITELIST&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;hevc av1 vp9&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">AVAILABLE_ENCODERS&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="k">$(&lt;/span>ffmpeg -codecs 2&amp;gt;/dev/null &lt;span class="p">|&lt;/span> grep &lt;span class="s1">&amp;#39;^.\{8\}hevc&amp;#39;&lt;/span> &lt;span class="p">|&lt;/span> sed -n &lt;span class="s1">&amp;#39;s/.*(encoders: \([^)]*\)).*/\1/p&amp;#39;&lt;/span> &lt;span class="p">|&lt;/span> xargs&lt;span class="k">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">ENCODER&lt;/span>&lt;span class="o">=&lt;/span>libx265
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">OUTPUT_DIR&lt;/span>&lt;span class="o">=&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">SCRIPT&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="k">$(&lt;/span>basename &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$0&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="k">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">USAGE&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="k">$(&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> cat &lt;span class="s">&amp;lt;&amp;lt;-END
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s">Usage: $SCRIPT [&amp;lt;options&amp;gt;] &amp;lt;file&amp;gt;...
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s">List top videos by size.
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s"> -a &amp;lt;args&amp;gt; pass extra arguments to ffmpeg
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s"> -c &amp;lt;codecs&amp;gt; videos with these codecs will NOT be encoded
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s"> defaults to &amp;#39;$CODEC_WHITELIST&amp;#39;
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s"> -e &amp;lt;encoder&amp;gt; set HEVC encoder, this could accelerate transcoding but reduce the quality
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s"> you may need to use &amp;#39;-a &amp;lt;args&amp;gt;&amp;#39;
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s"> available encoders: $AVAILABLE_ENCODERS
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s"> defaults to &amp;#39;$ENCODER&amp;#39;
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s"> -o &amp;lt;dir&amp;gt; set output directory
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s"> by default, the output file will be placed in the same directory as the original video
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s"> -h display this help and exit
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s">Home page: &amp;lt;https://binac.org/posts/video-related-commands-and-scripts/&amp;gt;
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s">END&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">THIN_LINE&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="k">$(&lt;/span>&lt;span class="nb">printf&lt;/span> &lt;span class="s1">&amp;#39;%.s-&amp;#39;&lt;/span> &lt;span class="k">$(&lt;/span>seq &lt;span class="m">1&lt;/span> 80&lt;span class="k">))&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">BOLD_LINE&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="k">$(&lt;/span>&lt;span class="nb">printf&lt;/span> &lt;span class="s1">&amp;#39;%.s=&amp;#39;&lt;/span> &lt;span class="k">$(&lt;/span>seq &lt;span class="m">1&lt;/span> 80&lt;span class="k">))&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">error&lt;span class="o">()&lt;/span> &lt;span class="o">{&lt;/span> &lt;span class="nb">printf&lt;/span> &lt;span class="s2">&amp;#34;%s\n&amp;#34;&lt;/span> &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$@&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &amp;gt;&lt;span class="p">&amp;amp;&lt;/span>2&lt;span class="p">;&lt;/span> &lt;span class="o">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">_exit&lt;span class="o">()&lt;/span> &lt;span class="o">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> error &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$USAGE&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">exit&lt;/span> &lt;span class="m">2&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">while&lt;/span> &lt;span class="nb">getopts&lt;/span> &lt;span class="s2">&amp;#34;ha:c:e:o:&amp;#34;&lt;/span> c&lt;span class="p">;&lt;/span> &lt;span class="k">do&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">case&lt;/span> &lt;span class="nv">$c&lt;/span> in
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> a&lt;span class="o">)&lt;/span> &lt;span class="nv">ARGUMENTS&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="nv">$OPTARG&lt;/span> &lt;span class="p">;;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> c&lt;span class="o">)&lt;/span> &lt;span class="nv">CODEC_WHITELIST&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="nv">$OPTARG&lt;/span> &lt;span class="p">;;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> e&lt;span class="o">)&lt;/span> &lt;span class="nv">ENCODER&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="nv">$OPTARG&lt;/span> &lt;span class="p">;;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> o&lt;span class="o">)&lt;/span> &lt;span class="nv">OUTPUT_DIR&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="nv">$OPTARG&lt;/span> &lt;span class="p">;;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> h&lt;span class="o">)&lt;/span> error &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$USAGE&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="o">&amp;amp;&amp;amp;&lt;/span> &lt;span class="nb">exit&lt;/span> &lt;span class="p">;;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> *&lt;span class="o">)&lt;/span> _exit &lt;span class="p">;;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">esac&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">done&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">contains&lt;span class="o">()&lt;/span> &lt;span class="o">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">echo&lt;/span> &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$1&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="p">|&lt;/span> grep -qs &lt;span class="s2">&amp;#34;\&amp;lt;&lt;/span>&lt;span class="nv">$2&lt;/span>&lt;span class="s2">\&amp;gt;&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">if&lt;/span> ! contains &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$AVAILABLE_ENCODERS&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$ENCODER&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="k">then&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> error &lt;span class="s2">&amp;#34;Invalid encoder: &amp;#39;&lt;/span>&lt;span class="nv">$ENCODER&lt;/span>&lt;span class="s2">&amp;#39;&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> _exit
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">fi&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">if&lt;/span> &lt;span class="o">[&lt;/span> -z &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$ARGUMENTS&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="o">]&lt;/span> &lt;span class="o">&amp;amp;&amp;amp;&lt;/span> &lt;span class="o">[&lt;/span> &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$ENCODER&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="o">=&lt;/span> libx265 &lt;span class="o">]&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="k">then&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nv">ARGUMENTS&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;-x265-params log-level=error&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">fi&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">if&lt;/span> &lt;span class="o">[&lt;/span> -n &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$OUTPUT_DIR&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="o">]&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="k">then&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="o">[&lt;/span> ! -d &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$OUTPUT_DIR&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="o">]&lt;/span> &lt;span class="o">||&lt;/span> &lt;span class="o">[&lt;/span> ! -w &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$OUTPUT_DIR&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="o">]&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="k">then&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> error &lt;span class="s2">&amp;#34;Cannot access: &amp;#39;&lt;/span>&lt;span class="nv">$OUTPUT_DIR&lt;/span>&lt;span class="s2">&amp;#39;&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">exit&lt;/span> &lt;span class="m">1&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">fi&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nv">OUTPUT_DIR&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="k">$(&lt;/span>realpath &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$OUTPUT_DIR&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="k">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">fi&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">shift&lt;/span> &lt;span class="k">$((&lt;/span>OPTIND &lt;span class="o">-&lt;/span> &lt;span class="m">1&lt;/span>&lt;span class="k">))&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span> &lt;span class="nv">$#&lt;/span> -eq &lt;span class="m">0&lt;/span> &lt;span class="o">]&lt;/span> &lt;span class="o">&amp;amp;&amp;amp;&lt;/span> _exit
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">do_ffmpeg&lt;span class="o">()&lt;/span> &lt;span class="o">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="o">[&lt;/span> -f &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$2&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="o">]&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="k">then&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> error &lt;span class="s2">&amp;#34;File already exists: &amp;#39;&lt;/span>&lt;span class="nv">$2&lt;/span>&lt;span class="s2">&amp;#39;&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="m">0&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">fi&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> ffmpeg -nostdin -v error -hide_banner -stats -i &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$1&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> -map &lt;span class="m">0&lt;/span> -c copy -c:v:0 &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$ENCODER&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="nv">$ARGUMENTS&lt;/span> -tag:v:0 hvc1 &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$2&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="k">then&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> error &lt;span class="s2">&amp;#34;==&amp;gt; &amp;#39;&lt;/span>&lt;span class="nv">$2&lt;/span>&lt;span class="s2">&amp;#39;&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">else&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> rm -f &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$2&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="m">1&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">fi&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">FAIL_LIST&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="k">$(&lt;/span>mktemp&lt;span class="k">)&lt;/span> &lt;span class="o">||&lt;/span> &lt;span class="nb">exit&lt;/span> &lt;span class="m">1&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">trap&lt;/span> &lt;span class="s1">&amp;#39;rm -f &amp;#34;$FAIL_LIST&amp;#34;&amp;#39;&lt;/span> EXIT
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">count&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="m">1&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">total&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$#&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">for&lt;/span> f in &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$@&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="k">do&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> error &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$THIN_LINE&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> error &lt;span class="s2">&amp;#34;==&amp;gt; &lt;/span>&lt;span class="nv">$count&lt;/span>&lt;span class="s2">/&lt;/span>&lt;span class="nv">$total&lt;/span>&lt;span class="s2">: &amp;#39;&lt;/span>&lt;span class="nv">$f&lt;/span>&lt;span class="s2">&amp;#39;&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> : &lt;span class="k">$((&lt;/span>&lt;span class="nv">count&lt;/span> &lt;span class="o">+=&lt;/span> &lt;span class="m">1&lt;/span>&lt;span class="k">))&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nv">vc&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="k">$(&lt;/span>ffprobe &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$f&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> -v error -select_streams v:0 -show_entries &lt;span class="nv">stream&lt;/span>&lt;span class="o">=&lt;/span>codec_name -of &lt;span class="nv">default&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="nv">noprint_wrappers&lt;/span>&lt;span class="o">=&lt;/span>1:nokey&lt;span class="o">=&lt;/span>&lt;span class="m">1&lt;/span> &lt;span class="p">|&lt;/span> head -n 1&lt;span class="k">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="o">[&lt;/span> -z &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$vc&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="o">]&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="k">then&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> error &lt;span class="s2">&amp;#34;Unknown input: &amp;#39;&lt;/span>&lt;span class="nv">$f&lt;/span>&lt;span class="s2">&amp;#39;&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">echo&lt;/span> &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$f&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &amp;gt;&amp;gt;&lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$FAIL_LIST&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">continue&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">fi&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> contains &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$CODEC_WHITELIST&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$vc&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="k">then&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> error &lt;span class="s2">&amp;#34;Skipping codec: &amp;#39;&lt;/span>&lt;span class="nv">$vc&lt;/span>&lt;span class="s2">&amp;#39;&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">continue&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">fi&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="o">[&lt;/span> -n &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$OUTPUT_DIR&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="o">]&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="k">then&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nv">output&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$OUTPUT_DIR&lt;/span>&lt;span class="s2">/&lt;/span>&lt;span class="k">$(&lt;/span>basename &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$f&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="k">)&lt;/span>&lt;span class="s2">.HEVC.mp4&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">else&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nv">output&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$f&lt;/span>&lt;span class="s2">.HEVC.mp4&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">fi&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> do_ffmpeg &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$f&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$output&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="o">&amp;amp;&amp;amp;&lt;/span> &lt;span class="k">continue&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> error &lt;span class="s2">&amp;#34;Unable to use MP4 container, retrying with MKV&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nv">output&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="si">${&lt;/span>&lt;span class="nv">output&lt;/span>&lt;span class="p">%.*&lt;/span>&lt;span class="si">}&lt;/span>&lt;span class="s2">.mkv&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> do_ffmpeg &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$f&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$output&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="o">&amp;amp;&amp;amp;&lt;/span> &lt;span class="k">continue&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> error &lt;span class="s2">&amp;#34;Unable to use MKV container&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> error &lt;span class="s2">&amp;#34;Skipping file: &amp;#39;&lt;/span>&lt;span class="nv">$f&lt;/span>&lt;span class="s2">&amp;#39;&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">echo&lt;/span> &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$f&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &amp;gt;&amp;gt;&lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$FAIL_LIST&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">done&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">if&lt;/span> &lt;span class="o">[&lt;/span> -s &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$FAIL_LIST&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="o">]&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="k">then&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> error &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$BOLD_LINE&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> error &lt;span class="s2">&amp;#34;Unable to encode the following &lt;/span>&lt;span class="k">$(&lt;/span>wc -l &amp;lt;&lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$FAIL_LIST&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="p">|&lt;/span> xargs&lt;span class="k">)&lt;/span>&lt;span class="s2"> files:&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> cat &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$FAIL_LIST&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &amp;gt;&lt;span class="p">&amp;amp;&lt;/span>&lt;span class="m">2&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">exit&lt;/span> &lt;span class="m">1&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">fi&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/figure>
+&lt;h4 id="已知问题">已知问题&lt;/h4>
+&lt;p>一些视频除了视频流、音频流、字幕流外，还带有数据流、附件流，这些流可能无法在转码后的容器中支持（即使转码前后容器相同）&lt;sup id="fnref:11">&lt;a href="#fn:11" class="footnote-ref" role="doc-noteref">11&lt;/a>&lt;/sup>。以下是一个容器无法支持数据流的报错：&lt;/p>
+&lt;pre tabindex="0">&lt;code>[mp4 @ 0x55af0c59d0c0] Could not find tag for codec none in stream #3, codec not currently supported in container
+Could not write header for output file #0 (incorrect codec parameters ?): Invalid argument
+Error initializing output stream 0:0 --
+Unable to use MP4 container, retrying with MKV
+[matroska @ 0x55ceccef70c0] Only audio, video, and subtitles are supported for Matroska.
+Could not write header for output file #0 (incorrect codec parameters ?): Invalid argument
+Error initializing output stream 0:0 --
+&lt;/code>&lt;/pre>&lt;p>此时可以手动转码并使用 &lt;code>-map -0:d&lt;/code> 丢弃数据流：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-sh" data-lang="sh">&lt;span class="line">&lt;span class="cl">$ ffmpeg -i input.mp4 -map &lt;span class="m">0&lt;/span> -map -0:d -c copy -c:v libx265 output.mp4
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>另外，由于脚本只使用 MP4 和 MKV 尝试，也可能存在不支持的音频流和字幕流等&lt;sup id="fnref:12">&lt;a href="#fn:12" class="footnote-ref" role="doc-noteref">12&lt;/a>&lt;/sup>，此时也可以按需转码或丢弃，例如音频转码 &lt;code>-c:a acc&lt;/code>，丢弃字幕 &lt;code>-map -0:s&lt;/code>。&lt;/p>
+&lt;h4 id="示例">示例&lt;/h4>
+&lt;h5 id="批量转码">批量转码&lt;/h5>
+&lt;p>支持通配符：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-sh" data-lang="sh">&lt;span class="line">&lt;span class="cl">$ hevcize.sh /path/to/videos/1.mp4 /path/to/videos/2/3.avi /path/to/videos/4/5/6.mkv
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ hevcize.sh /path/to/videos/*.mp4
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>将 &lt;code>/path/to/videos&lt;/code> 下所有文件进行转码，结果保存在当前目录：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-sh" data-lang="sh">&lt;span class="line">&lt;span class="cl">$ find /path/to/videos -type f -exec hevcize.sh -o . &lt;span class="o">{}&lt;/span> +
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h5 id="显卡加速">显卡加速&lt;/h5>
+&lt;p>比如 NVIDIA 显卡可以使用 hevc_nvenc 编码器进行加速，Intel 显卡使用 hevc_qsv，这些都需要硬件和驱动支持。&lt;/p>
+&lt;p>macOS 使用 hevc_videotoolbox 编码器进行显卡加速（&lt;code>hevcize.sh -h&lt;/code> 查看有哪些可用编码器）：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-sh" data-lang="sh">&lt;span class="line">&lt;span class="cl">$ hevecize.sh -e hevc_videotoolbox /path/to/videos/1.mp4
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">--------------------------------------------------------------------------------
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">==&lt;/span>&amp;gt; 1/1: &lt;span class="s1">&amp;#39;/path/to/videos/1.mp4&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">frame&lt;/span>&lt;span class="o">=&lt;/span> &lt;span class="m">8000&lt;/span> &lt;span class="nv">fps&lt;/span>&lt;span class="o">=&lt;/span> &lt;span class="m">80&lt;/span> &lt;span class="nv">q&lt;/span>&lt;span class="o">=&lt;/span>-0.0 &lt;span class="nv">Lsize&lt;/span>&lt;span class="o">=&lt;/span> 15000kB &lt;span class="nv">time&lt;/span>&lt;span class="o">=&lt;/span>00:05:00.00 &lt;span class="nv">bitrate&lt;/span>&lt;span class="o">=&lt;/span> 500.0kbits/s &lt;span class="nv">dup&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="m">33&lt;/span> &lt;span class="nv">drop&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="m">23&lt;/span> &lt;span class="nv">speed&lt;/span>&lt;span class="o">=&lt;/span>3.00x
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">==&lt;/span>&amp;gt; &lt;span class="s1">&amp;#39;/path/to/videos/1.mp4.HEVC.mp4&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>显卡加速转码很快，CPU 占用率低，但比起默认的 libx265（CPU 软编码）质量较差。&lt;/p>
+&lt;p>通过 &lt;code>-a &amp;lt;args&amp;gt;&lt;/code> 可以传递更多参数给 ffmpeg。&lt;/p>
+&lt;div class="footnotes" role="doc-endnotes">
+&lt;hr>
+&lt;ol>
+&lt;li id="fn:1">
+&lt;p>&lt;a href="https://superuser.com/a/141343"target="_blank" rel="noopener noreferrer">https://superuser.com/a/141343&lt;/a>&amp;#160;&lt;a href="#fnref:1" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li id="fn:2">
+&lt;p>&lt;a href="https://superuser.com/a/432379"target="_blank" rel="noopener noreferrer">https://superuser.com/a/432379&lt;/a>&amp;#160;&lt;a href="#fnref:2" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li id="fn:3">
+&lt;p>&lt;a href="https://stackoverflow.com/a/31683689"target="_blank" rel="noopener noreferrer">https://stackoverflow.com/a/31683689&lt;/a>&amp;#160;&lt;a href="#fnref:3" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li id="fn:4">
+&lt;p>&lt;a href="https://video.stackexchange.com/a/4571"target="_blank" rel="noopener noreferrer">https://video.stackexchange.com/a/4571&lt;/a>&amp;#160;&lt;a href="#fnref:4" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li id="fn:5">
+&lt;p>&lt;a href="https://stackoverflow.com/a/51002586"target="_blank" rel="noopener noreferrer">https://stackoverflow.com/a/51002586&lt;/a>&amp;#160;&lt;a href="#fnref:5" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li id="fn:6">
+&lt;p>&lt;a href="https://stackoverflow.com/a/49373401"target="_blank" rel="noopener noreferrer">https://stackoverflow.com/a/49373401&lt;/a>&amp;#160;&lt;a href="#fnref:6" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li id="fn:7">
+&lt;p>&lt;a href="https://video.stackexchange.com/a/17397"target="_blank" rel="noopener noreferrer">https://video.stackexchange.com/a/17397&lt;/a>&amp;#160;&lt;a href="#fnref:7" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li id="fn:8">
+&lt;p>&lt;a href="https://trac.ffmpeg.org/wiki/How%20to%20speed%20up%20/%20slow%20down%20a%20video"target="_blank" rel="noopener noreferrer">https://trac.ffmpeg.org/wiki/How%20to%20speed%20up%20/%20slow%20down%20a%20video&lt;/a>&amp;#160;&lt;a href="#fnref:8" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li id="fn:9">
+&lt;p>&lt;a href="https://video.stackexchange.com/a/17739"target="_blank" rel="noopener noreferrer">https://video.stackexchange.com/a/17739&lt;/a>&amp;#160;&lt;a href="#fnref:9" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li id="fn:10">
+&lt;p>&lt;a href="https://stackoverflow.com/a/46540577"target="_blank" rel="noopener noreferrer">https://stackoverflow.com/a/46540577&lt;/a>&amp;#160;&lt;a href="#fnref:10" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li id="fn:11">
+&lt;p>&lt;a href="https://stackoverflow.com/a/69529533"target="_blank" rel="noopener noreferrer">https://stackoverflow.com/a/69529533&lt;/a>&amp;#160;&lt;a href="#fnref:11" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li id="fn:12">
+&lt;p>&lt;a href="https://en.wikipedia.org/wiki/Comparison_of_video_container_formats"target="_blank" rel="noopener noreferrer">https://en.wikipedia.org/wiki/Comparison_of_video_container_formats&lt;/a>&amp;#160;&lt;a href="#fnref:12" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;/div></description></item><item><title>在 Linux 上使用 Exim4 发送邮件</title><link>https://binac.org/posts/send-email-with-exim4-in-linux/</link><pubDate>Fri, 12 May 2023 00:40:40 +0800</pubDate><guid>https://binac.org/posts/send-email-with-exim4-in-linux/</guid><description>&lt;p>带有 GUI 的 Linux 可以直接使用集成的邮件客户端，比如 Thunderbird。但在服务器上，发送邮件需要一些配置，踩一些坑。&lt;/p>
+&lt;p>邮件系统由三个部分组成：&lt;/p>
+&lt;ul>
+&lt;li>Mail User Agent (MUA)，发送和接收邮件。&lt;/li>
+&lt;li>Mail Transfer Agent (MTA)，在计算机之间传输邮件。&lt;/li>
+&lt;li>Mail Delivery Agent (MDA)，将收到的邮件投递到用户收件箱。&lt;/li>
+&lt;/ul>
+&lt;p>MUA 我使用的是 GNU Mailutils，MTA/MDA 使用的是 Exim4。&lt;/p>
+&lt;p>&lt;del>下面以网易 163 邮箱为例，&lt;/del> 说明怎么在 Debian 11 上配置 Exim4。&lt;/p>
+&lt;p>脑瘫的网易把我服务器 IP 屏蔽了，发邮件就报 553 错误：&lt;/p>
+&lt;pre tabindex="0">&lt;code>1rbFr0-005yuc-14 &amp;lt;= fuck.netease@163.com U=root P=local S=459
+1rbFr0-005yuc-14 H=smtp163.mail.ntes53.netease.com [103.129.252.45] TLS error on connection (recv): The TLS connection was non-properly terminated.
+1rbFr0-005yuc-14 ** ?@hotmail.com R=smarthost T=remote_smtp_smarthost H=smtp163.mail.ntes53.netease.com [103.129.252.45] X=TLS1.3:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256 CV=yes DN=&amp;#34;C=CN,ST=zhejiang,L=hangzhou,O=NetEase (Hangzhou) Network Co.\, Ltd,CN=*.163.com&amp;#34;: SMTP error from remote mail server after pipelined MAIL FROM:&amp;lt;fuck.netease@163.com&amp;gt;: 553 authentication is required,163 zwqz-smtp-mta-g5-0,_____wD3_4Uba9BlKz4cCQ--.10347S2 1708157724
+1rbFr3-005yug-0L &amp;lt;= &amp;lt;&amp;gt; R=1rbFr0-005yuc-14 U=Debian-exim P=local S=2232
+1rbFr0-005yuc-14 Completed
+1rbFr3-005yug-0L H=smtp163.mail.ntes53.netease.com [103.129.252.45] TLS error on connection (recv): The TLS connection was non-properly terminated.
+1rbFr3-005yug-0L ** fuck.netease@163.com R=smarthost T=remote_smtp_smarthost H=smtp163.mail.ntes53.netease.com [103.129.252.45] X=TLS1.3:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256 CV=yes DN=&amp;#34;C=CN,ST=zhejiang,L=hangzhou,O=NetEase (Hangzhou) Network Co.\, Ltd,CN=*.163.com&amp;#34;: SMTP error from remote mail server after pipelined MAIL FROM:&amp;lt;&amp;gt;: 553 NULL sender is not allowed,163 zwqz-smtp-mta-g5-3,_____wD3_7kda9Bly_Y5Aw--.8516S2 1708157726
+1rbFr3-005yug-0L Frozen (delivery error message)
+&lt;/code>&lt;/pre>&lt;p>换 QQ 邮箱了，但是教程对网易也适用，前提是你的 IP 没被屏蔽。&lt;/p>
+&lt;p>先安装：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-sh" data-lang="sh">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># apt install exim4 mailutils&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="smtp-端口号">SMTP 端口号&lt;/h2>
+&lt;h3 id="25">25&lt;/h3>
+&lt;p>25 端口最初作为明文传输的 SMTP 端口，现在经常被 ISP 和云服务器提供商屏蔽，说是为了防止垃圾邮件。颇有点掩耳盗铃的意思。&lt;/p>
+&lt;p>使用 telnet 检测端口是否可用：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-sh" data-lang="sh">&lt;span class="line">&lt;span class="cl">$ telnet smtp.163.com &lt;span class="m">25&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>个人测试发现，家用电信宽带、Vultr 可用，AWS 不可用。&lt;/p>
+&lt;h3 id="465">465&lt;/h3>
+&lt;p>465 是非标准的 SMTPS 端口，SMTPS 实际上就是 SMTP + TLS，类似 HTTPS 和 HTTP 的关系。虽然不是标准端口，但有很多邮件提供商提供支持。&lt;/p>
+&lt;h3 id="587">587&lt;/h3>
+&lt;p>587 是现在比较通用的标准端口，一般支持 STARTTLS 加密通信。&lt;/p>
+&lt;h3 id="qq-邮箱">QQ 邮箱&lt;/h3>
+&lt;p>从上面我们可以知道，SMTP 端口为 25，TLS 版本为 465，STARTTLS 版本为 587。&lt;/p>
+&lt;p>后两者支持加密通信，不过只要支持 STARTTLS，25 端口也可以加密通信。&lt;/p>
+&lt;p>QQ 邮箱符合标准，即 465 支持 SMTPS，587 支持 STARTTLS。&lt;/p>
+&lt;h3 id="网易邮箱">网易邮箱&lt;/h3>
+&lt;p>网易比较坑爹，它确实支持 25、465、587 三个端口，但只有 25 支持 STARTTLS，后两者都是 SMTPS，而它显然没有在官网进行相关说明。&lt;/p>
+&lt;p>我们可以在 &lt;a href="https://esmtp.email/tools/tls/"target="_blank" rel="noopener noreferrer">https://esmtp.email/tools/tls/&lt;/a> 检测加密支持情况。&lt;/p>
+&lt;h2 id="配置-exim4">配置 Exim4&lt;/h2>
+&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-sh" data-lang="sh">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># dpkg-reconfigure exim4-config&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>这会打开一个 TUI 配置向导。&lt;/p>
+&lt;p>选用 &lt;code>mail sent by smarthost&lt;/code> 方案，&lt;code>System mail name&lt;/code> 使用 &lt;code>localhost&lt;/code>，IP 使用默认的环回地址，&lt;code>Other destinations for which mail is accepted&lt;/code>、&lt;code>Machines to relay mail for&lt;/code> 都留空。&lt;/p>
+&lt;p>&lt;code>IP address or host name of the outgoing smarthost&lt;/code> 填入 &lt;code>smtp.qq.com::587&lt;/code>，注意两个半角冒号，这里使用 STARTTLS，配置比 SMTPS 简单。&lt;/p>
+&lt;p>如果用网易 163，就填入 &lt;code>smtp.163.com::465&lt;/code>，这里的 465 是网易支持的 SMTPS 端口，587 也可以，因为网易这逗比俩端口都是 SMTPS，效果完全一样。&lt;/p>
+&lt;p>其余选项按喜好配置即可。&lt;/p>
+&lt;p>需要注意的是，出于安全原因，root 用户不能接收邮件，因此最后一步设置 alias 时，通常设置为日常使用的用户，root 收到的邮件将投递到此用户收件箱内。&lt;/p>
+&lt;p>这些设置体现在 &lt;code>/etc/aliases&lt;/code> 中。我们还可以设置当用户收到邮件时，将邮件投递到某个互联网邮箱，例如：&lt;/p>
+&lt;pre tabindex="0">&lt;code>root: admin
+admin: admin@example.com
+&lt;/code>&lt;/pre>&lt;p>运行 &lt;code>newaliases&lt;/code> 使其生效。当系统收到邮件时（例如 Cron 定时任务），&lt;code>admin@example.com&lt;/code> 就可以收到邮件提醒了。&lt;/p>
+&lt;p>然后在 &lt;code>/etc/exim4/passwd.client&lt;/code> 中配置邮箱和密码：&lt;/p>
+&lt;pre tabindex="0">&lt;code># QQ
+smtp.qq.com:username@qq.com:password
+# 163
+smtp.163.com:username@163.com:password
+&lt;/code>&lt;/pre>&lt;p>对于 QQ 和网易，这里的密码都要用授权码，登录 &lt;a href="https://mail.qq.com"target="_blank" rel="noopener noreferrer">https://mail.qq.com&lt;/a> &lt;a href="https://mail.163.com"target="_blank" rel="noopener noreferrer">https://mail.163.com&lt;/a> 获取。&lt;/p>
+&lt;p>接着还要配置一下 &lt;code>/etc/email-addresses&lt;/code>，这是本地用户发送邮件时的邮箱，与上面一致：&lt;/p>
+&lt;pre tabindex="0">&lt;code># QQ
+root:username@qq.com
+admin:username@qq.com
+&lt;/code>&lt;/pre>&lt;p>更新配置并重启服务：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-sh" data-lang="sh">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># update-exim4.conf&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># service exim4 restart&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>发个邮件试试：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-sh" data-lang="sh">&lt;span class="line">&lt;span class="cl">$ &lt;span class="nb">echo&lt;/span> &lt;span class="s2">&amp;#34;邮件内容&amp;#34;&lt;/span> &lt;span class="p">|&lt;/span> mail -s &lt;span class="s2">&amp;#34;邮件标题&amp;#34;&lt;/span> admin@example.com
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>日志位于 &lt;code>/var/log/exim4/mainlog&lt;/code>。&lt;/p>
+&lt;p>如果你是 STARTTLS，那应该已经发送成功了。但我的日志里有莫名其妙的报错：&lt;/p>
+&lt;pre tabindex="0">&lt;code>1rbGz9-005zg6-1O H=smtp.qq.com [240e:ff:f100:1009::120] TLS error on connection (recv): Function was interrupted.
+&lt;/code>&lt;/pre>&lt;p>原因不明，但确实发送成功了。&lt;/p>
+&lt;p>SMTPS 还需要接下来的一些配置。&lt;/p>
+&lt;h2 id="smtps-配置1">SMTPS 配置&lt;sup id="fnref:1">&lt;a href="#fn:1" class="footnote-ref" role="doc-noteref">1&lt;/a>&lt;/sup>&lt;/h2>
+&lt;p>STARTTLS 请忽略此步骤。&lt;/p>
+&lt;p>创建 &lt;code>/etc/exim4/exim4.conf.localmacros&lt;/code>：&lt;/p>
+&lt;pre tabindex="0">&lt;code>MAIN_TLS_ENABLE = 1
+REMOTE_SMTP_SMARTHOST_HOSTS_REQUIRE_TLS = *
+TLS_ON_CONNECT_PORTS = 465
+REQUIRE_PROTOCOL = smtps
+&lt;/code>&lt;/pre>&lt;p>注意端口 465 与上面一致。&lt;/p>
+&lt;p>编辑 &lt;code>/etc/exim4/exim4.conf.template&lt;/code>，在 &lt;code>.ifdef REMOTE_SMTP_SMARTHOST_HOSTS_REQUIRE_TLS ... .endif&lt;/code> 后（注意 &lt;code>.endif&lt;/code>）添加：&lt;/p>
+&lt;pre tabindex="0">&lt;code>.ifdef REQUIRE_PROTOCOL
+protocol = REQUIRE_PROTOCOL
+.endif
+&lt;/code>&lt;/pre>&lt;p>在 &lt;code>.ifdef MAIN_TLS_ENABLE&lt;/code> 后添加：&lt;/p>
+&lt;pre tabindex="0">&lt;code>.ifdef TLS_ON_CONNECT_PORTS
+tls_on_connect_ports = TLS_ON_CONNECT_PORTS
+.endif
+&lt;/code>&lt;/pre>&lt;p>更新配置并重启服务：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-sh" data-lang="sh">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># update-exim4.conf&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># service exim4 restart&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>运行 &lt;code>exim4 -qff&lt;/code> 强制发送之前发送失败而暂存的邮件。&lt;/p>
+&lt;p>这下终于可以了。&lt;/p>
+&lt;div class="footnotes" role="doc-endnotes">
+&lt;hr>
+&lt;ol>
+&lt;li id="fn:1">
+&lt;p>&lt;a href="https://wiki.debian.org/Exim#Communicating_with_a_smarthost"target="_blank" rel="noopener noreferrer">https://wiki.debian.org/Exim#Communicating_with_a_smarthost&lt;/a>&amp;#160;&lt;a href="#fnref:1" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;/div></description></item><item><title>Homebrew 使用中的一些问题</title><link>https://binac.org/posts/problems-with-homebrew/</link><pubDate>Fri, 31 Mar 2023 22:55:23 +0800</pubDate><guid>https://binac.org/posts/problems-with-homebrew/</guid><description>&lt;h2 id="编译-go-项目超时">编译 Go 项目超时&lt;/h2>
+&lt;p>众所周知，国内网络环境编译 Go 项目会超时，只要设置国内镜像即可：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-sh" data-lang="sh">&lt;span class="line">&lt;span class="cl">&lt;span class="nb">export&lt;/span> &lt;span class="nv">GO111MODULE&lt;/span>&lt;span class="o">=&lt;/span>on
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">export&lt;/span> &lt;span class="nv">GOPROXY&lt;/span>&lt;span class="o">=&lt;/span>https://goproxy.cn,direct
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;del>我想了十天十夜也不明白，源码服务器也要屏蔽？多少有点脑瘫哦。&lt;/del>&lt;/p>
+&lt;p>然而即使设置了镜像，Homebrew 在编译 Go 项目时，不知何故&lt;strong>不会读取用户设置&lt;/strong>，于是也会超时：&lt;/p>
+&lt;pre tabindex="0">&lt;code>==&amp;gt; go build -o=/usr/local/Cellar/v2ray/5.3.0/libexec/v2ray -ldflags=-s -w -buildid= ./main
+Last 15 lines from /Users/username/Library/Logs/Homebrew/v2ray/01.go:
+proxy/vmess/encoding/auth.go:8:2: golang.org/x/crypto@v0.4.0: Get &amp;#34;https://proxy.golang.org/golang.org/x/crypto/@v/v0.4.0.zip&amp;#34;: dial tcp 142.251.42.241:443: i/o timeout
+common/protocol/dns/io.go:7:2: golang.org/x/net@v0.4.0: Get &amp;#34;https://proxy.golang.org/golang.org/x/net/@v/v0.4.0.zip&amp;#34;: dial tcp 142.251.43.17:443: i/o timeout
+app/dns/nameserver_quic.go:14:2: golang.org/x/net@v0.4.0: Get &amp;#34;https://proxy.golang.org/golang.org/x/net/@v/v0.4.0.zip&amp;#34;: dial tcp 142.251.43.17:443: i/o timeout
+transport/internet/http/hub.go:11:2: golang.org/x/net@v0.4.0: Get &amp;#34;https://proxy.golang.org/golang.org/x/net/@v/v0.4.0.zip&amp;#34;: dial tcp 142.251.43.17:443: i/o timeout
+common/strmatcher/matchers.go:9:2: golang.org/x/net@v0.4.0: Get &amp;#34;https://proxy.golang.org/golang.org/x/net/@v/v0.4.0.zip&amp;#34;: dial tcp 142.251.43.17:443: i/o timeout
+common/protocol/headers.go:6:2: golang.org/x/sys@v0.3.0: Get &amp;#34;https://proxy.golang.org/golang.org/x/sys/@v/v0.3.0.zip&amp;#34;: dial tcp [2404:6800:4012:2::2011]:443: i/o timeout
+transport/internet/filelocker_other.go:9:2: golang.org/x/sys@v0.3.0: Get &amp;#34;https://proxy.golang.org/golang.org/x/sys/@v/v0.3.0.zip&amp;#34;: dial tcp [2404:6800:4012:2::2011]:443: i/o timeout
+app/commander/commander.go:10:2: google.golang.org/grpc@v1.51.0: Get &amp;#34;https://proxy.golang.org/google.golang.org/grpc/@v/v1.51.0.zip&amp;#34;: dial tcp 142.251.43.17:443: i/o timeout
+transport/internet/grpc/dial.go:13:2: google.golang.org/grpc@v1.51.0: Get &amp;#34;https://proxy.golang.org/google.golang.org/grpc/@v/v1.51.0.zip&amp;#34;: dial tcp 142.251.43.17:443: i/o timeout
+app/instman/command/command_grpc.pb.go:6:2: google.golang.org/grpc@v1.51.0: Get &amp;#34;https://proxy.golang.org/google.golang.org/grpc/@v/v1.51.0.zip&amp;#34;: dial tcp 142.251.43.17:443: i/o timeout
+transport/internet/grpc/dial.go:14:2: google.golang.org/grpc@v1.51.0: Get &amp;#34;https://proxy.golang.org/google.golang.org/grpc/@v/v1.51.0.zip&amp;#34;: dial tcp 142.251.43.17:443: i/o timeout
+transport/internet/grpc/dial.go:15:2: google.golang.org/grpc@v1.51.0: Get &amp;#34;https://proxy.golang.org/google.golang.org/grpc/@v/v1.51.0.zip&amp;#34;: dial tcp 142.251.43.17:443: i/o timeout
+transport/internet/grpc/encoding/conn.go:13:2: google.golang.org/grpc@v1.51.0: Get &amp;#34;https://proxy.golang.org/google.golang.org/grpc/@v/v1.51.0.zip&amp;#34;: dial tcp 142.251.43.17:443: i/o timeout
+app/commander/service.go:7:2: google.golang.org/grpc@v1.51.0: Get &amp;#34;https://proxy.golang.org/google.golang.org/grpc/@v/v1.51.0.zip&amp;#34;: dial tcp 142.251.43.17:443: i/o timeout
+app/instman/command/command_grpc.pb.go:7:2: google.golang.org/grpc@v1.51.0: Get &amp;#34;https://proxy.golang.org/google.golang.org/grpc/@v/v1.51.0.zip&amp;#34;: dial tcp 142.251.43.17:443: i/o timeout
+&lt;/code>&lt;/pre>&lt;p>Homebrew 编译时实际上调用的是 Ruby 脚本，那就可以直接修改脚本。以 &lt;code>v2ray&lt;/code> 为例：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-sh" data-lang="sh">&lt;span class="line">&lt;span class="cl">❯ &lt;span class="nb">cd&lt;/span> &lt;span class="k">$(&lt;/span>brew --repository homebrew/core&lt;span class="k">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">❯ git diff
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">diff --git a/Formula/v2ray.rb b/Formula/v2ray.rb
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">index 297d0759440..baef313f96f &lt;span class="m">100644&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">--- a/Formula/v2ray.rb
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">+++ b/Formula/v2ray.rb
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">@@ -39,6 +39,9 @@ class V2ray &amp;lt; Formula
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> end
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> def install
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">+ ENV&lt;span class="o">[&lt;/span>&lt;span class="s1">&amp;#39;GO111MODULE&amp;#39;&lt;/span>&lt;span class="o">]&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s1">&amp;#39;on&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">+ ENV&lt;span class="o">[&lt;/span>&lt;span class="s1">&amp;#39;GOPROXY&amp;#39;&lt;/span>&lt;span class="o">]&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s1">&amp;#39;https://goproxy.cn,direct&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">+
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nv">ldflags&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s2">&amp;#34;-s -w -buildid=&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> system &lt;span class="s2">&amp;#34;go&amp;#34;&lt;/span>, &lt;span class="s2">&amp;#34;build&amp;#34;&lt;/span>, *std_go_args&lt;span class="o">(&lt;/span>ldflags: ldflags, output: libexec/&lt;span class="s2">&amp;#34;v2ray&amp;#34;&lt;/span>&lt;span class="o">)&lt;/span>, &lt;span class="s2">&amp;#34;./main&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>在 &lt;code>install&lt;/code> 编译命令前添加 &lt;code>ENV['GO111MODULE'] = 'on'&lt;/code> 和 &lt;code>ENV['GOPROXY'] = 'https://goproxy.cn,direct'&lt;/code> 就可以了。&lt;/p>
+&lt;h2 id="sha256-mismatch">sha256 mismatch&lt;/h2>
+&lt;p>这类问题出现频率很高，在官方仓库可以看到大量相关的 issue、commit 和 PR。&lt;/p>
+&lt;p>除了网络问题外，通常有两种原因。&lt;/p>
+&lt;h3 id="上游重新发布同一版本">上游重新发布同一版本&lt;/h3>
+&lt;p>这时依旧修改脚本，例如 &lt;code>launchcontrol&lt;/code>：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-sh" data-lang="sh">&lt;span class="line">&lt;span class="cl">❯ &lt;span class="nb">cd&lt;/span> &lt;span class="k">$(&lt;/span>brew --repository homebrew/cask&lt;span class="k">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">❯ git diff
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">diff --git a/Casks/launchcontrol.rb b/Casks/launchcontrol.rb
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">index 5c2db44947..db25b721a8 &lt;span class="m">100644&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">--- a/Casks/launchcontrol.rb
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">+++ b/Casks/launchcontrol.rb
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">@@ -1,7 +1,7 @@
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> cask &lt;span class="s2">&amp;#34;launchcontrol&amp;#34;&lt;/span> &lt;span class="k">do&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> on_catalina :or_older &lt;span class="k">do&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> version &lt;span class="s2">&amp;#34;1.52.7&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">- sha256 &lt;span class="s2">&amp;#34;16c3d89e41a99cbf43e6996681358e8e7a4bc63fa770b9f8c0bc72c5356a0b8a&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">+ sha256 &lt;span class="s2">&amp;#34;760edc3f3238ecbbc9f0c14b17ced9ac2a46c46a4ed8feec6bfb532fced37b7e&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> livecheck &lt;span class="k">do&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> skip &lt;span class="s2">&amp;#34;Legacy version&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>确认没问题的话可以去提 PR。&lt;/p>
+&lt;h3 id="源码归档在服务端重新生成">源码归档在服务端重新生成&lt;/h3>
+&lt;p>GitHub 和 Gitlab 都使用 &lt;code>git archive&lt;/code> 将源码归档为 tar 包，但不管是 GitHub&lt;sup id="fnref:1">&lt;a href="#fn:1" class="footnote-ref" role="doc-noteref">1&lt;/a>&lt;/sup> 还是 Gitlab&lt;sup id="fnref:2">&lt;a href="#fn:2" class="footnote-ref" role="doc-noteref">2&lt;/a>&lt;/sup>，都不保证源码归档的稳定性。&lt;/p>
+&lt;p>例如我发现的 Gitlab 校验变化问题：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-sh" data-lang="sh">&lt;span class="line">&lt;span class="cl">❯ curl -fsSL https://gitlab.com/AOMediaCodec/SVT-AV1/-/archive/v1.4.1/SVT-AV1-v1.4.1.tar.bz2 &lt;span class="p">|&lt;/span> sha256sum
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">2ddef549e1eaeecc1fc48f0d8332ea3545809e46509db69beb3a0a4bf19ef906 -
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">❯ &lt;span class="c1"># 过一段时间&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">❯ curl -fsSL https://gitlab.com/AOMediaCodec/SVT-AV1/-/archive/v1.4.1/SVT-AV1-v1.4.1.tar.bz2 &lt;span class="p">|&lt;/span> sha256sum
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">0e988582f315fe76c909accf5e7f81b975c5bd2b850ee760d8e9fac297f70b5d -
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>两个 tar 包内容完全一样，只有文件夹名不同：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-sh" data-lang="sh">&lt;span class="line">&lt;span class="cl">❯ curl -fsSL https://gitlab.com/AOMediaCodec/SVT-AV1/-/archive/v1.4.1/SVT-AV1-v1.4.1.tar.bz2 &amp;gt;old
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">❯ &lt;span class="c1"># 过一段时间&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">❯ curl -fsSL https://gitlab.com/AOMediaCodec/SVT-AV1/-/archive/v1.4.1/SVT-AV1-v1.4.1.tar.bz2 &amp;gt;new
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">❯ tar xf old
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">❯ ls
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">SVT-AV1-v1.4.1
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">❯ tar xf new
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">❯ ls
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">SVT-AV1-018276d714ce65d9b586f6205ee016cbd8d5425d
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">SVT-AV1-v1.4.1
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">❯ diff SVT-AV1-v1.4.1 SVT-AV1-018276d714ce65d9b586f6205ee016cbd8d5425d -r
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">❯ &lt;span class="nb">echo&lt;/span> &lt;span class="nv">$?&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="m">0&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>我也是服了某些 Homebrew 的维护者，复现不了我的问题就说是我配置问题，神他妈配置问题😅&lt;/p>
+&lt;p>Gitlab 官方人员解释如下：&lt;/p>
+&lt;pre tabindex="0">&lt;code>The root cause was discussed in a confidential issue, but I can share a general idea what went wrong.
+One of deployed fixes had a side-effect of changing the hash sum of the archived files.
+When it was discovered, we reverted the code.
+However, Cloudflare still responded with old archive files for some regions.
+We updated the cache and that resolved the problem.
+&lt;/code>&lt;/pre>&lt;p>好了，破案了。Gitlab 也是个鬼才，归档生成机制变了也就算了，同一个老 URL，还能返回不同的文件。&lt;/p>
+&lt;p>要是不幸遇到这种问题，自认倒霉吧，依旧直接改脚本。鬼知道什么时候抽风。&lt;/p>
+&lt;p>其结果就是，明明服务商不保证自动归档的稳定性，而 Homebrew 却依赖这一点。&lt;/p>
+&lt;p>要保证源码包的稳定性，应该由作者官方以 release 形式发布，就像各种开源软件官网那样，然后由官方提供校验方法。&lt;/p>
+&lt;p>那么从全局看，怎么避免这种错误？我觉得 Homebrew 完全可以定期检查哈希值，如果变更则自动提 PR，这一点可以通过 CI/CD 自动化完成。&lt;/p>
+&lt;h2 id="warning-you-are-using-macos-1015">Warning: You are using macOS 10.15.&lt;/h2>
+&lt;pre tabindex="0">&lt;code>We (and Apple) do not provide support for this old version.
+It is expected behaviour that some formulae will fail to build in this old version.
+It is expected behaviour that Homebrew will be buggy and slow.
+Do not create any issues about this on Homebrew&amp;#39;s GitHub repositories.
+Do not create any issues even if you think this message is unrelated.
+Any opened issues will be immediately closed without response.
+Do not ask for help from Homebrew or its maintainers on social media.
+You may ask for help in Homebrew&amp;#39;s discussions but are unlikely to receive a response.
+Try to figure out the problem yourself and submit a fix as a pull request.
+We will review it but may or may not accept it.
+&lt;/code>&lt;/pre>&lt;p>啊对对对，我知道我们老古董不配用高贵的 Homebrew，出了问题后果自负我理解。&lt;/p>
+&lt;p>但是你每次一大堆烦人的警告跳脸连个他妈的开关都没有？哪怕减到一行呢？&lt;/p>
+&lt;p>何况苹果只是对系统停止了支持，你一个包管理器，不想支持老系统直接大方说不就行了，和苹果对系统的支持有个毛线关系？难道苹果不让 Catalina 用户用 App Store 了？Ubuntu 就连 12.04 甚至更老的版本，改一下源就能继续用官方的老仓库。&lt;/p>
+&lt;p>对于一个非盈利的开源软件，我表示支持，但你别又当又立😅&lt;/p>
+&lt;p>发现我脾气逐渐暴躁，管他的，反正鬼佬看不懂中文。&lt;/p>
+&lt;p>编辑 &lt;code>$(brew --repository)/Library/Homebrew/extend/os/mac/diagnostic.rb&lt;/code> 这个脚本，在 &lt;code>check_for_unsupported_macos&lt;/code> 方法第一行直接返回：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-sh" data-lang="sh">&lt;span class="line">&lt;span class="cl">❯ &lt;span class="nb">cd&lt;/span> &lt;span class="k">$(&lt;/span>brew --repository&lt;span class="k">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">❯ git diff
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">diff --git a/Library/Homebrew/extend/os/mac/diagnostic.rb b/Library/Homebrew/extend/os/mac/diagnostic.rb
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">index 1cbc907f3..37b5b91ba &lt;span class="m">100644&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">--- a/Library/Homebrew/extend/os/mac/diagnostic.rb
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">+++ b/Library/Homebrew/extend/os/mac/diagnostic.rb
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">@@ -106,6 +106,7 @@ module Homebrew
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> end
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> def check_for_unsupported_macos
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">+ &lt;span class="k">return&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="k">if&lt;/span> Homebrew::EnvConfig.developer?
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="k">if&lt;/span> ENV&lt;span class="o">[&lt;/span>&lt;span class="s2">&amp;#34;HOMEBREW_INTEGRATION_TEST&amp;#34;&lt;/span>&lt;span class="o">]&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>整个世界都清净了！&lt;/p>
+&lt;p>当然，后果自负。&lt;/p>
+&lt;div class="footnotes" role="doc-endnotes">
+&lt;hr>
+&lt;ol>
+&lt;li id="fn:1">
+&lt;p>&lt;a href="https://github.blog/2023-02-21-update-on-the-future-stability-of-source-code-archives-and-hashes/"target="_blank" rel="noopener noreferrer">https://github.blog/2023-02-21-update-on-the-future-stability-of-source-code-archives-and-hashes/&lt;/a>&amp;#160;&lt;a href="#fnref:1" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li id="fn:2">
+&lt;p>&lt;a href="https://gitlab.com/gitlab-org/gitlab/-/issues/402616"target="_blank" rel="noopener noreferrer">https://gitlab.com/gitlab-org/gitlab/-/issues/402616&lt;/a>&amp;#160;&lt;a href="#fnref:2" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;/div></description></item><item><title>在 Android 上部署 Linux</title><link>https://binac.org/posts/deploy-linux-in-android/</link><pubDate>Mon, 27 Mar 2023 03:57:00 +0800</pubDate><guid>https://binac.org/posts/deploy-linux-in-android/</guid><description>&lt;p>在 Android 上部署 Linux……好吧，我知道 Android 本身就是个 Linux。不要在意这些细节。&lt;/p>
+&lt;p>最近把旧手机当时钟用，发现它还有 TF 卡槽，想起何不在上面跑个 Linux，化身低功耗服务器呢，再搭个 Syncthing 私人云盘，岂不美哉（摊手）？&lt;/p>
+&lt;p>为啥不直接用 Syncthing APP？&lt;del>呃，你不觉得这样很酷吗？我觉得太酷了……&lt;/del>&lt;/p>
+&lt;p>&lt;del>为了物尽其用，又买了个 TF 卡……&lt;/del>&lt;/p>
+&lt;p>长话短说，就是用 &lt;a href="https://github.com/meefik/linuxdeploy"target="_blank" rel="noopener noreferrer">Linux Deploy&lt;/a>，它能以 chroot 方式在 Android 上创建 Linux 环境。和 Termux 相比，它更像一个完整的 Linux。&lt;/p>
+&lt;p>其实很早就用过 LP，不过 LP 看起来有段时间没更新了，一大堆 issue 没人理。新手要踩的坑还是很多的，特此记录。&lt;/p>
+&lt;h2 id="安装">安装&lt;/h2>
+&lt;p>首先，用 &lt;a href="https://github.com/topjohnwu/Magisk"target="_blank" rel="noopener noreferrer">Magisk&lt;/a> 把手机 root 了。Android 版本太老的话是没法使用新版 Magisk APP 的，在 release 页找老版 Magisk。&lt;/p>
+&lt;p>其次，把 VPN 之类的关掉（装完再关也可以），那玩意会在手机上建 NAT，局域网设备就没法通过 IP 地址访问了。鬼知道我在这个奇葩问题上花了多少时间……&lt;/p>
+&lt;p>如果要爬梯，可以用这个 &lt;a href="https://github.com/yatsuki/v2ray"target="_blank" rel="noopener noreferrer">V2Ray Magisk 模块&lt;/a>，它能在手机建立透明代理。虽然版本很老，也有一些 bug，但确实能用。&lt;/p>
+&lt;p>打开 LP，右下角选项，发行版就用 Debian。并不是所有发行版都能用，既然 LP 默认 Debian，意味着它的问题可能是最少的。目前 Debian 最新只能用 buster。&lt;/p>
+&lt;p>架构就按自己手机来。&lt;/p>
+&lt;p>官方的源经常访问故障，建议使用国内镜像服务，比如清华源 &lt;code>http://mirrors.tuna.tsinghua.edu.cn/debian/&lt;/code>，注意是 &lt;code>http&lt;/code> 而不是 &lt;code>https&lt;/code>。&lt;/p>
+&lt;p>安装类型，我是直接把环境安装到 TF 卡，所以选择分区，而不是镜像文件或目录。这样不仅保持 Linux 环境和 Android 相互独立，而且读写性能比镜像文件更好。&lt;/p>
+&lt;p>具体做法是，先把 TF 卡分区为单个 ext4，当然如果你知道你在做什么，也可以建立其它分区，只要下面的安装路径正确即可。&lt;/p>
+&lt;p>插入 TF 卡，万恶的 Android 会自动挂载，然后在里面拉屎。先不要管它，在设置里把 TF 卡弹出。&lt;/p>
+&lt;p>安装路径一般为 &lt;code>/dev/block/mmcblk1p1&lt;/code>，根据自己的来，可以使用终端、文件管理器等查看。&lt;/p>
+&lt;p>初始化系统使用 SysV。chroot 环境是不能用 systemd 的。不建议尝试那些模拟 systemd 的替代品，SysV 和 cron 就可以解决大部分问题。&lt;/p>
+&lt;p>启用 ssh，不要 GUI。&lt;/p>
+&lt;p>其它的按自己的喜好来。&lt;/p>
+&lt;p>安装只要十几分钟就搞定了，如果出现问题，到 LP 设置里把调试打开看看 log。&lt;/p>
+&lt;p>然后启动就能用 ssh 访问了。&lt;/p>
+&lt;p>另外，由于 Android 省电机制，关闭屏幕后会非常卡，除非保持在 LP 主界面，或安装禁止关屏的 APP。LP 设置里有保持 Wi-Fi 和 CPU 的选项，但用处不大，至少在高版本 Android 是不管用的。&lt;/p>
+&lt;h2 id="天坑">天坑&lt;/h2>
+&lt;h3 id="etcrclocal">/etc/rc.local&lt;/h3>
+&lt;p>虽然有 SysV，但很多软件都转用 systemd了。&lt;/p>
+&lt;p>这时肯定想到 &lt;code>/etc/rc.local&lt;/code> 开机脚本，然而它也缺失了。啊这……&lt;/p>
+&lt;p>所以我们需要手动建立 &lt;code>/etc/init.d/rc.local&lt;/code>：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-sh" data-lang="sh">&lt;span class="line">&lt;span class="cl">&lt;span class="cp">#! /bin/sh
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">&lt;/span>&lt;span class="c1">### BEGIN INIT INFO&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Provides: rc.local&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Required-Start: $all&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Required-Stop:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Default-Start: 2 3 4 5&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Default-Stop:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Short-Description: Run /etc/rc.local if it exist&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">### END INIT INFO&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># https://forums.raspberrypi.com/viewtopic.php?t=95101&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">PATH&lt;/span>&lt;span class="o">=&lt;/span>/sbin:/usr/sbin:/bin:/usr/bin
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">. /lib/init/vars.sh
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">. /lib/lsb/init-functions
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">do_start&lt;span class="o">()&lt;/span> &lt;span class="o">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="o">[&lt;/span> -x /etc/rc.local &lt;span class="o">]&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="k">then&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="o">[&lt;/span> &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$VERBOSE&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> !&lt;span class="o">=&lt;/span> no &lt;span class="o">]&lt;/span> &lt;span class="o">&amp;amp;&amp;amp;&lt;/span> log_begin_msg &lt;span class="s2">&amp;#34;Running local boot scripts (/etc/rc.local)&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> /etc/rc.local
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nv">ES&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="nv">$?&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="o">[&lt;/span> &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$VERBOSE&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> !&lt;span class="o">=&lt;/span> no &lt;span class="o">]&lt;/span> &lt;span class="o">&amp;amp;&amp;amp;&lt;/span> log_end_msg &lt;span class="nv">$ES&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="nv">$ES&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">fi&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">case&lt;/span> &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$1&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> in
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> start&lt;span class="o">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> do_start
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">;;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> restart&lt;span class="p">|&lt;/span>reload&lt;span class="p">|&lt;/span>force-reload&lt;span class="o">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">echo&lt;/span> &lt;span class="s2">&amp;#34;Error: argument &amp;#39;&lt;/span>&lt;span class="nv">$1&lt;/span>&lt;span class="s2">&amp;#39; not supported&amp;#34;&lt;/span> &amp;gt;&lt;span class="p">&amp;amp;&lt;/span>&lt;span class="m">2&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">exit&lt;/span> &lt;span class="m">3&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">;;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> stop&lt;span class="o">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">;;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> *&lt;span class="o">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">echo&lt;/span> &lt;span class="s2">&amp;#34;Usage: &lt;/span>&lt;span class="nv">$0&lt;/span>&lt;span class="s2"> start|stop&amp;#34;&lt;/span> &amp;gt;&lt;span class="p">&amp;amp;&lt;/span>&lt;span class="m">2&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">exit&lt;/span> &lt;span class="m">3&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">;;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">esac&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>以及 &lt;code>/etc/rc.local&lt;/code>：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-sh" data-lang="sh">&lt;span class="line">&lt;span class="cl">&lt;span class="cp">#!/bin/sh -e
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">&lt;/span>&lt;span class="c1">#&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># rc.local&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">#&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># This script is executed at the end of each multiuser runlevel.&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Make sure that the script will &amp;#34;exit 0&amp;#34; on success or any other&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># value on error.&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">#&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># In order to enable or disable this script just change the execution&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># bits.&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">#&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># By default this script does nothing.&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">cp /etc/hostname /proc/sys/kernel/hostname
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">rm -rf /Android
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">chmod &lt;span class="m">666&lt;/span> /dev/fuse
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">exit&lt;/span> &lt;span class="m">0&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>给它们加上可执行权限，然后用 &lt;code>sysv-rc-conf&lt;/code> 或者其它你喜欢的工具启用。&lt;/p>
+&lt;p>看看我已经在 &lt;code>rc.local&lt;/code> 里加了什么内容：&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>/etc/hostname&lt;/code> 中的内容不会被读取，所以这里把它复制一下。&lt;/li>
+&lt;li>Android 开机就会自动挂载 TF 卡并在里面拉屎，所以把屎目录 &lt;code>Android&lt;/code> 删掉。而且挂载之后，LP 就没法启动了，这个坑之后再说，如何在开机时取消挂载。&lt;/li>
+&lt;li>&lt;code>/dev/fuse&lt;/code> 由于权限限制需要修改一下，否则无法使用 Rclone 等工具。&lt;/li>
+&lt;/ul>
+&lt;p>TNND，这 TM 都是坑啊。&lt;/p>
+&lt;h3 id="关闭-rsyslog">关闭 rsyslog&lt;/h3>
+&lt;p>Android 的 loglevel 开到了 7，那不是一般的多：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-sh" data-lang="sh">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># cat /proc/sys/kernel/printk&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">7 4 1 &lt;span class="m">7&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>而且手动去改也是没用的，估计是因为全被 logcat 接管了。&lt;/p>
+&lt;p>LP 启动没多久，&lt;code>/var/log&lt;/code> 大小就按 GiB 来计算了，非常坑爹，嫌闪存长寿啊。&lt;/p>
+&lt;p>也考虑过使用 zram 分区，但自带的 logrotate 似乎有 bug，配置不生效，而且不知道 zram 在 chroot 下能否正常使用，等有空再折腾吧。&lt;/p>
+&lt;p>最后干脆直接用 &lt;code>sysv-rc-conf&lt;/code> 关闭了 rsyslog。&lt;/p>
+&lt;p>清净了！&lt;/p>
+&lt;h3 id="开机取消挂载-tf-卡">开机取消挂载 TF 卡&lt;/h3>
+&lt;p>之前已经把环境安装到 TF 卡了，如果想让 LP 开机启动，就不能让系统挂载 TF 卡。&lt;/p>
+&lt;p>我研究了一下，开机禁止挂载比较麻烦，除非修改源码，但开机自动挂载后再手动取消挂载（弹出）就容易得多。&lt;/p>
+&lt;p>于是我写了个 Magisk 开机脚本：&lt;/p>
+&lt;script src="https://gist.github.com/qianbinbin/e93e19940dda264cc5cd2ebdddbe565e.js?file=unmount.sh">&lt;/script>
+&lt;p>它会弹出所有外置存储，比如 TF 卡、U 盘等。&lt;/p>
+&lt;p>由于脚本里使用了 &lt;code>sm&lt;/code> 工具，需要 Android 6.0 以上才能用。&lt;/p>
+&lt;p>把脚本放到 &lt;code>/data/adb/service.d/&lt;/code> 下重启，看看是不是一挂载就马上弹出了。如果不成功，把 &lt;code>LOG_ON=false&lt;/code> 改为 &lt;code>LOG_ON=true&lt;/code> ，查看 &lt;code>/data/local/tmp/unmount.log&lt;/code> 排查一下原因。&lt;/p>
+&lt;p>我自己测试，一般在开机后 20 多秒就会弹出，比 LP 启动快。如果弹出太慢，建议把 LP 启动延迟改大一些。&lt;/p>
+&lt;h2 id="服务">服务&lt;/h2>
+&lt;h3 id="syncthing">Syncthing&lt;/h3>
+&lt;p>使用 &lt;a href="https://apt.syncthing.net/"target="_blank" rel="noopener noreferrer">官方仓库&lt;/a> 安装。配置略。&lt;/p>
+&lt;h3 id="rclone">Rclone&lt;/h3>
+&lt;p>参考我的文章：&lt;a href="https://binac.org/posts/rclone/">使用 Rclone 挂载网盘&lt;/a>。&lt;/p>
+&lt;h3 id="nginx">Nginx&lt;/h3>
+&lt;p>&lt;a href="https://nginx.org/en/linux_packages.html#Debian"target="_blank" rel="noopener noreferrer">Nginx 官方仓库&lt;/a>里只有 arm64 和 amd64，32 位的手机就用默认仓库里的老版本吧。&lt;/p>
+&lt;p>Nginx 一大好处是给搭建反向代理，比如：&lt;/p>
+&lt;pre tabindex="0">&lt;code>location /your-syncthing-path/ {
+proxy_pass https://localhost:8384/;
+...
+}
+&lt;/code>&lt;/pre>&lt;p>Transmission、aria2 等下载工具都可以这么干，对外隐藏真实端口，更重要的是可以走 HTTPS。今天在网上用 HTTP 和裸奔有什么区别？&lt;/p>
+&lt;p>好了，再填一个大坑，给你节省半天时间：&lt;/p>
+&lt;p>&lt;strong>由于 Android 权限限制，必须把 &lt;code>www-data&lt;/code> 加入 &lt;code>aid_inet&lt;/code> 用户组：&lt;/strong>&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-sh" data-lang="sh">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># usermod -aG aid_inet www-data&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>否则没法使用。所以 Android 真不能当作普通的 Linux 发行版……&lt;/p>
+&lt;h3 id="certbot">certbot&lt;/h3>
+&lt;p>certbot 用 apt 安装即可，版本虽老但够用。用 pip 安装的话会给你装 20 几个依赖，人麻了……apt 虽然也有，但起码可以 &lt;code>autoremove&lt;/code>。&lt;/p>
+&lt;p>国内 ISP 屏蔽了普通用户的 80 端口，要申请证书可以参考&lt;a href="https://www.digitalocean.com/community/tutorials/how-to-acquire-a-let-s-encrypt-certificate-using-dns-validation-with-acme-dns-certbot-on-ubuntu-18-04"target="_blank" rel="noopener noreferrer">这篇文章&lt;/a>。&lt;/p>
+&lt;p>另外，certbot 是没有 SysV 脚本的，要自动更新可以直接添加到 cron，比如每天更新两次 &lt;code>0 0,12 * * * /usr/bin/certbot -q renew&lt;/code>，跟 systemd 脚本是一样的效果。&lt;/p>
+&lt;h2 id="其它">其它&lt;/h2>
+&lt;h3 id="永久开启无线调试">永久开启无线调试&lt;/h3>
+&lt;p>打开终端或 &lt;code>adb shell&lt;/code>，使用 &lt;code>su&lt;/code> 获取 root 权限后输入：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-sh" data-lang="sh">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># setprop persist.adb.tcp.port 5555&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>重启以后也会保持开启。&lt;/p>
+&lt;p>&lt;strong>注意切不可在公网上开启！Android 漏洞极多，尤其是老旧版本，非常容易成为肉鸡！&lt;/strong>&lt;/p>
+&lt;h3 id="关闭旋转建议按钮">关闭旋转建议按钮&lt;/h3>
+&lt;p>我就好奇什么样的低能玩意设计出了这么个脑瘫功能？&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-sh" data-lang="sh">&lt;span class="line">&lt;span class="cl">$ adb shell settings put secure show_rotation_suggestions &lt;span class="m">0&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="充电控制">充电控制&lt;/h3>
+&lt;p>据说手机常年通电，电池容易鼓包，有搞硬件的大佬会把电池去掉，让主板直接从 USB 取电，我是不想折腾，总有种因噎废食的感觉，万一断电了呢？硬件损伤且不说，数据丢失就很难受。&lt;/p>
+&lt;p>其实，一个 &lt;a href="https://github.com/VR-25/acc"target="_blank" rel="noopener noreferrer">ACC Magisk 模块&lt;/a>就可以搞定，安装完直接重启，默认配置就够用了。它会让手机电量保持在 70 ~ 75，电量低了就充电，高了就断电，省心得很。&lt;/p>
+&lt;h3 id="f-droid-特权扩展">F-Droid 特权扩展&lt;/h3>
+&lt;p>F-Droid 不能自动安装 APP，root 也不行。官方有一个&lt;a href="https://f-droid.org/en/packages/org.fdroid.fdroid.privileged.ota/"target="_blank" rel="noopener noreferrer">特权扩展 OTA 包&lt;/a>，可以通过 recovery 刷入。但这会修改 system 分区，我不喜欢。&lt;/p>
+&lt;p>Magisk 官方模块仓库（已废弃）倒是有一个模块，但一来版本太老，二来写得不咋地，三来作者是个 GD……真晦气。&lt;/p>
+&lt;p>于是我大体看了一下 Magisk 官方文档，自己写了个模块：&lt;a href="https://github.com/qianbinbin/fdroid-priv-ext"target="_blank" rel="noopener noreferrer">F-Droid 特权扩展&lt;/a>，通过 GitHub Actions 自动构建，与 F-Droid 官方保持同步。&lt;/p>
+&lt;p>需要注意的是，&lt;strong>安装模块后 F-Droid 网络访问权限可能会丢失&lt;/strong>，要重新设置一下。这也是个大坑，因为没有任何有用的提示，你会一直怀疑是自己网络问题，然后浪费几个小时调试。&lt;/p>
+&lt;h3 id="远程控制">远程控制&lt;/h3>
+&lt;p>由于是作为服务器用的，远程控制还是很有用的。&lt;/p>
+&lt;p>我试过很多 VNC 软件，都不靠谱。&lt;/p>
+&lt;p>最后发现了神器：&lt;a href="https://www.coolapk.com/apk/com.didjdk.adbhelper"target="_blank" rel="noopener noreferrer">甲壳虫&lt;/a>，它基于 &lt;a href="https://github.com/Genymobile/scrcpy"target="_blank" rel="noopener noreferrer">scrcpy&lt;/a>，通过 adb 控制手机。结合前面永久开启无线调试，用起来十分方便。&lt;/p>
+&lt;p>&lt;del>如果有公网 IP 或设置好内网穿透，就可以实现字面意义上的远程控制——只要延迟能忍的话。&lt;/del>&lt;/p>
+&lt;p>&lt;strong>注意切不可在公网上开启！Android 漏洞极多，尤其是老旧版本，非常容易成为肉鸡！&lt;/strong>&lt;/p>
+&lt;p>遗憾的是它只支持标准的 5555 端口，不能自定义，也不支持路径（反向代理）。&lt;/p>
+&lt;h3 id="时钟">时钟&lt;/h3>
+&lt;p>可能是我孤陋寡闻，Android APP 浩如烟海，我竟然找不到一款简洁好用的待机时钟。&lt;/p>
+&lt;p>目前用的这个名字就不说了，CPU 占用率高得离谱。&lt;/p>
+&lt;p>有空自己写一个。&lt;/p></description></item><item><title>血溅鸳鸯楼时，武松有没有滥杀？</title><link>https://binac.org/tuya/wusong-xuejianyuanyanglou-youmeiyou-lansha/</link><pubDate>Thu, 20 Oct 2022 14:34:30 +0800</pubDate><guid>https://binac.org/tuya/wusong-xuejianyuanyanglou-youmeiyou-lansha/</guid><description>&lt;p>先说结论，血溅鸳鸯楼时，武松杀了十五人。&lt;/p>
+&lt;p>其中三人是张都监的儿女，大概率是未成年的孩子。两个丫嬛，大概率不知情。&lt;/p>
+&lt;h2 id="武松杀了哪十五人">武松杀了哪十五人&lt;/h2>
+&lt;p>写武松复仇十五人的描写有三处，第一处是行凶之时，第二处是武松向张青孙二娘介绍情况，第三处是禀复知府。&lt;/p>
+&lt;p>容与堂本的三处基本吻合。&lt;/p>
+&lt;h3 id="一行凶之时">一、行凶之时&lt;/h3>
+&lt;blockquote>
+&lt;p>当下武松入得城来，径踅去张都监后花园墙外，却是一个马院。武松就在马院边伏着。听是那后槽却在衙里，未曾出来。正看之间，只见呀地角门开，后槽提着个灯笼出来，里面便关了角门。武松却躲在黑影里，听那更鼓时，早打一更四点。那后槽上了草料，挂起灯笼，铺开被卧，脱了衣裳，上床便睡。武松却来门边挨那门响。后槽喝道：“老爷方才睡，你要偷我衣裳，也早些哩。”武松把朴刀倚在门边，却掣出腰刀在手里，又呀呀地推门。那后槽那里忍得住，便从床上赤条条地跳将起来，拿了搅草棍，拔了拴，却待开门，被武松就势推开去，抢入来把这后槽劈头揪住。却待要叫，灯影下见明晃晃地一把刀在手里，先自惊得八分软了。口里只叫得一声：“饶命！”武松道：“你认得我么？”后槽听得声音，方才知是武松，便叫道：“哥哥，不干我事。你饶了我罢！”武松道：“你只实说，张都监如今在那里？”后槽道：“今日和张团练、蒋门神他三个，吃了一日酒。如今兀自在鸳鸯楼上吃哩。”武松道：“这话是实么？”后槽道：“小人说谎，就害疔疮。”武松道：“恁地却饶你不得！”手起一刀，把这后槽杀了，砍下头来，一脚踢过尸首。武松把刀插入鞘里，就灯影下去腰里解下施恩送来的锦衣，将出来，脱了身上旧衣裳，把那两件新衣穿了，拴缚得紧凑。把腰刀和鞘跨在腰里。却把后槽一床絮被包了散碎银两，入在缠袋里，却把来挂在门边。又将两扇门立在墙边，先去吹灭了灯火。却闪将出来，拿了朴刀，从门上一步步爬上墙来。&lt;/p>
+&lt;p>月却明亮，照耀如同白日。武松从墙头上一跳，却跳在墙里。便先来开了角门，掇过了门扇，复翻身入来，虚掩上角门，拴都提过了。武松却望灯明处来看时，正是厨房里。只见两个丫嬛正在那汤罐边埋怨，说道：“伏侍了一日，兀自不肯去睡，只是要茶吃！那两个客人也不识羞耻，噇得这等醉了，也兀自不肯下楼去歇息，只说个不了。”那两个女使正口里喃喃讷讷地怨怅。武松却倚了朴刀，掣出腰里那口带血刀来，把门一推，呀地推开门，抢入来。先把一个女使髽角儿揪住，一刀杀了。那一个却待要走，两只脚一似钉住了的，再要叫时，口里又似哑了的，端的是惊得呆了。休道是两个丫嬛，便是说话的见了，也惊得口里半舌不展。武松手起一刀，也杀了，却把这两个尸首拖放灶前，去了厨下灯火，趁着那窗外月光，一步步挨入堂里来。&lt;/p>
+&lt;p>武松原在衙里出入的人，已自都认得路数，径踅到鸳鸯楼胡梯边来。捏脚捏手摸上楼时，早听得那张都监、张团练、蒋门神三个说话。武松在胡梯口听，只听得蒋门神口里称赞不了，只说：“亏了相公与小人报了冤仇。再当重重地答报恩相。”这张都监道：“不是看我兄弟张团练面上，谁肯干这等的事！你虽费用了些钱财，却也安排得那厮好。这早晚多是在那里下手，那厮敢是死了。只教在飞云浦结果他。待那四人明早回来，便见分晓。”张团练道：“这一夜四个对付他一个，有甚么不了！再有几个性命也没了。”蒋门神道：“小人也分付徒弟来，只教就那里下手，结果了快来回报。”正是：&lt;/p>
+&lt;p>暗室从来不可欺，古今奸恶尽诛夷。&lt;/p>
+&lt;p>金风未动蝉先觉，暗送无常死不知。&lt;/p>
+&lt;p>武松听了，心头那把无明业火高三千丈，冲破了青天。右手持刀，左手叉开五指，抢入楼中。只见三五枝画烛高明，一两处月光射入，楼上甚是明朗。面前酒器，皆不曾收。蒋门神坐在交椅上，见是武松，吃了一惊，把这心肝五脏都提在九霄云外。说时迟，那时快。蒋门神急待挣扎时，武松早落一刀，劈脸剁着，和那交椅都砍翻了。武松便转身回过刀来。那张都监方才伸得脚动，被武松当时一刀，齐耳根连脖子砍着，扑地倒在楼板上。两个都在挣命。这张团练终是个武官出身，虽然酒醉，还有些气力。见剁翻了两个，料道走不迭，便提起一把交椅轮将来。武松早接个住，就势只一推。休说张团练酒后，便清醒白醒时，也近不得武松神力，扑地望后便倒了。武松赶入去，一刀先剁下头来。蒋门神有力，挣得起来。武松左脚早起，翻筋斗踢一脚，按住也割下头。转身来，把张都监也割了头。见桌子上有酒有肉。武松拿起酒锺子，一饮而尽，连吃了三四锺，便去死尸身上割下一片衣襟来，蘸着血，去白粉壁上写下八字道：&lt;/p>
+&lt;p>杀人者，打虎武松也！&lt;/p>
+&lt;p>把桌子上银酒器皿踏匾了，揣几件在怀里。却待下楼，只听得楼下夫人声音叫道：“楼上官人们都醉了，快着两个上去搀扶。”说犹未了，早有两个人上楼来。武松却闪在胡梯边看时，却是两个自家亲随人，便是前日拿捉武松的。武松在黑处让他过去，却拦住去路。两个入进楼中，见三个尸首横在血泊里，惊得面面厮觑，做声不得。正如分开八片顶阳骨，倾下半桶冰雪水。急待回身，武松随在背后，手起刀落，早剁翻了一个。那一个便跪下讨饶。武松道：“却饶你不得。”揪住，也砍了头。杀得血溅画楼，尸横灯影。武松道：“一不做，二不休。杀了一百个，也只是这一死。”提了刀下楼来。夫人问道：“楼上怎地大惊小怪？”武松抢到房前。夫人见条大汉入来，兀自问道：“是谁？”武松的刀早飞起。劈面门剁着，倒在房前声唤。武松按住，将去割时，刀切头不入。武松心疑，就月光下看那刀时，已自都砍缺了。武松道：“可知割不下头来。”便抽身去后门外去拿取朴刀，丢了缺刀，复翻身再入楼下来。只见灯明，前番那个唱曲儿的养娘玉兰，引着两个小的，把灯照见夫人被杀死在地下，方才叫得一声：“苦也！”武松握着朴刀，向玉兰心窝里搠着。两个小的亦被武松搠死，一朴刀一个，结果了。走出中堂，把拴拴了前门。又入来寻着两三个妇女，也都搠死了在房里。武松道：“我方才心满意足。”有诗为证：&lt;/p>
+&lt;p>都监贪婪甚可羞，谩施奸计结深仇。&lt;/p>
+&lt;p>岂知天道能昭鉴，渍血横尸满画楼。&lt;/p>
+&lt;/blockquote>
+&lt;p>这是以时间为序的，杀死的有：&lt;/p>
+&lt;p>&lt;strong>后槽、两个丫嬛、蒋门神、张都监、张团练、两个自家亲随人、夫人、玉兰、（玉兰引着的）两个小的、（房里的）两三个妇女。&lt;/strong>&lt;/p>
+&lt;p>作者如同记录仪，写得非常清晰，共十四或十五人。根据下文禀复知府一段，可以得知是十五人。因此房里的妇女是三人。&lt;/p>
+&lt;h3 id="二武松介绍">二、武松介绍&lt;/h3>
+&lt;blockquote>
+&lt;p>一更四点进去，马院里先杀了一个养马的后槽。扒入墙内去，就厨房里杀了两个丫嬛。直上鸳鸯楼上，把张都监、张团练、蒋门神三个都杀了，又砍了两个亲随。下楼来，又把他老婆、儿女、养娘都戳死了。&lt;/p>
+&lt;/blockquote>
+&lt;p>杀死的有：&lt;/p>
+&lt;p>&lt;strong>后槽、两个丫嬛、张都监、张团练、蒋门神、两个亲随、他老婆、儿女、养娘（注：袁无涯本是“养媳”）。&lt;/strong>&lt;/p>
+&lt;p>这里的顺序与前后文不是完全一致的，毕竟只是简略介绍情况。&lt;/p>
+&lt;p>根据下文禀复知府一段可以得知，儿女有三人，养娘对应的是“玉兰并奶娘二口”。&lt;/p>
+&lt;h3 id="三禀复知府">三、禀复知府&lt;/h3>
+&lt;blockquote>
+&lt;p>先从马院里入来，就杀了养马的后槽一人。有脱下旧衣二件。次到厨房里，灶下杀死两个丫嬛。后门边遗下行凶缺刀一把。楼上杀死张都监一员，并亲随二人，外有请到客官张团练与蒋门神二人。白粉壁上，衣襟蘸血，大写八字道：‘杀人者，打虎武松也！’楼下搠死夫人一口。在外搠死玉兰并奶娘二口，儿女三口。共计杀死男女一十五名，掳掠去金银酒器六件。&lt;/p>
+&lt;/blockquote>
+&lt;p>这是以地点为序的，杀死的有：&lt;/p>
+&lt;p>&lt;strong>后槽、两个丫嬛、张都监、亲随二人、张团练、蒋门神、夫人、（在外）玉兰并奶娘二口、儿女三口。&lt;/strong>&lt;/p>
+&lt;p>这里除“玉兰并奶娘二口”、“儿女三口”外，与行凶之时完全对应。&lt;/p>
+&lt;p>而行凶时“前番那个唱曲儿的养娘玉兰，引着两个小的”，显然这三人是一起行动的；又根据案发现场的“在外搠死玉兰并奶娘二口”，可见是三人死在了一起，而且“在外”说明是房外，刚好完全对应。因此“两个小的”就是“奶娘二口”。&lt;/p>
+&lt;p>那么房里的“两三个妇女”自然就是“儿女三口”，而且是三个女儿。&lt;/p>
+&lt;p>看上去严丝合缝。&lt;/p>
+&lt;h2 id="玉兰引着的两个小的不是奶娘而是儿女">玉兰引着的两个小的不是奶娘，而是儿女？&lt;/h2>
+&lt;p>然而，有人提出了质疑。他们认为，玉兰引着的两个小的不是奶娘，而是儿女。那么房里的三个妇女，就是两个奶娘和一个女儿。&lt;/p>
+&lt;p>&lt;strong>我们姑且抛开“在外搠死玉兰并奶娘二口，儿女三口”这一句行凶地点的不合理之处，姑且认为是作者突发奇想，把外面的玉兰和房里的两个奶娘合并起来写、把外面的两个儿女和房里的一个女儿合并起来写，分析一下他们提出的质疑。&lt;/strong>&lt;/p>
+&lt;h3 id="质疑一儿女必须有儿有女">质疑一、儿女必须有儿有女？&lt;/h3>
+&lt;span class="image-container">&lt;span class="link" >&lt;a href="https://binac.org/images/wusong-xuejianyuanyanglou-youmeiyou-lansha/ernv-1.png"
+target="_blank">&lt;img class="img" src="https://binac.org/images/wusong-xuejianyuanyanglou-youmeiyou-lansha/ernv-1.png"/>&lt;/a>&lt;/span>&lt;span class="caption">
+&lt;span class="title">儿女必须有儿有女？&lt;/span class="image-container-caption">
+&lt;/span>
+&lt;/span>
+&lt;p>“儿女”是偏义复词，可以单指儿子，可以单指女儿，还可以儿女兼有。这是古文常见用法。&lt;/p>
+&lt;p>再比如“男女”，可以只有男人：&lt;/p>
+&lt;blockquote>
+&lt;p>这两个汉子扛抬武松，那里扛得动，直挺挺在地下，却似有千百斤重的。那妇人看了，见这两个蠢汉拖扯不动，喝在一边，说道：“你这鸟男女，只会吃饭吃酒，全没些用，直要老娘亲自动手！这个鸟大汉却也会戏弄老娘，这等肥胖，好做黄牛肉卖。那两个瘦蛮子，只好做水牛肉卖。扛进去先开剥这厮。”&lt;/p>
+&lt;/blockquote>
+&lt;p>再比如“老小”，可以单指妻子：&lt;/p>
+&lt;blockquote>
+&lt;p>西门庆也笑道：“干娘你且来，我问你：间壁这个雌儿是谁的老小？”&lt;/p>
+&lt;/blockquote>
+&lt;p>再比如《儿女英雄传》中的“儿女”，可以单指女儿：&lt;/p>
+&lt;blockquote>
+&lt;p>褚大娘子道：“我们大哥大嫂子要请我去坐坐儿。又不敢回二叔二婶儿，要弄了吃的给我送进来。我说我是借着我们老爷子分儿上，二叔二婶才把我当个儿女待。”&lt;/p>
+&lt;/blockquote>
+&lt;p>因此，这种说法站不住脚。&lt;/p>
+&lt;span class="image-container">&lt;span class="link" >&lt;a href="https://binac.org/images/wusong-xuejianyuanyanglou-youmeiyou-lansha/ernv-2.png"
+target="_blank">&lt;img class="img" src="https://binac.org/images/wusong-xuejianyuanyanglou-youmeiyou-lansha/ernv-2.png"/>&lt;/a>&lt;/span>&lt;span class="caption">
+&lt;span class="title">汉语言专业的不懂偏义复词吗？&lt;/span class="image-container-caption">
+&lt;/span>
+&lt;/span>
+&lt;p>令人大跌眼镜的是，这位网友还因为图中另一网友不知道张都监名字，就嘲讽人家是云读者：&lt;/p>
+&lt;span class="image-container">&lt;span class="link" >&lt;a href="https://binac.org/images/wusong-xuejianyuanyanglou-youmeiyou-lansha/yun-1.png"
+target="_blank">&lt;img class="img" src="https://binac.org/images/wusong-xuejianyuanyanglou-youmeiyou-lansha/yun-1.png"/>&lt;/a>&lt;/span>&lt;span class="caption">
+&lt;span class="title">不知道张都监名字就是云读者吗？&lt;/span class="image-container-caption">
+&lt;/span>
+&lt;/span>
+&lt;p>然而自己却连沙僧的武器是什么都不知道：&lt;/p>
+&lt;span class="image-container">&lt;span class="link" >&lt;a href="https://binac.org/images/wusong-xuejianyuanyanglou-youmeiyou-lansha/yun-2.png"
+target="_blank">&lt;img class="img" src="https://binac.org/images/wusong-xuejianyuanyanglou-youmeiyou-lansha/yun-2.png"/>&lt;/a>&lt;/span>&lt;span class="caption">
+&lt;span class="title">沙僧什么时候抢了鲁智深的武器？&lt;/span class="image-container-caption">
+&lt;/span>
+&lt;/span>
+&lt;p>不知道西游主角之一的武器 vs 不知道水浒支线配角的名字，哪个更能说明是云读者？&lt;/p>
+&lt;h3 id="质疑二妇女一定是成年女性">质疑二、妇女一定是成年女性？&lt;/h3>
+&lt;p>质疑者认为，妇女单指成年女性，房里的三个妇女如果都是成年却未嫁的女儿，那也太奇怪了，应该是两个奶娘和一个成年女儿，前面两个小的是孩子。&lt;/p>
+&lt;p>然而，《说文》记载“处子曰女，适人曰妇。”女者，指未婚女子。妇者，指已婚女子，故妇女泛指女性。&lt;/p>
+&lt;p>因此，“妇女”也是个偏义复词。虽然一般来说妇女指成年女性，但指代未成年女性未尝不可。&lt;/p>
+&lt;h3 id="质疑三奶娘地位高不能用小的指代">质疑三、奶娘地位高，不能用“小的”指代？&lt;/h3>
+&lt;span class="image-container">&lt;span class="link" >&lt;a href="https://binac.org/images/wusong-xuejianyuanyanglou-youmeiyou-lansha/nainiang-1.png"
+target="_blank">&lt;img class="img" src="https://binac.org/images/wusong-xuejianyuanyanglou-youmeiyou-lansha/nainiang-1.png"/>&lt;/a>&lt;/span>&lt;span class="caption">
+&lt;span class="title">奶娘地位高，不能用“小的”指代？&lt;/span class="image-container-caption">
+&lt;/span>
+&lt;/span>
+&lt;span class="image-container">&lt;span class="link" >&lt;a href="https://binac.org/images/wusong-xuejianyuanyanglou-youmeiyou-lansha/nainiang-2.png"
+target="_blank">&lt;img class="img" src="https://binac.org/images/wusong-xuejianyuanyanglou-youmeiyou-lansha/nainiang-2.png"/>&lt;/a>&lt;/span>&lt;span class="caption">
+&lt;span class="title">奶娘地位高，不能用“小的”指代？&lt;/span class="image-container-caption">
+&lt;/span>
+&lt;/span>
+&lt;p>（下面那人可能是上面那人的小号。除了 IP 属地相同，在与其他网友论战时，他俩的思路一模一样。）&lt;/p>
+&lt;p>这一质疑远比上面有说服力得多。&lt;/p>
+&lt;p>奶娘地位确实高于一般下人，但终究还是下人，其地位与主人密不可分。&lt;/p>
+&lt;p>比如《红楼梦》里的李嬷嬷，是因为贾宝玉的特殊身份地位才高的。赵姨娘那可是贾环的生母，她地位高吗？她对贾琏的通房丫头平儿都是客客气气的。为什么？因为赵姨娘的后台是不争气的贾环，而平儿的后台是王熙凤和贾琏。&lt;/p>
+&lt;p>《水浒传》里这两个奶娘只不过是张都监几个女儿的奶娘而已，不成气候。而玉兰则是张都监“心爱”的养娘：&lt;/p>
+&lt;blockquote>
+&lt;p>张都监叫唤一个心爱的养娘，叫做玉兰，出来唱曲。&lt;/p>
+&lt;/blockquote>
+&lt;p>玉兰既然能得到张都监宠爱，将来有可能纳为妾室，或者收为义女作笼络人心之用，例如《三国演义》里的貂蝉，或《人民的名义》里的高小琴和高小凤。事实上，玉兰就被张都监用来迷惑武松了。&lt;/p>
+&lt;p>那么问题来了，玉兰的后台是张都监，奶娘的后台是张都监的女儿，谁地位高？&lt;/p>
+&lt;p>玉兰引着两个奶娘说是“小的”，是否可行？&lt;/p>
+&lt;p>我水平有限，这恐怕要更专业的人来判断了。&lt;/p>
+&lt;h3 id="另一种解释写作谬误">另一种解释：写作谬误&lt;/h3>
+&lt;p>水浒成书非常复杂，作者是谁、有几人都还是学界难题，有拼凑修改的痕迹在所难免，原文中也可以找出不少瑕疵。&lt;/p>
+&lt;p>某些读者认为水浒是名著，怎么可能有错呢？一定是今天的人不理解。这是非常可笑的。事实上水浒连语法错误都存在，各种地理错误更是数不胜数。&lt;/p>
+&lt;p>为了解决这里的前后不一致，如果认为玉兰引着的两个小的确实是奶娘，那么应该把行凶过程一段中的：&lt;/p>
+&lt;blockquote>
+&lt;p>前番那个唱曲儿的养娘玉兰，引着两个小的，&lt;/p>
+&lt;/blockquote>
+&lt;p>改成：&lt;/p>
+&lt;blockquote>
+&lt;p>前番那个唱曲儿的养娘玉兰，引着两个奶娘，&lt;/p>
+&lt;/blockquote>
+&lt;p>如果认为玉兰引着的是两个孩子，房里的是两个奶娘和一个女儿的话，应该把禀复知府一段中的：&lt;/p>
+&lt;blockquote>
+&lt;p>在外搠死玉兰并奶娘二口，儿女三口。&lt;/p>
+&lt;/blockquote>
+&lt;p>改成：&lt;/p>
+&lt;blockquote>
+&lt;p>在外搠死玉兰并儿女二口，房里搠死女儿一口并奶娘二口。&lt;/p>
+&lt;/blockquote>
+&lt;p>这样一切就说得通了。&lt;/p>
+&lt;h2 id="袁无涯本改动">袁无涯本改动&lt;/h2>
+&lt;p>武松向张青孙二娘介绍一段，袁本把“养娘”改成了“养媳”：&lt;/p>
+&lt;blockquote>
+&lt;p>下楼来，又把他老婆、儿女、养媳都戳死了。&lt;/p>
+&lt;/blockquote>
+&lt;p>我认为是谬误，让人误以为还有个小儿子。&lt;/p>
+&lt;p>这一改动会造成很多问题，例如：&lt;/p>
+&lt;ol>
+&lt;li>
+&lt;p>武松为什么没有提及两个奶娘？&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>玉兰显然不是奶娘，那么只能是养媳，但养媳是儿子的人，张都监怎么能给武松这个外人呢？&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>假设玉兰确实是养媳，且武松被蒙在鼓里，但这里武松如何得知？&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>假设武松自己悟出了玉兰是养媳，但水浒这样一本说书风格的小说，会用这么隐晦的手法吗？看官能听懂吗？&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;p>因此我们根据剃刀原理，只承认容与堂本。&lt;/p>
+&lt;h2 id="被害人是否无辜">被害人是否无辜&lt;/h2>
+&lt;p>首先武松灭门是复仇，虽然有泄愤嫌疑，但如果不灭门，那么只要有任何一人逃出，就可能引来大量官兵，武松就跑不了。&lt;/p>
+&lt;p>因此，必须全部杀死。&lt;/p>
+&lt;p>然后看看这些人是否无辜：&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>后槽：知情且故意隐瞒。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>两个丫嬛：大概率不知情。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>蒋门神、张都监、张团练：主谋。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>两个自家亲随人：前日拿捉武松的帮凶。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>夫人：同谋。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>玉兰：同谋。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>两个奶娘：可能不知情。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>三个儿女：可能不知情，但不得不杀。这就跟造反会被诛九族一样，不杀，以后孩子长大了就会报仇。古代博弈还是很残酷的，比如野史称洪秀全的儿子被捉时年龄还小，等养大了再做凌迟，虽然凌迟未必执行了，但至少是要杀掉的。现在一些作品，主角在灭门时还会大发善心，放了小孩，其实是不切实际的。&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>再看年龄：&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>如果采取“小的”是指奶娘的解释，房里三个女儿待字闺中，大概率都是未成年人。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>如果采取“小的”是指小孩的解释，那么显然两个小的是未成年人，房里的一个女儿待字闺中，大概率也是未成年人。&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>虽然有些人是知情者或同谋，但也确实身不由己。&lt;/p>
+&lt;p>武松是否滥杀，相信每个人心里都有杆秤了。&lt;/p></description></item><item><title>龚开《宋江三十六赞并序》</title><link>https://binac.org/tuya/songjiang-sanshiliuzan-bingxu/</link><pubDate>Sun, 25 Sep 2022 01:18:10 +0800</pubDate><guid>https://binac.org/tuya/songjiang-sanshiliuzan-bingxu/</guid><description>&lt;p>宋江事见于街谈巷语，不足采著，虽有高如李嵩辈传写，士大夫亦不见黜。余年少时壮其人，欲存之画赞，以未见信书载事实，不敢轻为。及异时见《东都事略》中载侍郎侯蒙传，有书一篇陈制贼之计云：“宋江以三十六人横行河朔、京东，官军数万，无敢抗者。其材必有过人，不若赦过招降，使讨方腊，以此自赎，或可平东南之乱。”余然后知江辈真有闻于时者，于是即三十六人，人为一赞，而箴体在焉。盖其本拨矣，将使一归于正，义勇不相戾，此诗人忠厚之心也。&lt;/p>
+&lt;p>余尝以江之所为，虽不得自齿，然其识性超卓有过人者，立号既不僭侈，名称俨然，犹循轨辙，虽托之记载可也。古称柳盗跖为盗贼之圣，以其守壹至于极处。能出类而拔萃若江者，其殆庶几乎！虽然，彼跖与江，与之盗名而不辞，躬履盗迹而无讳者也，岂若世之乱臣贼子，畏影而自走，所为近在一身，而其祸未尝不流四海。呜呼！与其逢圣公之徒，孰若跖与江也？&lt;/p>
+&lt;p>　　　　　呼保义宋江&lt;/p>
+&lt;p>　　不假称王　而呼保义　岂若狂卓　专犯讳忌&lt;/p>
+&lt;p>　　　　　智多星吴学究&lt;/p>
+&lt;p>　　古人用智　义国安民　惜哉所予　酒色觕人&lt;/p>
+&lt;p>　　　　　玉麒麟卢俊义&lt;/p>
+&lt;p>　　白玉麒麟　见之可爱　风尘大行　皮毛终坏&lt;/p>
+&lt;p>　　　　　大刀关胜&lt;/p>
+&lt;p>　　大刀关胜　岂云长孙　云长义勇　汝其后昆&lt;/p>
+&lt;p>　　　　　活阎罗阮小七&lt;/p>
+&lt;p>　　地下阎罗　追魂摄魄　今其活矣　名喝太伯&lt;/p>
+&lt;p>　　　　　尺八腿刘唐&lt;/p>
+&lt;p>　　将军下短　贵称侯王　汝岂非夫　腿尺八长&lt;/p>
+&lt;p>　　　　　没羽箭张清&lt;/p>
+&lt;p>　　箭以羽行　破敌无颇　七札难穿　如游斜何&lt;/p>
+&lt;p>　　　　　浪子燕青&lt;/p>
+&lt;p>　　平康巷陌　岂知汝名　太行春色　有一丈青&lt;/p>
+&lt;p>　　　　　病尉迟孙立&lt;/p>
+&lt;p>　　尉迟壮士　以病自名　端能去病　国功可成&lt;/p>
+&lt;p>　　　　　浪里白跳张顺&lt;/p>
+&lt;p>　　雪浪如山　汝能白跳　愿随忠魂　来驾怒潮&lt;/p>
+&lt;p>　　　　　船火儿张横&lt;/p>
+&lt;p>　　太行好汉　三十有六　无此火儿　其数不足&lt;/p>
+&lt;p>　　　　　短命二郎阮小二&lt;/p>
+&lt;p>　　灌口少年　短命何益　曷不监之　清源庙食&lt;/p>
+&lt;p>　　　　　花和尚鲁智深&lt;/p>
+&lt;p>　　有飞飞儿　出家尤好　与尔同袍　佛也被恼&lt;/p>
+&lt;p>　　　　　行者武松&lt;/p>
+&lt;p>　　汝优婆塞　五戒在身　酒色财气　更要杀人&lt;/p>
+&lt;p>　　　　　铁鞭呼延绰&lt;/p>
+&lt;p>　　尉迟彦章　去来一身　长鞭铁铸　汝岂其人&lt;/p>
+&lt;p>　　　　　混江龙李俊&lt;/p>
+&lt;p>　　乖龙混江　射之即济　武皇雄争　自惜神臂&lt;/p>
+&lt;p>　　　　　九文龙史进&lt;/p>
+&lt;p>　　龙数肖九　汝有九文　盍从东皇　驾五色云&lt;/p>
+&lt;p>　　　　　小李广花荣&lt;/p>
+&lt;p>　　中心慕汉　夺马而归　汝能慕广　何忧数奇&lt;/p>
+&lt;p>　　　　　霹雳火秦明&lt;/p>
+&lt;p>　　霹雳有火　摧山破岳　天心无妄　汝孽自作&lt;/p>
+&lt;p>　　　　　黑旋风李逵&lt;/p>
+&lt;p>　　旋风黑恶　不辨雌雄　山谷之中　遇尔亦凶&lt;/p>
+&lt;p>　　　　　小旋风柴进&lt;/p>
+&lt;p>　　风有大小　黑恶则惧　一噫之微　香满太虚&lt;/p>
+&lt;p>　　　　　插翅虎雷横&lt;/p>
+&lt;p>　　飞而食肉　有此雄奇　生入玉关　岂伤令姿&lt;/p>
+&lt;p>　　　　　神行太保戴宗&lt;/p>
+&lt;p>　　不疾而速　故神无方　汝行何之　敢离太行&lt;/p>
+&lt;p>　　　　　先锋索超&lt;/p>
+&lt;p>　　行军出师　其锋必先　汝勿锐进　天兵在前&lt;/p>
+&lt;p>　　　　　立地太岁阮小五&lt;/p>
+&lt;p>　　东家之西　即西家东　汝虽特立　何有吾宫&lt;/p>
+&lt;p>　　　　　青面兽杨志&lt;/p>
+&lt;p>　　圣人治世　四灵在郊　汝兽何名　走旷劳劳&lt;/p>
+&lt;p>　　　　　赛关索杨雄&lt;/p>
+&lt;p>　　关索之雄　超之亦贤　能持义勇　自命何全&lt;/p>
+&lt;p>　　　　　一直撞董平&lt;/p>
+&lt;p>　　昔樊将军　鸿门直撞　斗酒肉肩　其言甚壮&lt;/p>
+&lt;p>　　　　　两头蛇解珍&lt;/p>
+&lt;p>　　左啮右噬　其毒可畏　逢阴德人　杖之亦毙&lt;/p>
+&lt;p>　　　　　美髯公朱仝&lt;/p>
+&lt;p>　　长髯郁然　美哉丰姿　忍使尺宅　而见赤眉&lt;/p>
+&lt;p>　　　　　没遮拦穆横&lt;/p>
+&lt;p>　　出没太行　茫无畔岸　虽没遮拦　难离伙伴&lt;/p>
+&lt;p>　　　　　拼命三郎石秀&lt;/p>
+&lt;p>　　石秀拼命　志在金宝　大似河鲀　腹果一饱&lt;/p>
+&lt;p>　　　　　双尾蝎解宝&lt;/p>
+&lt;p>　　医师用蝎　其体贵全　反其常性　雷公汝嫌&lt;/p>
+&lt;p>　　　　　铁天王晁盖&lt;/p>
+&lt;p>　　毗沙天人　证紫金躯　顽铁铸汝　亦出洪炉&lt;/p>
+&lt;p>　　　　　金枪班徐宁&lt;/p>
+&lt;p>　　金不可辱　亦忌在秽　盍铸长殳　羽林是卫&lt;/p>
+&lt;p>　　　　　扑天雕李应&lt;/p>
+&lt;p>　　鸷禽雄长　唯雕最狡　毋扑天飞　封狐在草&lt;/p></description></item></channel></rss>

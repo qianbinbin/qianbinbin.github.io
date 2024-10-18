@@ -1,0 +1,61 @@
+<!doctype html><html lang=zh><meta charset=utf-8><meta name=generator content="Hugo 0.136.2"><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name=color-scheme content="light dark"><meta name=supported-color-schemes content="light dark"><link rel=icon href=/favicons/favicon.svg><title>为邮件客户端添加 OAuth 2.0 代理&nbsp;&ndash;&nbsp;Binac</title><link rel=stylesheet href=/css/core.min.d30edcc615d78b7f8a2a9e5f1b66bd074a7ad2e94b579fa5902d0967ce0f7684b300ef3a9e15d41af82c75f3fb951d4b.css integrity=sha384-0w7cxhXXi3+KKp5fG2a9B0p60ulLV5+lkC0JZ84PdoSzAO86nhXUGvgsdfP7lR1L><meta name=twitter:card content="summary">
+<meta name=twitter:title content="为邮件客户端添加 OAuth 2.0 代理"><body><section id=header><div class="header wrap"><span class="header left-side"><a class="site home" href=/><img class="site logo" src=/favicons/favicon.svg alt><span class="site name">Binac</span></a></span>
+<span class="header right-side"><div class="nav wrap"><nav class=nav><a class='nav item active' href=/posts/ title=文章>文章</a>
+<a class='nav item' href=/nonsense/ title=妄言>妄言</a>
+<a class='nav item' href=/tuya/ title=涂鸦>涂鸦</a>
+<a class='nav item' href=/tags/ title>标签</a></nav></div></span></div></section><section id=content><div class=article-container><section class="article header"><h1 class="article title">为邮件客户端添加 OAuth 2.0 代理</h1><p class="article date">2024-10-15</p></section><article class="article markdown-body"><p>强制使用 OAuth 2.0 认证的邮件提供商越来越多，而一些老客户端并不支持，比如 macOS Catalina 自带的邮件。</p><p>于是尝试换 Thunderbird，然而用起来有些……粗犷。</p><p>找到一个开源程序 <a href=https://github.com/simonrob/email-oauth2-proxy target=_blank rel="noopener noreferrer">email-oauth2-proxy</a>，它可以建立一个代理，让不支持 OAuth 2.0 的客户端使用 IMAP/POP/SMTP 协议继续访问邮箱，但它的文档写得实在不像给人类看的。</p><p>下面以 macOS Catalina 自带邮件客户端添加 Outlook 个人邮箱为例进行说明。</p><h2 id=安装>安装</h2><p>我不需要 GUI，因此直接安装：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>$ pipx install emailproxy
+</span></span></code></pre></div><h2 id=配置>配置</h2><p>建立配置文件 <code>~/.config/emailproxy.conf</code>：</p><pre tabindex=0><code class=language-conf data-lang=conf>[IMAP-1993]
+server_address = outlook.office365.com
+server_port = 993
+local_address = 127.0.0.1
+
+[SMTP-1587]
+server_address = smtp-mail.outlook.com
+server_port = 587
+server_starttls = True
+local_address = 127.0.0.1
+
+[your.address@example.com]
+permission_url = https://login.microsoftonline.com/common/oauth2/v2.0/authorize
+token_url = https://login.microsoftonline.com/common/oauth2/v2.0/token
+oauth2_scope = https://outlook.office.com/IMAP.AccessAsUser.All https://outlook.office.com/POP.AccessAsUser.All https://outlook.office.com/SMTP.Send offline_access
+redirect_uri = http://localhost
+client_id = 9e5f94bc-e8a4-4e73-b8be-63364c29d753
+</code></pre><p>由程序与邮件服务器建立连接，客户端只需以 IMAP/SMTP 等协议访问本地代理，访问本地是不加密的，一般也没必要。</p><p>本地端口不能用默认端口（如 993/587），因为默认端口不仅需要以 root 用户运行，客户端也不能添加，否则会提示“服务器拒绝允许通过默认端口进行的连接”。这里用的是 1993/1587。</p><p><code>smtp-mail.outlook.com</code> 是微软用于个人免费账号的 SMTP 服务器，Office 365 账号应该是不一样的，具体自行查找相关文档。SMTP 服务启用了 STARTTLS，因此 <code>server_starttls</code> 设置为 <code>True</code>。</p><p><code>your.address@example.com</code> 改为自己的邮箱地址。</p><p><code>client_id</code> 用于模拟某个邮件客户端，这里的 ID 来自 <a href=https://github.com/mozilla/releases-comm-central/blob/master/mailnews/base/src/OAuth2Providers.sys.mjs target=_blank rel="noopener noreferrer">Thunderbird</a>。</p><h2 id=授权>授权</h2><p>首次使用必须先登录授权。运行：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>$ emailproxy --no-gui --config-file ~/.config/emailproxy.conf --external-auth
+</span></span></code></pre></div><p>典型的流程是：程序将会等待客户端登录，当收到请求时打印一个链接，用浏览器打开并授权，自动跳转到 <code>redirect_uri</code> 开头的链接，回到终端输入跳转后的链接，授权成功。token 默认保存在配置文件中。</p><p>由于苹果自带邮箱太简陋，登录时遇到很多麻烦。</p><p>首先添加账号时，邮件地址不能写真实地址，否则客户端检测到是微软的域名，就自作聪明建立连接，但这显然不可能成功。可以先写无法解析的地址，例如 <code>a@b</code>，之后进入下一步再修改。</p><p>密码可以按自己喜好填写，因为它不是与邮件提供商通信的密码，只是本地代理的密码，程序会自动记住。但再次登录时要保持一致。</p><p>发件和收件服务器都填写 <code>localhost</code>。提示错误可以忽略。总之先建立一个账号，才能进入偏好设置进行详细设置。苹果有点过于把用户当傻子了。</p><p>在偏好设置中找到添加的账号，点击右侧服务器设置，用户名和密码自行设置，取消勾选“自动管理连接设置”，端口改为 1993，在“高级 IMAP 设置”里勾选“允许不安全认证”。</p><p>下方类似地编辑 SMTP 设置，同样将端口改为 1587，并允许不安全认证。</p><p>这时终端会输出需要授权的链接，类似于：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>$ emailproxy --no-gui --config-file ~/.config/emailproxy.conf --external-auth
+</span></span><span class=line><span class=cl>2024-10-15 00:00:00: Initialising Email OAuth 2.0 Proxy <span class=o>(</span>version 2024-09-12<span class=o>)</span> from config file /path/to/.config/emailproxy.conf
+</span></span><span class=line><span class=cl>2024-10-15 00:00:00: Starting IMAP server at 127.0.0.1:1993 <span class=o>(</span>unsecured<span class=o>)</span> proxying outlook.office365.com:993 <span class=o>(</span>SSL/TLS<span class=o>)</span>
+</span></span><span class=line><span class=cl>2024-10-15 00:00:00: Starting SMTP server at 127.0.0.1:1587 <span class=o>(</span>unsecured<span class=o>)</span> proxying smtp-mail.outlook.com:587 <span class=o>(</span>STARTTLS<span class=o>)</span>
+</span></span><span class=line><span class=cl>2024-10-15 00:00:00: Initialised Email OAuth 2.0 Proxy - listening <span class=k>for</span> authentication requests. Connect your email client to begin
+</span></span><span class=line><span class=cl>2024-10-15 00:00:00: Accepting new connection from <span class=o>[</span>::ffff:127.0.0.1<span class=o>]</span>:52602 to IMAP server at 127.0.0.1:1993 <span class=o>(</span>unsecured<span class=o>)</span> proxying outlook.office365.com:993 <span class=o>(</span>SSL/TLS<span class=o>)</span>
+</span></span><span class=line><span class=cl>2024-10-15 00:00:00: Authorisation request received <span class=k>for</span> your.address@example.com <span class=o>(</span>external auth mode<span class=o>)</span>
+</span></span><span class=line><span class=cl>2024-10-15 00:00:00: Email OAuth 2.0 Proxy No-GUI external auth mode: please authorise a request <span class=k>for</span> account your.address@example.com
+</span></span><span class=line><span class=cl>2024-10-15 00:00:00: Please visit the following URL to authenticate account your.address@example.com: https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id<span class=o>=</span>9e5f94bc-e8a4-4e73-b8be-63364c29d753<span class=p>&amp;</span><span class=nv>redirect_uri</span><span class=o>=</span>http%3A%2F%2Flocalhost<span class=p>&amp;</span><span class=nv>scope</span><span class=o>=</span>https%3A%2F%2Foutlook.office.com%2FIMAP.AccessAsUser.All%20https%3A%2F%2Foutlook.office.com%2FPOP.AccessAsUser.All%20https%3A%2F%2Foutlook.office.com%2FSMTP.Send%20offline_access<span class=p>&amp;</span><span class=nv>response_type</span><span class=o>=</span>code<span class=p>&amp;</span><span class=nv>access_type</span><span class=o>=</span>offline<span class=p>&amp;</span><span class=nv>login_hint</span><span class=o>=</span>your.address%40example.com
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>Copy+paste or press <span class=o>[</span>↵ Return<span class=o>]</span> to visit the following URL and authenticate account your.address@example.com: https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_i
+</span></span><span class=line><span class=cl><span class=nv>d</span><span class=o>=</span>9e5f94bc-e8a4-4e73-b8be-63364c29d753<span class=p>&amp;</span><span class=nv>redirect_uri</span><span class=o>=</span>http%3A%2F%2Flocalhost<span class=p>&amp;</span><span class=nv>scope</span><span class=o>=</span>https%3A%2F%2Foutlook.office.com%2FIMAP.AccessAsUser.All%20https%3A%2F%2Foutlook.office.com%2FPO
+</span></span><span class=line><span class=cl>P.AccessAsUser.All%20https%3A%2F%2Foutlook.office.com%2FSMTP.Send%20offline_access<span class=p>&amp;</span><span class=nv>response_type</span><span class=o>=</span>code<span class=p>&amp;</span><span class=nv>access_type</span><span class=o>=</span>offline<span class=p>&amp;</span><span class=nv>login_hint</span><span class=o>=</span>your.address%40example.com <span class=k>then</span> paste here the
+</span></span><span class=line><span class=cl>full post-authentication URL from the browser<span class=err>&#39;</span>s address bar <span class=o>(</span>it should start with http://localhost<span class=o>)</span>: 
+</span></span></code></pre></div><p>打开此链接，授权后自动跳转到类似 <code>http://localhost/?code=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</code> 的地址。将此地址复制到终端回车即可授权完成。</p><p>至此邮箱登录成功。以后只需要运行 <code>emailproxy --no-gui --config-file ~/.config/emailproxy.conf</code> 即可。</p><p>另外需要注意的是，账号的“邮箱行为”中，发件箱建议改为“已发送邮件”，否则发送邮件后，服务器发件箱将存在两份一模一样的邮件。但这样改后，本地发件箱将不会与服务器完全同步，例如删除本地发件箱中的邮件，服务器中仍然存在。</p><h2 id=自动启动>自动启动</h2><p>新建 <code>~/Library/LaunchAgents/emailproxy.plist</code>：</p><pre tabindex=0><code class=language-plist data-lang=plist>&lt;?xml version=&#34;1.0&#34; encoding=&#34;UTF-8&#34;?&gt;
+&lt;!DOCTYPE plist PUBLIC &#34;-//Apple//DTD PLIST 1.0//EN&#34; &#34;http://www.apple.com/DTDs/PropertyList-1.0.dtd&#34;&gt;
+&lt;plist version=&#34;1.0&#34;&gt;
+&lt;dict&gt;
+	&lt;key&gt;Label&lt;/key&gt;
+	&lt;string&gt;emailproxy&lt;/string&gt;
+	&lt;key&gt;ProgramArguments&lt;/key&gt;
+	&lt;array&gt;
+		&lt;string&gt;/usr/local/bin/emailproxy&lt;/string&gt;
+		&lt;string&gt;--no-gui&lt;/string&gt;
+		&lt;string&gt;--config-file&lt;/string&gt;
+		&lt;string&gt;/path/to/.config/emailproxy.conf&lt;/string&gt;
+		&lt;string&gt;--log-file&lt;/string&gt;
+		&lt;string&gt;/usr/local/var/log/emailproxy.log&lt;/string&gt;
+	&lt;/array&gt;
+	&lt;key&gt;KeepAlive&lt;/key&gt;
+	&lt;true/&gt;
+	&lt;key&gt;RunAtLoad&lt;/key&gt;
+	&lt;true/&gt;
+&lt;/dict&gt;
+&lt;/plist&gt;
+</code></pre><p>修改其中配置文件的路径，并加载：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>$ launchctl load /path/to/emailproxy.plist
+</span></span></code></pre></div></article><section class="article labels"><a class=tag href=/tags/macos/>macOS</a><a class=tag href=/tags/%E9%82%AE%E4%BB%B6/>邮件</a></section><section class="article license"><p xmlns:cc=http://creativecommons.org/ns# style=text-align:center>本作品根据 <a href=http://creativecommons.org/licenses/by-nc-sa/4.0/ target=_blank rel="license noopener noreferrer" style=display:inline-block>署名-非商业性使用-相同方式共享 4.0 国际许可<img style=height:15px!important;margin-left:1px;vertical-align:text-bottom src=/cc-icons/cc.svg><img style=height:15px!important;margin-left:1px;vertical-align:text-bottom src=/cc-icons/by.svg><img style=height:15px!important;margin-left:1px;vertical-align:text-bottom src=/cc-icons/nc.svg><img style=height:15px!important;margin-left:1px;vertical-align:text-bottom src=/cc-icons/sa.svg></a> 进行授权。</p></section></div><div class="article bottom"><section class="article navigation"><p><a class=link href=/posts/download-an-old-version-of-chrome/><span class="iconfont icon-article"></span>下载官方旧版本 Chrome</a></p></section><section class="article discussion"><script>function loadComment(){let e=document.createElement("script");e.src="https://utteranc.es/client.js",e.setAttribute("repo","qianbinbin/qianbinbin.github.io"),e.setAttribute("issue-term","pathname"),e.setAttribute("theme","preferred-color-scheme"),e.setAttribute("crossorigin","anonymous"),e.setAttribute("async",""),document.querySelector("section.article.discussion").innerHTML="",document.querySelector("section.article.discussion").appendChild(e)}loadComment(),window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change",()=>{loadComment()})</script></section></div></section><section id=footer><div class=footer-wrap><p class=copyright>© 2017-2024 Binac.</p></div></section><script async src="https://www.googletagmanager.com/gtag/js?id=G-N7VZY53PLB"></script><script>var dnt,doNotTrack=!1;if(!1&&(dnt=navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack,doNotTrack=dnt=="1"||dnt=="yes"),!doNotTrack){window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-N7VZY53PLB")}</script><script src=https://unpkg.com/vanilla-back-to-top@7.2.1/dist/vanilla-back-to-top.min.js></script><script>addBackToTop({diameter:42})</script></body></html>

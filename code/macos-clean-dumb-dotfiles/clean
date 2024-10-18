@@ -1,0 +1,19 @@
+#!/usr/bin/env sh
+
+if [ "$#" -eq 0 ]; then
+  echo "usage: clean path ..." >&2
+  exit 2
+fi
+
+for path in "$@"; do
+  /usr/bin/find "$path" -name .DS_Store -type f -delete &
+  pids="$pids $!"
+  /usr/sbin/dot_clean "$path" &
+  pids="$pids $!"
+done
+
+sc=0
+for p in $pids; do
+  wait "$p" || sc=$((sc + 1))
+done
+if [ $sc -ne 0 ]; then exit 1; fi

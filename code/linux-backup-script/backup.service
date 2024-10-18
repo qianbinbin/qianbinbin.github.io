@@ -1,0 +1,5 @@
+[Unit]
+Description=Run backup
+
+[Service]
+ExecStart=/bin/bash -c "/root/bin/backup.sh >>/var/log/backup.log 2>&1 && echo >>/var/log/backup.log"

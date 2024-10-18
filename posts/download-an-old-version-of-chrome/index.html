@@ -1,0 +1,90 @@
+<!doctype html><html lang=zh><meta charset=utf-8><meta name=generator content="Hugo 0.136.2"><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name=color-scheme content="light dark"><meta name=supported-color-schemes content="light dark"><link rel=icon href=/favicons/favicon.svg><title>下载官方旧版本 Chrome&nbsp;&ndash;&nbsp;Binac</title><link rel=stylesheet href=/css/core.min.d30edcc615d78b7f8a2a9e5f1b66bd074a7ad2e94b579fa5902d0967ce0f7684b300ef3a9e15d41af82c75f3fb951d4b.css integrity=sha384-0w7cxhXXi3+KKp5fG2a9B0p60ulLV5+lkC0JZ84PdoSzAO86nhXUGvgsdfP7lR1L><meta name=twitter:card content="summary">
+<meta name=twitter:title content="下载官方旧版本 Chrome"><body><section id=header><div class="header wrap"><span class="header left-side"><a class="site home" href=/><img class="site logo" src=/favicons/favicon.svg alt><span class="site name">Binac</span></a></span>
+<span class="header right-side"><div class="nav wrap"><nav class=nav><a class='nav item active' href=/posts/ title=文章>文章</a>
+<a class='nav item' href=/nonsense/ title=妄言>妄言</a>
+<a class='nav item' href=/tuya/ title=涂鸦>涂鸦</a>
+<a class='nav item' href=/tags/ title>标签</a></nav></div></span></div></section><section id=content><div class=article-container><section class="article header"><h1 class="article title">下载官方旧版本 Chrome</h1><p class="article date">2024-07-30<span class=lastmod> • 更新于 2024-08-07</span></p></section><article class="article markdown-body"><p>已经忍 Chrome 很久了，但是太依赖扩展和脚本，想换其他浏览器也没什么动力。整天提醒更新，不知道更新了个什么东西，反而把原来的功能改成依托答辩。</p><p>万万没想到，在三哥的英明领导下，谷歌又拉了坨大的：升级到 127.0.6533.73，下载记录没有链接了，光标移动到上面都不行，只能看到域名。</p><p>地铁老人手机.jpg</p><p>这就是地球上最流行的浏览器吗？张小龙都觉得抽象。</p><p>于是去找历史版本，结果谷歌居然不提供。</p><p>去第三方网站 uptodown.com 下载最新版，和谷歌官网的 sha256 都对不上，这尼玛谁敢用？</p><p>也翻了很多号称官方下载的帖子，这些工具号称是 Chrome，其实都是 Chromium，我也是服了。</p><p>最后终于找到了一个获取 Chrome 官方链接的 Python 脚本<sup id=fnref:1><a href=#fn:1 class=footnote-ref role=doc-noteref>1</a></sup>，不过只能获取 macOS 版 Chrome，用 Shell 重写了一下。</p><p>还找到一个 Windows 适用的<sup id=fnref:2><a href=#fn:2 class=footnote-ref role=doc-noteref>2</a></sup>，但是没试过。</p><h2 id=python-脚本>Python 脚本</h2><script src="https://gist.github.com/ryfloyd/afc8d87947a520e6094fec4878051ea8.js?file=google_chrome_update_checker.py"></script><p>把</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=n>os_version</span> <span class=o>=</span> <span class=s1>&#39;14.2&#39;</span>
+</span></span><span class=line><span class=cl><span class=n>target_version_prefix</span> <span class=o>=</span> <span class=s1>&#39;114&#39;</span>
+</span></span></code></pre></div><p>改一下就能用了。脚本是从 tools.google.com 获取，得到链接域名是 gvt1.com，这应该也是谷歌的域名。</p><h2 id=shell-脚本>Shell 脚本</h2><p>原理和上面一样，默认输出第一个 HTTPS 链接，用 <code>-t</code> 指定大版本，<code>-a</code> 打印所有链接，<code>-s</code> 打印 sha256，例如：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>$ get-chrome.sh -t <span class=m>126</span> -s
+</span></span><span class=line><span class=cl>https://redirector.gvt1.com/edgedl/release2/chrome/c27alpqp6yqlnckxwaxrg35r2y_126.0.6478.183/GoogleChrome-126.0.6478.183.dmg
+</span></span><span class=line><span class=cl>sha256 7bb3660120eb9e857f371b390f470a530ef2e956e6426a14b4193751684393f6
+</span></span></code></pre></div><figure style="margin:0 0 1.5em"><figcaption style=text-align:right><a href=/code/download-an-old-version-of-chrome/get-chrome.sh style=color:lightslategrey;font-size:.8em>get-chrome.sh</a></figcaption><div class=highlight><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl><span class=cp>#!/usr/bin/env sh
+</span></span></span><span class=line><span class=cl><span class=cp></span>
+</span></span><span class=line><span class=cl><span class=nb>set</span> -e
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nv>UUID</span><span class=o>=</span><span class=k>$(</span>uuidgen <span class=p>|</span> tr <span class=s1>&#39;[:upper:]&#39;</span> <span class=s1>&#39;[:lower:]&#39;</span><span class=k>)</span>
+</span></span><span class=line><span class=cl><span class=nv>PLATFORM</span><span class=o>=</span>mac
+</span></span><span class=line><span class=cl><span class=nv>OS_VERSION</span><span class=o>=</span>
+</span></span><span class=line><span class=cl><span class=nv>TARGET_VERSION_PREFIX</span><span class=o>=</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>error<span class=o>()</span> <span class=o>{</span> <span class=nb>printf</span> <span class=s2>&#34;%s\n&#34;</span> <span class=s2>&#34;</span><span class=nv>$@</span><span class=s2>&#34;</span> &gt;<span class=p>&amp;</span>2<span class=p>;</span> <span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>if</span> <span class=o>[</span> <span class=s2>&#34;</span><span class=k>$(</span>uname<span class=k>)</span><span class=s2>&#34;</span> <span class=o>=</span> Darwin <span class=o>]</span><span class=p>;</span> <span class=k>then</span>
+</span></span><span class=line><span class=cl>  <span class=nv>OS_VERSION</span><span class=o>=</span><span class=k>$(</span>sw_vers -productVersion <span class=p>|</span> grep -o <span class=s1>&#39;[[:digit:]]\+\.[[:digit:]]\+&#39;</span><span class=k>)</span>
+</span></span><span class=line><span class=cl><span class=k>fi</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nv>PRINT_ALL_LINKS</span><span class=o>=</span><span class=nb>false</span>
+</span></span><span class=line><span class=cl><span class=nv>PRINT_SHA256</span><span class=o>=</span><span class=nb>false</span>
+</span></span><span class=line><span class=cl><span class=nv>SHA_256</span><span class=o>=</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nv>SCRIPT</span><span class=o>=</span><span class=k>$(</span>basename <span class=s2>&#34;</span><span class=nv>$0</span><span class=s2>&#34;</span><span class=k>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nv>USAGE</span><span class=o>=</span><span class=k>$(</span>
+</span></span><span class=line><span class=cl>  cat <span class=s>&lt;&lt;-END
+</span></span></span><span class=line><span class=cl><span class=s>Usage: $SCRIPT [&lt;options&gt;]
+</span></span></span><span class=line><span class=cl><span class=s>Get official download link of Chrome for macOS.
+</span></span></span><span class=line><span class=cl><span class=s>
+</span></span></span><span class=line><span class=cl><span class=s>  -o &lt;os_version&gt;             set OS version, e.g. &#39;10.15&#39;
+</span></span></span><span class=line><span class=cl><span class=s>  -t &lt;target_version_prefix&gt;  set target version prefix of Chrome, e.g. &#39;126&#39;
+</span></span></span><span class=line><span class=cl><span class=s>  -a                          print all available links (by default, print first HTTPS link only)
+</span></span></span><span class=line><span class=cl><span class=s>  -s                          print sha256 checksum
+</span></span></span><span class=line><span class=cl><span class=s>  -h                          display this help and exit
+</span></span></span><span class=line><span class=cl><span class=s>
+</span></span></span><span class=line><span class=cl><span class=s>Home page: &lt;https://binac.org/posts/download-an-old-version-of-chrome/&gt;
+</span></span></span><span class=line><span class=cl><span class=s>END</span>
+</span></span><span class=line><span class=cl><span class=k>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>_exit<span class=o>()</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>  error <span class=s2>&#34;</span><span class=nv>$USAGE</span><span class=s2>&#34;</span>
+</span></span><span class=line><span class=cl>  <span class=nb>exit</span> <span class=m>2</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>while</span> <span class=nb>getopts</span> <span class=s2>&#34;asho:t:&#34;</span> c<span class=p>;</span> <span class=k>do</span>
+</span></span><span class=line><span class=cl>  <span class=k>case</span> <span class=nv>$c</span> in
+</span></span><span class=line><span class=cl>  o<span class=o>)</span> <span class=nv>OS_VERSION</span><span class=o>=</span><span class=nv>$OPTARG</span> <span class=p>;;</span>
+</span></span><span class=line><span class=cl>  t<span class=o>)</span> <span class=nv>TARGET_VERSION_PREFIX</span><span class=o>=</span><span class=nv>$OPTARG</span> <span class=p>;;</span>
+</span></span><span class=line><span class=cl>  a<span class=o>)</span> <span class=nv>PRINT_ALL_LINKS</span><span class=o>=</span><span class=nb>true</span> <span class=p>;;</span>
+</span></span><span class=line><span class=cl>  s<span class=o>)</span> <span class=nv>PRINT_SHA256</span><span class=o>=</span><span class=nb>true</span> <span class=p>;;</span>
+</span></span><span class=line><span class=cl>  h<span class=o>)</span> error <span class=s2>&#34;</span><span class=nv>$USAGE</span><span class=s2>&#34;</span> <span class=o>&amp;&amp;</span> <span class=nb>exit</span> <span class=p>;;</span>
+</span></span><span class=line><span class=cl>  *<span class=o>)</span> _exit <span class=p>;;</span>
+</span></span><span class=line><span class=cl>  <span class=k>esac</span>
+</span></span><span class=line><span class=cl><span class=k>done</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=o>[</span> -z <span class=s2>&#34;</span><span class=nv>$OS_VERSION</span><span class=s2>&#34;</span> <span class=o>]</span> <span class=o>&amp;&amp;</span> error <span class=s2>&#34;OS version not set&#34;</span> <span class=o>&amp;&amp;</span> <span class=nb>exit</span> <span class=m>2</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nv>URL</span><span class=o>=</span><span class=s2>&#34;https://tools.google.com/service/update2&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nv>DATA</span><span class=o>=</span><span class=s2>&#34;&lt;request protocol=\&#34;3.0\&#34; requestid=\&#34;</span><span class=nv>$UUID</span><span class=s2>\&#34;&gt;
+</span></span></span><span class=line><span class=cl><span class=s2>    &lt;os platform=\&#34;</span><span class=nv>$PLATFORM</span><span class=s2>\&#34; version=\&#34;</span><span class=nv>$OS_VERSION</span><span class=s2>\&#34; /&gt;
+</span></span></span><span class=line><span class=cl><span class=s2>    &lt;app appid=\&#34;com.google.Chrome\&#34; lang=\&#34;en-us\&#34;&gt;
+</span></span></span><span class=line><span class=cl><span class=s2>        &lt;updatecheck targetversionprefix=\&#34;</span><span class=nv>$TARGET_VERSION_PREFIX</span><span class=s2>\&#34;/&gt;
+</span></span></span><span class=line><span class=cl><span class=s2>    &lt;/app&gt;
+</span></span></span><span class=line><span class=cl><span class=s2>&lt;/request&gt;&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nv>CONTENT</span><span class=o>=</span><span class=k>$(</span>curl -fsSL -X POST <span class=s2>&#34;</span><span class=nv>$URL</span><span class=s2>&#34;</span> -d <span class=s2>&#34;</span><span class=nv>$DATA</span><span class=s2>&#34;</span><span class=k>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nv>LINKS</span><span class=o>=</span><span class=k>$(</span><span class=nb>echo</span> <span class=s2>&#34;</span><span class=nv>$CONTENT</span><span class=s2>&#34;</span> <span class=p>|</span> grep -o <span class=s1>&#39;https\?://[^&#34;]*&#39;</span><span class=k>)</span>
+</span></span><span class=line><span class=cl><span class=nv>NAME</span><span class=o>=</span><span class=k>$(</span><span class=nb>echo</span> <span class=s2>&#34;</span><span class=nv>$CONTENT</span><span class=s2>&#34;</span> <span class=p>|</span> grep -o <span class=s1>&#39; name=&#34;[^&#34;]*&#39;</span> <span class=p>|</span> cut -c 8-<span class=k>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>if</span> <span class=o>[</span> <span class=s2>&#34;</span><span class=nv>$PRINT_ALL_LINKS</span><span class=s2>&#34;</span> <span class=o>=</span> <span class=nb>false</span> <span class=o>]</span><span class=p>;</span> <span class=k>then</span>
+</span></span><span class=line><span class=cl>  <span class=nv>LINKS</span><span class=o>=</span><span class=k>$(</span><span class=nb>echo</span> <span class=s2>&#34;</span><span class=nv>$LINKS</span><span class=s2>&#34;</span> <span class=p>|</span> grep -o <span class=s1>&#39;https://[^&#34;]*&#39;</span> <span class=p>|</span> head -1<span class=k>)</span>
+</span></span><span class=line><span class=cl><span class=k>fi</span>
+</span></span><span class=line><span class=cl><span class=k>for</span> link in <span class=nv>$LINKS</span><span class=p>;</span> <span class=k>do</span>
+</span></span><span class=line><span class=cl>  <span class=nb>echo</span> <span class=s2>&#34;</span><span class=nv>$link$NAME</span><span class=s2>&#34;</span>
+</span></span><span class=line><span class=cl><span class=k>done</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nv>SHA_256</span><span class=o>=</span><span class=k>$(</span><span class=nb>echo</span> <span class=s2>&#34;</span><span class=nv>$CONTENT</span><span class=s2>&#34;</span> <span class=p>|</span> grep -o <span class=s1>&#39;hash_sha256=&#34;[^&#34;]*&#39;</span> <span class=p>|</span> cut -c 14-<span class=k>)</span>
+</span></span><span class=line><span class=cl><span class=k>if</span> <span class=o>[</span> <span class=s2>&#34;</span><span class=nv>$PRINT_SHA256</span><span class=s2>&#34;</span> <span class=o>=</span> <span class=nb>true</span> <span class=o>]</span><span class=p>;</span> <span class=k>then</span>
+</span></span><span class=line><span class=cl>  error <span class=s2>&#34;sha256 </span><span class=nv>$SHA_256</span><span class=s2>&#34;</span>
+</span></span><span class=line><span class=cl><span class=k>fi</span>
+</span></span></code></pre></div></figure><div class=footnotes role=doc-endnotes><hr><ol><li id=fn:1><p><a href=https://stackoverflow.com/a/77869298 target=_blank rel="noopener noreferrer">https://stackoverflow.com/a/77869298</a>&#160;<a href=#fnref:1 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li><li id=fn:2><p><a href=https://squirrelistic.com/blog/how_to_download_older_version_of_google_chrome target=_blank rel="noopener noreferrer">https://squirrelistic.com/blog/how_to_download_older_version_of_google_chrome</a>&#160;<a href=#fnref:2 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li></ol></div></article><section class="article labels"><a class=tag href=/tags/chrome/>Chrome</a><a class=tag href=/tags/python/>Python</a><a class=tag href=/tags/macos/>macOS</a><a class=tag href=/tags/shell/>Shell</a></section><section class="article license"><p xmlns:cc=http://creativecommons.org/ns# style=text-align:center>本作品根据 <a href=http://creativecommons.org/licenses/by-nc-sa/4.0/ target=_blank rel="license noopener noreferrer" style=display:inline-block>署名-非商业性使用-相同方式共享 4.0 国际许可<img style=height:15px!important;margin-left:1px;vertical-align:text-bottom src=/cc-icons/cc.svg><img style=height:15px!important;margin-left:1px;vertical-align:text-bottom src=/cc-icons/by.svg><img style=height:15px!important;margin-left:1px;vertical-align:text-bottom src=/cc-icons/nc.svg><img style=height:15px!important;margin-left:1px;vertical-align:text-bottom src=/cc-icons/sa.svg></a> 进行授权。</p></section></div><div class="article bottom"><section class="article navigation"><p><a class=link href=/posts/oauth-2.0-proxy-for-email-client/><span class="iconfont icon-article"></span>为邮件客户端添加 OAuth 2.0 代理</a></p><p><a class=link href=/posts/do-not-use-grep-with--v-to-check-whether-file-does-not-contain-a-specific-string/><span class="iconfont icon-article"></span>不要使用 grep -v 来检查文件是否不包含特定字符串</a></p></section><section class="article discussion"><script>function loadComment(){let e=document.createElement("script");e.src="https://utteranc.es/client.js",e.setAttribute("repo","qianbinbin/qianbinbin.github.io"),e.setAttribute("issue-term","pathname"),e.setAttribute("theme","preferred-color-scheme"),e.setAttribute("crossorigin","anonymous"),e.setAttribute("async",""),document.querySelector("section.article.discussion").innerHTML="",document.querySelector("section.article.discussion").appendChild(e)}loadComment(),window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change",()=>{loadComment()})</script></section></div></section><section id=footer><div class=footer-wrap><p class=copyright>© 2017-2024 Binac.</p></div></section><script async src="https://www.googletagmanager.com/gtag/js?id=G-N7VZY53PLB"></script><script>var dnt,doNotTrack=!1;if(!1&&(dnt=navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack,doNotTrack=dnt=="1"||dnt=="yes"),!doNotTrack){window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-N7VZY53PLB")}</script><script src=https://unpkg.com/vanilla-back-to-top@7.2.1/dist/vanilla-back-to-top.min.js></script><script>addBackToTop({diameter:42})</script></body></html>

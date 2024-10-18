@@ -1,0 +1,87 @@
+<!doctype html><html lang=zh><meta charset=utf-8><meta name=generator content="Hugo 0.136.2"><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name=color-scheme content="light dark"><meta name=supported-color-schemes content="light dark"><link rel=icon href=/favicons/favicon.svg><title>批量构建二叉查找树时的一个常见错误&nbsp;&ndash;&nbsp;Binac</title><link rel=stylesheet href=/css/core.min.d30edcc615d78b7f8a2a9e5f1b66bd074a7ad2e94b579fa5902d0967ce0f7684b300ef3a9e15d41af82c75f3fb951d4b.css integrity=sha384-0w7cxhXXi3+KKp5fG2a9B0p60ulLV5+lkC0JZ84PdoSzAO86nhXUGvgsdfP7lR1L><meta name=twitter:card content="summary">
+<meta name=twitter:title content="批量构建二叉查找树时的一个常见错误"><body><section id=header><div class="header wrap"><span class="header left-side"><a class="site home" href=/><img class="site logo" src=/favicons/favicon.svg alt><span class="site name">Binac</span></a></span>
+<span class="header right-side"><div class="nav wrap"><nav class=nav><a class='nav item active' href=/posts/ title=文章>文章</a>
+<a class='nav item' href=/nonsense/ title=妄言>妄言</a>
+<a class='nav item' href=/tuya/ title=涂鸦>涂鸦</a>
+<a class='nav item' href=/tags/ title>标签</a></nav></div></span></div></section><section id=content><div class=article-container><section class="article header"><h1 class="article title">批量构建二叉查找树时的一个常见错误</h1><p class="article date">2018-04-03</p></section><article class="article markdown-body"><p>给定一个正整数 n，生成结点值为 1 ~ n 的所有二叉查找树：
+<a href=https://leetcode.com/problems/unique-binary-search-trees-ii/ target=_blank rel="noopener noreferrer">https://leetcode.com/problems/unique-binary-search-trees-ii/</a></p><blockquote><p>Given an integer n, generate all structurally unique BST&rsquo;s (binary search trees) that store values 1&mldr;n.</p><p>For example,
+Given n = 3, your program should return all 5 unique BST&rsquo;s shown below.</p></blockquote><pre tabindex=0><code>1         3     3      2      1
+ \       /     /      / \      \
+  3     2     1      1   3      2
+ /     /       \                 \
+2     1         2                 3
+</code></pre><p>这个问题可以用递归来求解，对于一个值，先分别生成它的左右子树的集合，然后把这些子树组合即可。</p><p>算法明明已经 AC 了，然而我在本地测试运行时却出现了 <code>Exception: EXC_BAD_ACCESS (code=EXC_I386_GPFLT)</code> 错误，这个错误是在访问已经 free 掉的内存时产生的。</p><p>经过一番 debug，终于发现了问题所在，同时发现网上很多方法也有这个 bug。</p><h2 id=排查调用-free-函数>排查调用 free 函数</h2><p>我在两个地方调用 <code>free</code> 函数释放内存，一个是在组合左右子树后，释放存放左右子树地址集合的数组：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=k>static</span> <span class=k>struct</span> <span class=n>TreeNode</span> <span class=o>**</span><span class=nf>generate_trees</span><span class=p>(</span><span class=kt>int</span> <span class=n>start</span><span class=p>,</span> <span class=kt>int</span> <span class=n>end</span><span class=p>,</span> <span class=kt>int</span> <span class=o>*</span><span class=n>size</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>// ...
+</span></span></span><span class=line><span class=cl><span class=c1></span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>val</span> <span class=o>=</span> <span class=n>start</span><span class=p>;</span> <span class=n>val</span> <span class=o>&lt;=</span> <span class=n>end</span><span class=p>;</span> <span class=o>++</span><span class=n>val</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=kt>int</span> <span class=n>left_size</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=k>struct</span> <span class=n>TreeNode</span> <span class=o>**</span><span class=n>left_trees</span> <span class=o>=</span> <span class=nf>generate_trees</span><span class=p>(</span><span class=n>start</span><span class=p>,</span> <span class=n>val</span> <span class=o>-</span> <span class=mi>1</span><span class=p>,</span> <span class=o>&amp;</span><span class=n>left_size</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=kt>int</span> <span class=n>right_size</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=k>struct</span> <span class=n>TreeNode</span> <span class=o>**</span><span class=n>right_trees</span> <span class=o>=</span> <span class=nf>generate_trees</span><span class=p>(</span><span class=n>val</span> <span class=o>+</span> <span class=mi>1</span><span class=p>,</span> <span class=n>end</span><span class=p>,</span> <span class=o>&amp;</span><span class=n>right_size</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1>// combine left and right trees
+</span></span></span><span class=line><span class=cl><span class=c1></span>
+</span></span><span class=line><span class=cl>        <span class=nf>free</span><span class=p>(</span><span class=n>left_trees</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=nf>free</span><span class=p>(</span><span class=n>right_trees</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></div><p>看起来并没有什么异常。</p><p>一个是在单元测试时，遍历返回的每棵树之后：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp><span class=line><span class=cl><span class=n>TEST</span><span class=p>(</span><span class=n>leetcode_95</span><span class=p>,</span> <span class=n>normal</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kt>int</span> <span class=n>size</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=k>struct</span> <span class=nc>TreeNode</span> <span class=o>**</span><span class=n>trees</span> <span class=o>=</span> <span class=n>generateTrees_95</span><span class=p>(</span><span class=mi>4</span><span class=p>,</span> <span class=o>&amp;</span><span class=n>size</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;</span> <span class=n>size</span><span class=p>;</span> <span class=o>++</span><span class=n>i</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=n>tree_preorder_print</span><span class=p>(</span><span class=n>trees</span><span class=p>[</span><span class=n>i</span><span class=p>]);</span>
+</span></span><span class=line><span class=cl>        <span class=n>tree_free</span><span class=p>(</span><span class=n>trees</span><span class=p>[</span><span class=n>i</span><span class=p>]);</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=n>free</span><span class=p>(</span><span class=n>trees</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></div><p><code>tree_free</code> 用于释放一棵树，函数本身没有什么问题。如果把这一句注释掉就不会报错，这说明 bug 与这一句有关。身为一个强迫症我无法容忍这个莫名其妙的 bug。</p><p>加 log 发现是在 $i = 6$ 时报错，并且对函数传递参数 $\le 3$ 时，不会报错，$\ge 4$ 则会报错。</p><h2 id=二叉查找树>二叉查找树</h2><p>写出 $n = 4$ 时，$i \le 6$ 时的二叉查找树：</p><pre tabindex=0><code>1
+ \
+  2
+   \
+    3
+     \
+      4
+
+1
+ \
+  2
+   \
+    4
+   /
+  3
+
+1
+ \
+  3
+ / \
+2   4
+
+1
+ \
+  4
+ /
+2
+ \
+  3
+
+  1
+   \
+    4
+   /
+  3
+ /
+2
+
+  2
+ / \
+1   3
+     \
+      4
+
+  2
+ / \
+1   4
+   /
+  3
+</code></pre><p>观察可以发现，$i \le 5$ 时，左子树都为空，右子树各不相同，而 $i = 6$ 与 $i = 5$ 的左子树都为 $1$。</p><p>事实上，我们在组合左右子树时，是把子树地址直接赋给根结点的左右结点，因此对于另外一个子树有多种的情况，就会有共用的现象，比如 $i = 5$ 和 $i = 6$ 时就会共用左子树 $1$。而空子树共用则不会有 bug。</p><p>当 $i = 5$ 时，我们已经将这棵树完全释放，而 $i = 6$ 的树也用了这棵树的结点 $1$，再次访问时就报错了。</p><h2 id=解决方法>解决方法</h2><p>知道问题所在后，解决方法就很简单了，组合子树时不要直接赋给左右结点，而是把子树完全复制一遍即可。</p><p>当然，在用完这些子树后，记得把这些子树也要释放掉。</p><p>网上很多方法都是直接赋值，虽然算法可以 AC，但如果用到实际项目中肯定会出现莫名其妙的 bug。</p><h2 id=实现源码>实现源码</h2><p><a href=https://github.com/qianbinbin/leetcode target=_blank rel="noopener noreferrer">https://github.com/qianbinbin/leetcode</a></p></article><section class="article labels"><a class=tag href=/tags/leetcode/>LeetCode</a><a class=tag href=/tags/%E7%AE%97%E6%B3%95/>算法</a><a class=tag href=/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/>二叉树</a></section><section class="article license"><p xmlns:cc=http://creativecommons.org/ns# style=text-align:center>本作品根据 <a href=http://creativecommons.org/licenses/by-nc-sa/4.0/ target=_blank rel="license noopener noreferrer" style=display:inline-block>署名-非商业性使用-相同方式共享 4.0 国际许可<img style=height:15px!important;margin-left:1px;vertical-align:text-bottom src=/cc-icons/cc.svg><img style=height:15px!important;margin-left:1px;vertical-align:text-bottom src=/cc-icons/by.svg><img style=height:15px!important;margin-left:1px;vertical-align:text-bottom src=/cc-icons/nc.svg><img style=height:15px!important;margin-left:1px;vertical-align:text-bottom src=/cc-icons/sa.svg></a> 进行授权。</p></section></div><div class="article bottom"><section class="article navigation"><p><a class=link href=/posts/sqrt/><span class="iconfont icon-article"></span>牛顿法实现开平方 sqrt</a></p><p><a class=link href=/posts/binary-tree-interative-traversal/><span class="iconfont icon-article"></span>二叉树非递归遍历算法的快速实现</a></p></section><section class="article discussion"><script>function loadComment(){let e=document.createElement("script");e.src="https://utteranc.es/client.js",e.setAttribute("repo","qianbinbin/qianbinbin.github.io"),e.setAttribute("issue-term","pathname"),e.setAttribute("theme","preferred-color-scheme"),e.setAttribute("crossorigin","anonymous"),e.setAttribute("async",""),document.querySelector("section.article.discussion").innerHTML="",document.querySelector("section.article.discussion").appendChild(e)}loadComment(),window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change",()=>{loadComment()})</script></section></div></section><section id=footer><div class=footer-wrap><p class=copyright>© 2017-2024 Binac.</p></div></section><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css integrity=sha384-Um5gpz1odJg5Z4HAmzPtgZKdTBHZdw8S29IecapCSB31ligYPhHQZMIlWLYQGVoc crossorigin=anonymous><script defer src=https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.js integrity=sha384-YNHdsYkH6gMx9y3mRkmcJ2mFUjTd0qNQQvY9VYZgQd7DcN7env35GzlmFaZ23JGp crossorigin=anonymous></script><script defer src=https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/contrib/auto-render.min.js integrity=sha384-vZTG03m+2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl crossorigin=anonymous></script><script>document.addEventListener("DOMContentLoaded",function(){renderMathInElement(document.body,{delimiters:[{left:"$$",right:"$$",display:!0},{left:"$",right:"$",display:!1},{left:"\\(",right:"\\)",display:!1},{left:"\\[",right:"\\]",display:!0}],throwOnError:!1})})</script><script async src="https://www.googletagmanager.com/gtag/js?id=G-N7VZY53PLB"></script><script>var dnt,doNotTrack=!1;if(!1&&(dnt=navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack,doNotTrack=dnt=="1"||dnt=="yes"),!doNotTrack){window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-N7VZY53PLB")}</script><script src=https://unpkg.com/vanilla-back-to-top@7.2.1/dist/vanilla-back-to-top.min.js></script><script>addBackToTop({diameter:42})</script></body></html>

@@ -1,0 +1,114 @@
+<!doctype html><html lang=zh><meta charset=utf-8><meta name=generator content="Hugo 0.136.2"><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name=color-scheme content="light dark"><meta name=supported-color-schemes content="light dark"><link rel=icon href=/favicons/favicon.svg><title>macOS 清除 ._*、.DS_Store 隐藏垃圾文件&nbsp;&ndash;&nbsp;Binac</title><link rel=stylesheet href=/css/core.min.d30edcc615d78b7f8a2a9e5f1b66bd074a7ad2e94b579fa5902d0967ce0f7684b300ef3a9e15d41af82c75f3fb951d4b.css integrity=sha384-0w7cxhXXi3+KKp5fG2a9B0p60ulLV5+lkC0JZ84PdoSzAO86nhXUGvgsdfP7lR1L><meta name=twitter:card content="summary">
+<meta name=twitter:title content="macOS 清除 ._*、.DS_Store 隐藏垃圾文件"><body><section id=header><div class="header wrap"><span class="header left-side"><a class="site home" href=/><img class="site logo" src=/favicons/favicon.svg alt><span class="site name">Binac</span></a></span>
+<span class="header right-side"><div class="nav wrap"><nav class=nav><a class='nav item active' href=/posts/ title=文章>文章</a>
+<a class='nav item' href=/nonsense/ title=妄言>妄言</a>
+<a class='nav item' href=/tuya/ title=涂鸦>涂鸦</a>
+<a class='nav item' href=/tags/ title>标签</a></nav></div></span></div></section><section id=content><div class=article-container><section class="article header"><h1 class="article title">macOS 清除 ._*、.DS_Store 隐藏垃圾文件</h1><p class="article date">2021-05-11</p></section><article class="article markdown-body"><p>众所周知，macOS 会自作聪明地生成一些隐藏的垃圾文件。</p><p>想出这个主意的人真是个鬼才，反正只要表面好看就行，全然不顾那些希望高度把控系统的强迫症患者，更别说泄露隐私的风险了。</p><p>垃圾文件主要是 <code>._*</code> 和 <code>.DS_Store</code>，对于前者，可以用 macOS 自带的 <code>dot_clean</code> 工具清除（看来苹果自己也知道这是垃圾文件啊），对于后者，只能用 <code>find</code> 命令查找删除了。</p><p>为此写了一个简单的脚本：</p><figure style="margin:0 0 1.5em"><figcaption style=text-align:right><a href=/code/macos-clean-dumb-dotfiles/clean style=color:lightslategrey;font-size:.8em>clean</a></figcaption><div class=highlight><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl><span class=cp>#!/usr/bin/env sh
+</span></span></span><span class=line><span class=cl><span class=cp></span>
+</span></span><span class=line><span class=cl><span class=k>if</span> <span class=o>[</span> <span class=s2>&#34;</span><span class=nv>$#</span><span class=s2>&#34;</span> -eq <span class=m>0</span> <span class=o>]</span><span class=p>;</span> <span class=k>then</span>
+</span></span><span class=line><span class=cl>  <span class=nb>echo</span> <span class=s2>&#34;usage: clean path ...&#34;</span> &gt;<span class=p>&amp;</span><span class=m>2</span>
+</span></span><span class=line><span class=cl>  <span class=nb>exit</span> <span class=m>2</span>
+</span></span><span class=line><span class=cl><span class=k>fi</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>for</span> path in <span class=s2>&#34;</span><span class=nv>$@</span><span class=s2>&#34;</span><span class=p>;</span> <span class=k>do</span>
+</span></span><span class=line><span class=cl>  /usr/bin/find <span class=s2>&#34;</span><span class=nv>$path</span><span class=s2>&#34;</span> -name .DS_Store -type f -delete <span class=p>&amp;</span>
+</span></span><span class=line><span class=cl>  <span class=nv>pids</span><span class=o>=</span><span class=s2>&#34;</span><span class=nv>$pids</span><span class=s2> </span><span class=nv>$!</span><span class=s2>&#34;</span>
+</span></span><span class=line><span class=cl>  /usr/sbin/dot_clean <span class=s2>&#34;</span><span class=nv>$path</span><span class=s2>&#34;</span> <span class=p>&amp;</span>
+</span></span><span class=line><span class=cl>  <span class=nv>pids</span><span class=o>=</span><span class=s2>&#34;</span><span class=nv>$pids</span><span class=s2> </span><span class=nv>$!</span><span class=s2>&#34;</span>
+</span></span><span class=line><span class=cl><span class=k>done</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nv>sc</span><span class=o>=</span><span class=m>0</span>
+</span></span><span class=line><span class=cl><span class=k>for</span> p in <span class=nv>$pids</span><span class=p>;</span> <span class=k>do</span>
+</span></span><span class=line><span class=cl>  <span class=nb>wait</span> <span class=s2>&#34;</span><span class=nv>$p</span><span class=s2>&#34;</span> <span class=o>||</span> <span class=nv>sc</span><span class=o>=</span><span class=k>$((</span>sc <span class=o>+</span> <span class=m>1</span><span class=k>))</span>
+</span></span><span class=line><span class=cl><span class=k>done</span>
+</span></span><span class=line><span class=cl><span class=k>if</span> <span class=o>[</span> <span class=nv>$sc</span> -ne <span class=m>0</span> <span class=o>]</span><span class=p>;</span> <span class=k>then</span> <span class=nb>exit</span> 1<span class=p>;</span> <span class=k>fi</span>
+</span></span></code></pre></div></figure><p>只需在 <code>clean</code> 后加一个或多个路径，即可递归地清除这些路径下的垃圾文件，例如 <code>clean /Users /Volumes</code>。</p><p>要在 macOS 上设置定时任务，还得使用蛋疼的 launchd。假设脚本路径为 <code>/Users/username/.local/bin/clean</code>，</p><p>每周日 20:30 清除整个系统：</p><figure style="margin:0 0 1.5em"><figcaption style=text-align:right><a href=/code/macos-clean-dumb-dotfiles/clean-system.plist style=color:lightslategrey;font-size:.8em>clean-system.plist</a></figcaption><div class=highlight><pre tabindex=0 class=chroma><code class=language-xml data-lang=xml><span class=line><span class=cl><span class=cp>&lt;?xml version=&#34;1.0&#34; encoding=&#34;UTF-8&#34;?&gt;</span>
+</span></span><span class=line><span class=cl><span class=cp>&lt;!DOCTYPE plist PUBLIC &#34;-//Apple Computer//DTD PLIST 1.0//EN&#34; &#34;http://www.apple.com/DTDs/PropertyList-1.0.dtd&#34;&gt;</span>
+</span></span><span class=line><span class=cl><span class=nt>&lt;plist</span> <span class=na>version=</span><span class=s>&#34;1.0&#34;</span><span class=nt>&gt;</span>
+</span></span><span class=line><span class=cl><span class=nt>&lt;dict&gt;</span>
+</span></span><span class=line><span class=cl>	<span class=nt>&lt;key&gt;</span>Label<span class=nt>&lt;/key&gt;</span>
+</span></span><span class=line><span class=cl>	<span class=nt>&lt;string&gt;</span>clean-system<span class=nt>&lt;/string&gt;</span>
+</span></span><span class=line><span class=cl>	<span class=nt>&lt;key&gt;</span>ProgramArguments<span class=nt>&lt;/key&gt;</span>
+</span></span><span class=line><span class=cl>	<span class=nt>&lt;array&gt;</span>
+</span></span><span class=line><span class=cl>		<span class=nt>&lt;string&gt;</span>/Users/username/.local/bin/clean<span class=nt>&lt;/string&gt;</span>
+</span></span><span class=line><span class=cl>		<span class=nt>&lt;string&gt;</span>/<span class=nt>&lt;/string&gt;</span>
+</span></span><span class=line><span class=cl>	<span class=nt>&lt;/array&gt;</span>
+</span></span><span class=line><span class=cl>	<span class=nt>&lt;key&gt;</span>StartCalendarInterval<span class=nt>&lt;/key&gt;</span>
+</span></span><span class=line><span class=cl>	<span class=nt>&lt;dict&gt;</span>
+</span></span><span class=line><span class=cl>		<span class=nt>&lt;key&gt;</span>Weekday<span class=nt>&lt;/key&gt;</span>
+</span></span><span class=line><span class=cl>		<span class=nt>&lt;integer&gt;</span>0<span class=nt>&lt;/integer&gt;</span>
+</span></span><span class=line><span class=cl>		<span class=nt>&lt;key&gt;</span>Hour<span class=nt>&lt;/key&gt;</span>
+</span></span><span class=line><span class=cl>		<span class=nt>&lt;integer&gt;</span>20<span class=nt>&lt;/integer&gt;</span>
+</span></span><span class=line><span class=cl>		<span class=nt>&lt;key&gt;</span>Minute<span class=nt>&lt;/key&gt;</span>
+</span></span><span class=line><span class=cl>		<span class=nt>&lt;integer&gt;</span>30<span class=nt>&lt;/integer&gt;</span>
+</span></span><span class=line><span class=cl>	<span class=nt>&lt;/dict&gt;</span>
+</span></span><span class=line><span class=cl><span class=nt>&lt;/dict&gt;</span>
+</span></span><span class=line><span class=cl><span class=nt>&lt;/plist&gt;</span>
+</span></span></code></pre></div></figure><p>除周日外每天 20:30 清除用户目录和挂载目录：</p><figure style="margin:0 0 1.5em"><figcaption style=text-align:right><a href=/code/macos-clean-dumb-dotfiles/clean-users.plist style=color:lightslategrey;font-size:.8em>clean-users.plist</a></figcaption><div class=highlight><pre tabindex=0 class=chroma><code class=language-xml data-lang=xml><span class=line><span class=cl><span class=cp>&lt;?xml version=&#34;1.0&#34; encoding=&#34;UTF-8&#34;?&gt;</span>
+</span></span><span class=line><span class=cl><span class=cp>&lt;!DOCTYPE plist PUBLIC &#34;-//Apple Computer//DTD PLIST 1.0//EN&#34; &#34;http://www.apple.com/DTDs/PropertyList-1.0.dtd&#34;&gt;</span>
+</span></span><span class=line><span class=cl><span class=nt>&lt;plist</span> <span class=na>version=</span><span class=s>&#34;1.0&#34;</span><span class=nt>&gt;</span>
+</span></span><span class=line><span class=cl><span class=nt>&lt;dict&gt;</span>
+</span></span><span class=line><span class=cl>	<span class=nt>&lt;key&gt;</span>Label<span class=nt>&lt;/key&gt;</span>
+</span></span><span class=line><span class=cl>	<span class=nt>&lt;string&gt;</span>clean-users<span class=nt>&lt;/string&gt;</span>
+</span></span><span class=line><span class=cl>	<span class=nt>&lt;key&gt;</span>ProgramArguments<span class=nt>&lt;/key&gt;</span>
+</span></span><span class=line><span class=cl>	<span class=nt>&lt;array&gt;</span>
+</span></span><span class=line><span class=cl>		<span class=nt>&lt;string&gt;</span>/Users/username/.local/bin/clean<span class=nt>&lt;/string&gt;</span>
+</span></span><span class=line><span class=cl>		<span class=nt>&lt;string&gt;</span>/Users<span class=nt>&lt;/string&gt;</span>
+</span></span><span class=line><span class=cl>		<span class=nt>&lt;string&gt;</span>/Volumes<span class=nt>&lt;/string&gt;</span>
+</span></span><span class=line><span class=cl>	<span class=nt>&lt;/array&gt;</span>
+</span></span><span class=line><span class=cl>	<span class=nt>&lt;key&gt;</span>StartCalendarInterval<span class=nt>&lt;/key&gt;</span>
+</span></span><span class=line><span class=cl>	<span class=nt>&lt;array&gt;</span>
+</span></span><span class=line><span class=cl>		<span class=nt>&lt;dict&gt;</span>
+</span></span><span class=line><span class=cl>			<span class=nt>&lt;key&gt;</span>Weekday<span class=nt>&lt;/key&gt;</span>
+</span></span><span class=line><span class=cl>			<span class=nt>&lt;integer&gt;</span>1<span class=nt>&lt;/integer&gt;</span>
+</span></span><span class=line><span class=cl>			<span class=nt>&lt;key&gt;</span>Hour<span class=nt>&lt;/key&gt;</span>
+</span></span><span class=line><span class=cl>			<span class=nt>&lt;integer&gt;</span>20<span class=nt>&lt;/integer&gt;</span>
+</span></span><span class=line><span class=cl>			<span class=nt>&lt;key&gt;</span>Minute<span class=nt>&lt;/key&gt;</span>
+</span></span><span class=line><span class=cl>			<span class=nt>&lt;integer&gt;</span>30<span class=nt>&lt;/integer&gt;</span>
+</span></span><span class=line><span class=cl>		<span class=nt>&lt;/dict&gt;</span>
+</span></span><span class=line><span class=cl>		<span class=nt>&lt;dict&gt;</span>
+</span></span><span class=line><span class=cl>			<span class=nt>&lt;key&gt;</span>Weekday<span class=nt>&lt;/key&gt;</span>
+</span></span><span class=line><span class=cl>			<span class=nt>&lt;integer&gt;</span>2<span class=nt>&lt;/integer&gt;</span>
+</span></span><span class=line><span class=cl>			<span class=nt>&lt;key&gt;</span>Hour<span class=nt>&lt;/key&gt;</span>
+</span></span><span class=line><span class=cl>			<span class=nt>&lt;integer&gt;</span>20<span class=nt>&lt;/integer&gt;</span>
+</span></span><span class=line><span class=cl>			<span class=nt>&lt;key&gt;</span>Minute<span class=nt>&lt;/key&gt;</span>
+</span></span><span class=line><span class=cl>			<span class=nt>&lt;integer&gt;</span>30<span class=nt>&lt;/integer&gt;</span>
+</span></span><span class=line><span class=cl>		<span class=nt>&lt;/dict&gt;</span>
+</span></span><span class=line><span class=cl>		<span class=nt>&lt;dict&gt;</span>
+</span></span><span class=line><span class=cl>			<span class=nt>&lt;key&gt;</span>Weekday<span class=nt>&lt;/key&gt;</span>
+</span></span><span class=line><span class=cl>			<span class=nt>&lt;integer&gt;</span>3<span class=nt>&lt;/integer&gt;</span>
+</span></span><span class=line><span class=cl>			<span class=nt>&lt;key&gt;</span>Hour<span class=nt>&lt;/key&gt;</span>
+</span></span><span class=line><span class=cl>			<span class=nt>&lt;integer&gt;</span>20<span class=nt>&lt;/integer&gt;</span>
+</span></span><span class=line><span class=cl>			<span class=nt>&lt;key&gt;</span>Minute<span class=nt>&lt;/key&gt;</span>
+</span></span><span class=line><span class=cl>			<span class=nt>&lt;integer&gt;</span>30<span class=nt>&lt;/integer&gt;</span>
+</span></span><span class=line><span class=cl>		<span class=nt>&lt;/dict&gt;</span>
+</span></span><span class=line><span class=cl>		<span class=nt>&lt;dict&gt;</span>
+</span></span><span class=line><span class=cl>			<span class=nt>&lt;key&gt;</span>Weekday<span class=nt>&lt;/key&gt;</span>
+</span></span><span class=line><span class=cl>			<span class=nt>&lt;integer&gt;</span>4<span class=nt>&lt;/integer&gt;</span>
+</span></span><span class=line><span class=cl>			<span class=nt>&lt;key&gt;</span>Hour<span class=nt>&lt;/key&gt;</span>
+</span></span><span class=line><span class=cl>			<span class=nt>&lt;integer&gt;</span>20<span class=nt>&lt;/integer&gt;</span>
+</span></span><span class=line><span class=cl>			<span class=nt>&lt;key&gt;</span>Minute<span class=nt>&lt;/key&gt;</span>
+</span></span><span class=line><span class=cl>			<span class=nt>&lt;integer&gt;</span>30<span class=nt>&lt;/integer&gt;</span>
+</span></span><span class=line><span class=cl>		<span class=nt>&lt;/dict&gt;</span>
+</span></span><span class=line><span class=cl>		<span class=nt>&lt;dict&gt;</span>
+</span></span><span class=line><span class=cl>			<span class=nt>&lt;key&gt;</span>Weekday<span class=nt>&lt;/key&gt;</span>
+</span></span><span class=line><span class=cl>			<span class=nt>&lt;integer&gt;</span>5<span class=nt>&lt;/integer&gt;</span>
+</span></span><span class=line><span class=cl>			<span class=nt>&lt;key&gt;</span>Hour<span class=nt>&lt;/key&gt;</span>
+</span></span><span class=line><span class=cl>			<span class=nt>&lt;integer&gt;</span>20<span class=nt>&lt;/integer&gt;</span>
+</span></span><span class=line><span class=cl>			<span class=nt>&lt;key&gt;</span>Minute<span class=nt>&lt;/key&gt;</span>
+</span></span><span class=line><span class=cl>			<span class=nt>&lt;integer&gt;</span>30<span class=nt>&lt;/integer&gt;</span>
+</span></span><span class=line><span class=cl>		<span class=nt>&lt;/dict&gt;</span>
+</span></span><span class=line><span class=cl>		<span class=nt>&lt;dict&gt;</span>
+</span></span><span class=line><span class=cl>			<span class=nt>&lt;key&gt;</span>Weekday<span class=nt>&lt;/key&gt;</span>
+</span></span><span class=line><span class=cl>			<span class=nt>&lt;integer&gt;</span>6<span class=nt>&lt;/integer&gt;</span>
+</span></span><span class=line><span class=cl>			<span class=nt>&lt;key&gt;</span>Hour<span class=nt>&lt;/key&gt;</span>
+</span></span><span class=line><span class=cl>			<span class=nt>&lt;integer&gt;</span>20<span class=nt>&lt;/integer&gt;</span>
+</span></span><span class=line><span class=cl>			<span class=nt>&lt;key&gt;</span>Minute<span class=nt>&lt;/key&gt;</span>
+</span></span><span class=line><span class=cl>			<span class=nt>&lt;integer&gt;</span>30<span class=nt>&lt;/integer&gt;</span>
+</span></span><span class=line><span class=cl>		<span class=nt>&lt;/dict&gt;</span>
+</span></span><span class=line><span class=cl>	<span class=nt>&lt;/array&gt;</span>
+</span></span><span class=line><span class=cl><span class=nt>&lt;/dict&gt;</span>
+</span></span><span class=line><span class=cl><span class=nt>&lt;/plist&gt;</span>
+</span></span></code></pre></div></figure><p>把以上 plist 文件放在 <code>/Library/LaunchDaemons</code> 下，然后：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>sudo launchctl load /Library/LaunchDaemons/clean-system.plist
+</span></span><span class=line><span class=cl>sudo launchctl load /Library/LaunchDaemons/clean-users.plist
+</span></span></code></pre></div></article><section class="article labels"><a class=tag href=/tags/macos/>macOS</a><a class=tag href=/tags/shell/>Shell</a></section><section class="article license"><p xmlns:cc=http://creativecommons.org/ns# style=text-align:center>本作品根据 <a href=http://creativecommons.org/licenses/by-nc-sa/4.0/ target=_blank rel="license noopener noreferrer" style=display:inline-block>署名-非商业性使用-相同方式共享 4.0 国际许可<img style=height:15px!important;margin-left:1px;vertical-align:text-bottom src=/cc-icons/cc.svg><img style=height:15px!important;margin-left:1px;vertical-align:text-bottom src=/cc-icons/by.svg><img style=height:15px!important;margin-left:1px;vertical-align:text-bottom src=/cc-icons/nc.svg><img style=height:15px!important;margin-left:1px;vertical-align:text-bottom src=/cc-icons/sa.svg></a> 进行授权。</p></section></div><div class="article bottom"><section class="article navigation"><p><a class=link href=/posts/moebooru-crawler/><span class="iconfont icon-article"></span>Y 站、K 站下载器 moebooru-crawler</a></p><p><a class=link href=/posts/get-next-for-kmp-algorithm/><span class="iconfont icon-article"></span>KMP 算法中的 next 数组</a></p></section><section class="article discussion"><script>function loadComment(){let e=document.createElement("script");e.src="https://utteranc.es/client.js",e.setAttribute("repo","qianbinbin/qianbinbin.github.io"),e.setAttribute("issue-term","pathname"),e.setAttribute("theme","preferred-color-scheme"),e.setAttribute("crossorigin","anonymous"),e.setAttribute("async",""),document.querySelector("section.article.discussion").innerHTML="",document.querySelector("section.article.discussion").appendChild(e)}loadComment(),window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change",()=>{loadComment()})</script></section></div></section><section id=footer><div class=footer-wrap><p class=copyright>© 2017-2024 Binac.</p></div></section><script async src="https://www.googletagmanager.com/gtag/js?id=G-N7VZY53PLB"></script><script>var dnt,doNotTrack=!1;if(!1&&(dnt=navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack,doNotTrack=dnt=="1"||dnt=="yes"),!doNotTrack){window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-N7VZY53PLB")}</script><script src=https://unpkg.com/vanilla-back-to-top@7.2.1/dist/vanilla-back-to-top.min.js></script><script>addBackToTop({diameter:42})</script></body></html>

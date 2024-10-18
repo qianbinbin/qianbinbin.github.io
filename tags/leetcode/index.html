@@ -1,0 +1,52 @@
+<!doctype html><html lang=zh><meta charset=utf-8><meta name=generator content="Hugo 0.136.2"><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name=color-scheme content="light dark"><meta name=supported-color-schemes content="light dark"><link rel=icon href=/favicons/favicon.svg><title>LeetCode&nbsp;&ndash;&nbsp;Binac</title><link rel=stylesheet href=/css/core.min.d30edcc615d78b7f8a2a9e5f1b66bd074a7ad2e94b579fa5902d0967ce0f7684b300ef3a9e15d41af82c75f3fb951d4b.css integrity=sha384-0w7cxhXXi3+KKp5fG2a9B0p60ulLV5+lkC0JZ84PdoSzAO86nhXUGvgsdfP7lR1L><link rel=alternate type=application/rss+xml href=/tags/leetcode/index.xml title=Binac><meta name=twitter:card content="summary">
+<meta name=twitter:title content="LeetCode"><body><section id=header><div class="header wrap"><span class="header left-side"><a class="site home" href=/><img class="site logo" src=/favicons/favicon.svg alt><span class="site name">Binac</span></a></span>
+<span class="header right-side"><div class="nav wrap"><nav class=nav><a class='nav item' href=/posts/ title=文章>文章</a>
+<a class='nav item' href=/nonsense/ title=妄言>妄言</a>
+<a class='nav item' href=/tuya/ title=涂鸦>涂鸦</a>
+<a class='nav item' href=/tags/ title>标签</a></nav></div></span></div></section><section id=content><section class="article header"><h1>LeetCode</h1></section><ul class="note list"><li class=item><a class=note href=/posts/perfect-squares/><p class="note title">将正整数表示为若干平方数之和 Perfect Squares</p><p class="note date">2019-05-08</p><p class="note content">https://leetcode.com/problems/perfect-squares/
+Given a positive integer n, find the least number of perfect square numbers (for example, 1, 4, 9, 16, &mldr;) which sum to n.
+Example 1:
+Input: n = 12 Output: 3 Explanation: 12 = 4 + 4 + 4.
+Example 2:
+Input: n = 13 Output: 2 Explanation: 13 = 4 + 9.
+动态规划 $$ f(i) = \min\{f(i - s)\} + 1, 其中 s 为平方数且 1 \le s \le i$$
+<span class=mldr>&mldr;</span></p></a><p class="note labels"><a class=tag href=/tags/leetcode/>LeetCode</a><a class=tag href=/tags/%E7%AE%97%E6%B3%95/>算法</a></p></li><li class=item><a class=note href=/posts/pow-x-n/><p class="note title">幂运算 pow(x, n) 的一个迭代实现</p><p class="note date">2018-08-24</p><p class="note content">求一个浮点数的整数次幂： https://leetcode.com/problems/powx-n/
+Implement pow(x, n), which calculates&nbsp;x raised to the power n (i.e. xn).
+&nbsp;
+Example 1:
+Input: x = 2.00000, n = 10 Output: 1024.00000 Example 2:
+Input: x = 2.10000, n = 3 Output: 9.26100 Example 3:
+Input: x = 2.00000, n = -2 Output: 0.25000 Explanation: 2-2 = 1/22 = 1/4 = 0.25 &nbsp;
+Constraints:
+-100.0 &lt;&nbsp;x&nbsp;&lt; 100.0 -231&nbsp;&lt;= n &lt;=&nbsp;231-1 -104 &lt;= xn &lt;= 104 基本就是分治思想，用递归就能很方便地实现，也可以把递归改写成迭代，但我在 Discuss 区看见了一个精奇的迭代思路1。
+<span class=mldr>&mldr;</span></p></a><p class="note labels"><a class=tag href=/tags/leetcode/>LeetCode</a><a class=tag href=/tags/%E7%AE%97%E6%B3%95/>算法</a><a class=tag href=/tags/%E4%BD%8D%E6%93%8D%E4%BD%9C/>位操作</a></p></li><li class=item><a class=note href=/posts/wildcard-matching/><p class="note title">通配符匹配 Wildcard Matching</p><p class="note date">2018-06-12</p><p class="note content">通配符匹配问题： https://leetcode.com/problems/wildcard-matching/
+Given an input string (s) and a pattern (p), implement wildcard pattern matching with support for &lsquo;?&rsquo; and &lsquo;*&rsquo;.
+&lsquo;?&rsquo; Matches any single character. &lsquo;*&rsquo; Matches any sequence of characters (including the empty sequence).
+The matching should cover the entire input string (not partial).
+Note:
+s could be empty and contains only lowercase letters a-z. p could be empty and contains only lowercase letters a-z, and characters like ? or *.
+<span class=mldr>&mldr;</span></p></a><p class="note labels"><a class=tag href=/tags/leetcode/>LeetCode</a><a class=tag href=/tags/%E7%AE%97%E6%B3%95/>算法</a><a class=tag href=/tags/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/>动态规划</a><a class=tag href=/tags/%E8%B4%AA%E5%BF%83%E7%AE%97%E6%B3%95/>贪心算法</a></p></li><li class=item><a class=note href=/posts/first-missing-positive/><p class="note title">数组中首个缺失的正整数 First Missing Positive</p><p class="note date">2018-06-08</p><p class="note content">找出数组中首个缺失的正整数： https://leetcode.com/problems/first-missing-positive/
+Given an unsorted integer array, find the smallest missing positive integer.
+Example 1:
+Input: [1,2,0] Output: 3
+Example 2:
+Input: [3,4,-1,1] Output: 2
+Example 3:
+Input: [7,8,9,11,12] Output: 1
+Note:
+Your algorithm should run in O(n) time and uses constant extra space.
+看起来很简单，首先想到排序的方法，时间复杂度为 $O(n\log(n))$。
+<span class=mldr>&mldr;</span></p></a><p class="note labels"><a class=tag href=/tags/leetcode/>LeetCode</a><a class=tag href=/tags/%E7%AE%97%E6%B3%95/>算法</a><a class=tag href=/tags/%E5%93%88%E5%B8%8C%E8%A1%A8/>哈希表</a></p></li><li class=item><a class=note href=/posts/leetcode-categories/><p class="note title">LeetCode 个人分类</p><p class="note date">2018-05-17</p><p class="note content">数组 11. Container With Most Water 15. 3Sum 16. 3Sum Closest 26. Remove Duplicates from Sorted Array 27. Remove Element 31. Next Permutation 42. Trapping Rain Water 48. Rotate Image 54. Spiral Matrix 59. Spiral Matrix II 60. Permutation Sequence 73. Set Matrix Zeroes 75. Sort Colors 80. Remove Duplicates from Sorted Array II 88. Merge Sorted Array 118. Pascal&rsquo;s Triangle 119. Pascal&rsquo;s Triangle II
+链表 2. Add Two Numbers 19. Remove Nth Node From End of List 21. Merge Two Sorted Lists 24. Swap Nodes in Pairs 25. Reverse Nodes in k-Group 61. Rotate List 82. Remove Duplicates from Sorted List II 83. Remove Duplicates from Sorted List 86. Partition List 92. Reverse Linked List II 138. Copy List with Random Pointer 141. Linked List Cycle 142. Linked List Cycle II 143. Reorder List
+<span class=mldr>&mldr;</span></p></a><p class="note labels"><a class=tag href=/tags/leetcode/>LeetCode</a><a class=tag href=/tags/%E7%AE%97%E6%B3%95/>算法</a></p></li><li class=item><a class=note href=/posts/best-time-to-buy-and-sell-stock-iii/><p class="note title">Best Time to Buy and Sell Stock III</p><p class="note date">2018-05-04</p><p class="note content">股票买入卖出的最佳时间问题： https://leetcode.com/problems/best-time-to-buy-and-sell-stock-iii/
+Say you have an array for which the ith element is the price of a given stock on day i.
+Design an algorithm to find the maximum profit. You may complete at most two transactions.
+Note: You may not engage in multiple transactions at the same time (i.e., you must sell the stock before you buy again).
+<span class=mldr>&mldr;</span></p></a><p class="note labels"><a class=tag href=/tags/leetcode/>LeetCode</a><a class=tag href=/tags/%E7%AE%97%E6%B3%95/>算法</a><a class=tag href=/tags/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/>动态规划</a></p></li><li class=item><a class=note href=/posts/sqrt/><p class="note title">牛顿法实现开平方 sqrt</p><p class="note date">2018-04-30</p><p class="note content">在精度要求较低的情况下，可以用二分查找实现开平方，例如 Sqrt(x) - LeetCode 就只需返回 int，即精确到个位。
+在求更高精度开平方时，可以利用牛顿法。
+从泰勒公式到牛顿法 泰勒公式
+<span class=mldr>&mldr;</span></p></a><p class="note labels"><a class=tag href=/tags/leetcode/>LeetCode</a><a class=tag href=/tags/%E7%AE%97%E6%B3%95/>算法</a></p></li><li class=item><a class=note href=/posts/unique-binary-search-trees-ii/><p class="note title">批量构建二叉查找树时的一个常见错误</p><p class="note date">2018-04-03</p><p class="note content">给定一个正整数 n，生成结点值为 1 ~ n 的所有二叉查找树： https://leetcode.com/problems/unique-binary-search-trees-ii/
+Given an integer n, generate all structurally unique BST&rsquo;s (binary search trees) that store values 1&mldr;n.
+For example, Given n = 3, your program should return all 5 unique BST&rsquo;s shown below.
+1 3 3 2 1 \ / / / \ \ 3 2 1 1 3 2 / / \ \ 2 1 2 3 这个问题可以用递归来求解，对于一个值，先分别生成它的左右子树的集合，然后把这些子树组合即可。
+<span class=mldr>&mldr;</span></p></a><p class="note labels"><a class=tag href=/tags/leetcode/>LeetCode</a><a class=tag href=/tags/%E7%AE%97%E6%B3%95/>算法</a><a class=tag href=/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/>二叉树</a></p></li></ul><div class=pagination><ul><li><a class=active href=/tags/leetcode/>1</a></li><li><a href=/tags/leetcode/page/2/>2</a></li></ul></div></section><section id=footer><div class=footer-wrap><p class=copyright>© 2017-2024 Binac.</p></div></section><script async src="https://www.googletagmanager.com/gtag/js?id=G-N7VZY53PLB"></script><script>var dnt,doNotTrack=!1;if(!1&&(dnt=navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack,doNotTrack=dnt=="1"||dnt=="yes"),!doNotTrack){window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-N7VZY53PLB")}</script><script src=https://unpkg.com/vanilla-back-to-top@7.2.1/dist/vanilla-back-to-top.min.js></script><script>addBackToTop({diameter:42})</script></body></html>

@@ -1,0 +1,140 @@
+<!doctype html><html lang=zh><meta charset=utf-8><meta name=generator content="Hugo 0.163.3"><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name=color-scheme content="light dark"><meta name=supported-color-schemes content="light dark"><link rel=icon href=/favicons/favicon.svg><meta name=description content="一直跟你索取数据，你有求必应地给它了，等你跟它请求的时候，不好意思，没有，不信你看我进度，我可是 0% 啊！——这就是吸血。
+然而 BT 协议非常宽松，大多数开源客户端并不屏蔽吸血客户端，有些客户端如
+qBittorrent-Enhanced-Edition，可以通过
+Peer/Client ID 识别它们并屏蔽。"><title>Transmission 屏蔽迅雷等吸血客户端&nbsp;&ndash;&nbsp;Binac</title><link rel=stylesheet href=/css/core.min.b64f0786f9b4c30882b5efa609e88ed5b645d9a105201e05a9f862bb09522be0c2949684da05264891016a296344e631.css integrity=sha384-tk8Hhvm0wwiCte+mCeiO1bZF2aEFIB4FqfhiuwlSK+DClJaE2gUmSJEBailjROYx><meta name=twitter:card content="summary"><meta name=twitter:title content="Transmission 屏蔽迅雷等吸血客户端"><body><section id=header><div class="header wrap"><span class="header left-side"><a class="site home" href=/><img alt loading=lazy class="site logo" src=/favicons/favicon.svg><span class="site name">Binac</span></a></span>
+<span class="header right-side"><div class="nav wrap"><nav class=nav><div id=search_btn><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div><div id=search_menu_wrapper class=hidden><div id=search_menu><div id=search_menu_toolbar><div id=search_menu_input_wrapper><input id=search_menu_input type=text placeholder=搜索...></div><div id=search_menu_close_btn><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-darkreader-inline-stroke="" style="--darkreader-inline-stroke:currentcolor"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div></div><ul id=search_menu_results class="note list"></ul></div></div><a class='nav item active' href=/posts/ title=文章>文章</a>
+<a class='nav item' href=/nonsense/ title=妄言>妄言</a>
+<a class='nav item' href=/tuya/ title=涂鸦>涂鸦</a>
+<a class='nav item' href=/tags/ title>标签</a></nav></div></span></div></section><section id=content><div class=article-container><section class="article header"><h1 class="article title">Transmission 屏蔽迅雷等吸血客户端</h1><p class="article date">2022-04-26<span class=lastmod> • 更新于 2025-06-25</span></p></section><article class="article markdown-body"><p>一直跟你索取数据，你有求必应地给它了，等你跟它请求的时候，不好意思，没有，不信你看我进度，我可是 0% 啊！——这就是吸血。</p><p>然而 BT 协议非常宽松，大多数开源客户端并不屏蔽吸血客户端，有些客户端如
+<a href=https://github.com/c0re100/qBittorrent-Enhanced-Edition target=_blank rel="noopener noreferrer">qBittorrent-Enhanced-Edition</a>，可以通过
+Peer/Client ID 识别它们并屏蔽。</p><p>个人使用的 Transmission 就只能屏蔽 IP，而且作者表示不会加入屏蔽客户端这种功能<sup id=fnref:1><a href=#fn:1 class=footnote-ref role=doc-noteref>1</a></sup>。</p><p>于是我写了个 Shell 脚本
+<a href=https://github.com/qianbinbin/transmission-block target=_blank rel="noopener noreferrer">qianbinbin/transmission-block</a>，可以按客户端屏蔽其
+IP，还支持在线黑名单。</p><blockquote><p>近年来出现了 <a href=https://github.com/PBH-BTN/PeerBanHelper target=_blank rel="noopener noreferrer">PeerBanHelper</a> 反吸血项目，支持包括
+Transmission 在内的很多客户端。然而它太过重量级，而 Transmission 正是以资源占用少著称。</p></blockquote><p><strong>项目创建于 2022 年，2025 年进行了重大更新。</strong></p><p><strong>以下是全新的
+README，具体请移步<a href=https://github.com/qianbinbin/transmission-block target=_blank rel="noopener noreferrer">我的仓库</a>安装脚本。</strong></p><hr><a href=https://github.com/qianbinbin/transmission-block/tree/blocklist#allbtn-collected-rules target=_blank rel="noopener noreferrer"><img loading=lazy src="https://badge-redirect.binac.org/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fqianbinbin%2Ftransmission-block%2Frefs%2Fheads%2Fblocklist%2FREADME.md&amp;pattern=%5C%5Ball%40BTN-Collected-Rules%5C%5D%5C%28%28%5B%5E%29%5D%2B%29%5C%29" alt=all@BTN-Collected-Rules></a>
+<a href=https://github.com/qianbinbin/transmission-block/issues/9 target=_blank rel="noopener noreferrer"><img loading=lazy src="https://badge-redirect.binac.org/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fqianbinbin%2Ftransmission-block%2Frefs%2Fheads%2Fblocklist%2FREADME.md&amp;pattern=%5C%5BIssue9%5C%5D%5C%28%28%5B%5E%29%5D%2B%29%5C%29" alt=Issue9></a><p>Transmission 辅助脚本，屏蔽迅雷等吸血客户端以及在线屏蔽列表（黑名单）中的 IP 地址。</p><p>特性：</p><ul><li>支持屏蔽指定客户端（已预设，详见配置文件中的 <code>LEECHER_CLIENTS</code>）。</li><li>支持抓取多个指定在线黑名单，支持文本、gzip、zip 格式（详见配置文件中的 <code>EXTERNAL_BL</code>）。</li><li>完全端到端访问，理论支持容器中的 Transmission，甚至可以运行在另一主机。</li><li>支持受限用户运行。</li><li>理论兼容 POSIX Shell 环境。</li><li>同步转换 <a href=https://github.com/PBH-BTN/BTN-Collected-Rules target=_blank rel="noopener noreferrer">BTN-Collected-Rules</a> 为
+Transmission 兼容的黑名单（详见
+<a href=https://github.com/qianbinbin/transmission-block/tree/blocklist target=_blank rel="noopener noreferrer">blocklist</a>
+分支）。</li></ul><p>依赖：</p><ul><li>transmission-remote 命令，通常已经与 Transmission 一起安装。隔离安装（如某些 NAS 系统）的
+transmission-remote 可能需要设置 <code>PATH</code>，详见配置文件。</li><li>curl、file 命令（如果使用在线黑名单）。</li><li>HTTP 服务程序，nginx、busybox httpd、python3 任意一种（排序分先后）。前两者资源占用极低，后两者普遍预装。</li><li>systemd 235 或以上版本（如果使用 systemd
+管理）。要在更低版本上使用，参考<a href=#%e9%97%ae%e9%a2%98%e6%8e%92%e6%9f%a5>问题排查</a>。</li></ul><h2 id=使用>使用</h2><details><summary>删除旧版 trans-block.sh 脚本（可选）</summary><p>以 root 权限运行：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>rm /path/to/trans-block.sh <span class=c1># 旧脚本保存路径</span>
+</span></span><span class=line><span class=cl>systemctl disable transmission-block.service
+</span></span><span class=line><span class=cl>systemctl stop transmission-block.service
+</span></span><span class=line><span class=cl>rm /etc/systemd/system/transmission-block.service
+</span></span><span class=line><span class=cl>systemctl daemon-reload
+</span></span></code></pre></td></tr></table></div></div><p>删除<a href=https://github.com/transmission/transmission/blob/main/docs/Configuration-Files.md target=_blank rel="noopener noreferrer">配置目录</a>下的旧黑名单：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>rm -i /path/to/config/blocklists/leechers.txt*
+</span></span></code></pre></td></tr></table></div></div><p>如果不知道配置目录，可以使用以下命令获取（替换自己的用户名和密码）：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>transmission-remote --auth username:password --session-info <span class=p>|</span> sed -n -E <span class=s1>&#39;s/.*Configuration directory: (.*)/\1/p&#39;</span>
+</span></span></code></pre></td></tr></table></div></div></details><h3 id=设置-transmission>设置 Transmission</h3><ul><li>启用远程访问；设置用户名和密码（可选）。</li><li>启用黑名单，并设置为 <code>http://127.0.0.1:9098/blocklist.p2p.gz</code>。</li></ul><p>以 transmission-daemon
+为例，在<a href=https://github.com/transmission/transmission/blob/main/docs/Configuration-Files.md target=_blank rel="noopener noreferrer">配置文件</a>中：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-json data-lang=json><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=nt>&#34;rpc-enabled&#34;</span><span class=p>:</span> <span class=kc>true</span><span class=p>,</span>                                      <span class=err>&lt;---</span> <span class=err>启用远程访问</span>
+</span></span><span class=line><span class=cl>  <span class=nt>&#34;rpc-authentication-required&#34;</span><span class=p>:</span> <span class=kc>true</span><span class=p>,</span>                      <span class=err>&lt;---</span> <span class=err>启用用户验证</span>
+</span></span><span class=line><span class=cl>  <span class=nt>&#34;rpc-username&#34;</span><span class=p>:</span> <span class=s2>&#34;username&#34;</span><span class=p>,</span>                               <span class=err>&lt;---</span> <span class=err>用户名</span>
+</span></span><span class=line><span class=cl>  <span class=nt>&#34;rpc-password&#34;</span><span class=p>:</span> <span class=s2>&#34;password&#34;</span><span class=p>,</span>                               <span class=err>&lt;---</span> <span class=err>密码</span>
+</span></span><span class=line><span class=cl>  <span class=nt>&#34;blocklist-enabled&#34;</span><span class=p>:</span> <span class=kc>true</span><span class=p>,</span>                                <span class=err>&lt;---</span> <span class=err>启用黑名单</span>
+</span></span><span class=line><span class=cl>  <span class=nt>&#34;blocklist-url&#34;</span><span class=p>:</span> <span class=s2>&#34;http://127.0.0.1:9098/blocklist.p2p.gz&#34;</span> <span class=err>&lt;---</span> <span class=err>黑名单地址</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><blockquote><p>[!NOTE]
+修改密码建议在 daemon 关闭状态下，因为密码会在启动后加盐哈希。</p><p>如不使用默认 HTTP 监听地址（见配置文件中的 <code>BL_SERVER</code>），则 <code>"blocklist-url"</code> 要相应修改。</p><p>如果 daemon 正在运行，使用 <code>systemctl reload transmission-daemon.service</code>
+<a href=https://github.com/transmission/transmission/blob/main/docs/Editing-Configuration-Files.md#reload-settings target=_blank rel="noopener noreferrer">重新加载配置</a>，直接重启不会生效。</p></blockquote><h3 id=自动运行systemd>自动运行（systemd）</h3><p>下载脚本及配置文件，以 root 权限运行：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>mkdir -p /usr/local/bin /usr/local/lib/systemd/system /usr/local/etc/transmission-block
+</span></span><span class=line><span class=cl>chmod <span class=m>700</span> /usr/local/etc/transmission-block
+</span></span><span class=line><span class=cl>curl https://raw.githubusercontent.com/qianbinbin/transmission-block/master/transmission-block.sh <span class=se>\
+</span></span></span><span class=line><span class=cl>  -o /usr/local/bin/transmission-block <span class=se>\
+</span></span></span><span class=line><span class=cl>  https://raw.githubusercontent.com/qianbinbin/transmission-block/master/transmission-block.service <span class=se>\
+</span></span></span><span class=line><span class=cl>  -o /usr/local/lib/systemd/system/transmission-block.service <span class=se>\
+</span></span></span><span class=line><span class=cl>  https://raw.githubusercontent.com/qianbinbin/transmission-block/master/transmission-block.conf <span class=se>\
+</span></span></span><span class=line><span class=cl>  -o /usr/local/etc/transmission-block/transmission-block.conf
+</span></span><span class=line><span class=cl>chmod +x /usr/local/bin/transmission-block
+</span></span><span class=line><span class=cl>systemctl daemon-reload
+</span></span></code></pre></td></tr></table></div></div><p>如果启用了用户验证，在 <code>/usr/local/etc/transmission-block/transmission-block.conf</code> 中设置
+<code>TR_AUTH</code> 用户名和密码。其余均为可选参数，用法由注释给出。</p><blockquote><p>[!TIP]
+推荐启用 BTN-Collected-Rules 黑名单：</p><pre tabindex=0><code>EXTERNAL_BL=https://raw.githubusercontent.com/qianbinbin/transmission-block/blocklist/btn-all.p2p
+# 更新较为频繁
+RENEW_INTERVAL=1h
+</code></pre><table><thead><tr><th>列表</th><th>CDN</th><th>备注</th></tr></thead><tbody><tr><td><a href=https://raw.githubusercontent.com/qianbinbin/transmission-block/blocklist/btn-all.p2p target=_blank rel="noopener noreferrer">完整列表</a></td><td><a href=https://blocklist.binac.org/btn-all.p2p target=_blank rel="noopener noreferrer">Cloudflare</a> <a href=https://cdn.jsdelivr.net/gh/qianbinbin/transmission-block@blocklist/btn-all.p2p target=_blank rel="noopener noreferrer">jsDelivr</a></td><td>包括 IPv4 和 IPv6 地址，适用于 Transmission v4.0.0 及以上版本</td></tr><tr><td><a href=https://raw.githubusercontent.com/qianbinbin/transmission-block/blocklist/btn-all-ipv4.p2p target=_blank rel="noopener noreferrer">仅 IPv4</a></td><td><a href=https://blocklist.binac.org/btn-all-ipv4.p2p target=_blank rel="noopener noreferrer">Cloudflare</a> <a href=https://cdn.jsdelivr.net/gh/qianbinbin/transmission-block@blocklist/btn-all-ipv4.p2p target=_blank rel="noopener noreferrer">jsDelivr</a></td><td>仅 IPv4 地址，适用于 Transmission v4.0.0 以下版本</td></tr></tbody></table><p>注：jsDelivr 有一定延迟，部分地区可能存在 DNS 污染。</p><p>其他黑名单可以查看
+<a href=https://github.com/qianbinbin/transmission-block/tree/blocklist target=_blank rel="noopener noreferrer">blocklist</a>
+和<a href=#%e5%85%b6%e4%bb%96%e9%bb%91%e5%90%8d%e5%8d%95>其他黑名单</a>。</p></blockquote><p>运行：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>systemctl <span class=nb>enable</span> transmission-block.service <span class=c1># 开机启动</span>
+</span></span><span class=line><span class=cl>systemctl start transmission-block.service <span class=c1># 立即启动</span>
+</span></span><span class=line><span class=cl>systemctl status transmission-block.service <span class=c1># 查看状态</span>
+</span></span><span class=line><span class=cl>journalctl -f -u transmission-block.service <span class=c1># 查看 log</span>
+</span></span></code></pre></td></tr></table></div></div><p>在 Transmission Web 管理页面，点击 🔧 > Peers，查看屏蔽规则是否生效。</p><details><summary>手动运行</summary><h3 id=手动运行>手动运行</h3><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>curl https://raw.githubusercontent.com/qianbinbin/transmission-block/master/transmission-block.sh <span class=se>\
+</span></span></span><span class=line><span class=cl>  -o ./transmission-block.sh
+</span></span><span class=line><span class=cl>chmod +x ./transmission-block.sh
+</span></span><span class=line><span class=cl><span class=nb>export</span> <span class=nv>TR_AUTH</span><span class=o>=</span>username:password <span class=c1># 用户名和密码，可以加入到环境变量</span>
+</span></span><span class=line><span class=cl>./transmission-block.sh <span class=c1># ./transmission-block.sh -h 查看更多参数</span>
+</span></span></code></pre></td></tr></table></div></div></details><h2 id=补充吸血客户端和可疑-ip>补充吸血客户端和可疑 IP</h2><p>欢迎在 <a href=https://github.com/qianbinbin/transmission-block/issues/9 target=_blank rel="noopener noreferrer">https://github.com/qianbinbin/transmission-block/issues/9</a> 补充吸血客户端和可疑 IP。</p><p>通过 <code>transmission-remote --auth username:password --torrent all --peer-info</code>
+查看所有连接。</p><blockquote><p>[!TIP]
+如何确定可疑 IP？在 <a href=https://iknowwhatyoudownload.com/en/peer/ target=_blank rel="noopener noreferrer">https://iknowwhatyoudownload.com/en/peer/</a> 上查询该 IP
+的下载记录，如果下载量远超普通用户，说明可能是离线下载服务器或刷流量的。</p></blockquote><h2 id=问题排查>问题排查</h2><ul><li><p><a href=https://github.com/transmission/transmission/issues/732 target=_blank rel="noopener noreferrer">加入黑名单后不会立即生效</a>，系
+Transmission bug，预计 v4.1.0 版本将修复这个问题。对于小于此版本，脚本尝试通过重启任务解决（见配置文件中的
+<code>RESTART_TORRENT</code>），但偶尔会重启失败。</p></li><li><p>Transmission v4.0.0 以下不支持屏蔽 IPv6 地址。</p></li><li><p>一些客户端被离线下载服务器使用，但不排除有正常用户使用。例如
+<code>libtorrent (Rasterbar) 2.0.7</code>、<code>libTorrent (Rakshasa) 0.13.8</code> 可能是迅雷或 PikPak
+服务器，脚本默认屏蔽。</p></li><li><p>一些数据中心 IP 会被激进的在线黑名单拉黑，如 Vultr。</p></li><li><p>systemd 235 以下版本（通过 <code>systemctl --version</code> 查看）不支持 DynamicUser 和
+StateDirectory，有条件建议升级。如果无法升级，需自行创建工作目录并修改 systemd 单元文件：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>mkdir /var/lib/transmission-block
+</span></span><span class=line><span class=cl>chown nobody:nogroup /var/lib/transmission-block <span class=c1># nobody:nogroup 可改为自己想要的用户和用户组</span>
+</span></span><span class=line><span class=cl>sed -i -e <span class=s1>&#39;s/DynamicUser=yes/User=nobody/&#39;</span> <span class=se>\ </span><span class=c1># User= 要与上面的用户相同</span>
+</span></span><span class=line><span class=cl>  -e <span class=s1>&#39;/StateDirectory=%p/d&#39;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl>  -e <span class=s1>&#39;s,&#34;$STATE_DIRECTORY&#34;,/var/lib/transmission-block,&#39;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl>  /usr/local/lib/systemd/system/transmission-block.service
+</span></span><span class=line><span class=cl>systemctl daemon-reload
+</span></span></code></pre></td></tr></table></div></div><p>如果你不在乎安全问题，可以删除文件中 <code>DynamicUser=</code> 和 <code>User=</code> 的行，这将直接以 root 用户运行。</p></li></ul><h2 id=鸣谢>鸣谢</h2><p><a href=https://github.com/qianbinbin/transmission-block/tree/blocklist target=_blank rel="noopener noreferrer">blocklist</a>
+分支同步并转换以下数据为 Transmission 兼容的格式：</p><ul><li><a href=https://github.com/PBH-BTN/BTN-Collected-Rules target=_blank rel="noopener noreferrer">PBH-BTN/BTN-Collected-Rules</a>，<a href=https://creativecommons.org/licenses/by/4.0/deed.zh-hans target=_blank rel="noopener noreferrer">CC-BY 4.0</a>
+许可。</li><li><a href=https://github.com/qianbinbin/transmission-block/issues/9 target=_blank rel="noopener noreferrer">https://github.com/qianbinbin/transmission-block/issues/9</a></li></ul><h2 id=其他黑名单>其他黑名单</h2><p>以下黑名单搜集自网络，仅供参考。</p><ul><li><a href=https://github.com/waelisa/Best-blocklist target=_blank rel="noopener noreferrer">waelisa/Best-blocklist</a>：作者表示只禁止了坏节点和版权
+IP，不会禁止好节点。数据来源未知。</li><li><a href=https://mirror.codebucket.de/transmission/ target=_blank rel="noopener noreferrer">mirror.codebucket.de - transmission</a>：主要包括恶意
+IP，但这似乎应该在防火墙禁止，而不是 P2P。</li><li><a href="https://www.iblocklist.com/list?list=ydxerpxkpcfqjaybcssw" target=_blank rel="noopener noreferrer">I-BlockList - level1</a>：网站声称这是反
+P2P 地址列表，但其标注的来源 Bluetack
+事实上已经关闭了很多年，而奇怪的是黑名单还在“更新”，经检查发现<a href=https://github.com/qianbinbin/transmission-block/issues/11 target=_blank rel="noopener noreferrer">它似乎只是随机添加和删除一些 IP</a>。I-BlockList
+是商用的，网站还包括一些付费黑名单。</li><li><a href=https://www.emule-security.org/ target=_blank rel="noopener noreferrer">eMule Security</a>：包括了大量数据中心 IP，不推荐。</li></ul><details><summary>原理</summary><h2 id=原理>原理</h2><p>脚本主要做以下几件事：</p><ol><li>匹配指定客户端，并将其 IP 加入客户端黑名单（可选）。</li><li>下载在线黑名单（可选）。</li><li>将两种黑名单合并，在本地建立 HTTP 服务，提供给 Transmission 访问。</li></ol><p>其中客户端黑名单和在线黑名单，两者至少需要选择一种。</p><p>要屏蔽的客户端是由 <code>LEECHER_CLIENTS</code> 指定的，使用区分大小写的 BRE（POSIX 基本正则表达式）匹配，即 <code>grep</code> 不加 <code>-i</code> 和
+<code>-E</code> 的匹配方式。</p><p>考虑到普通用户的 IP 动态分配，客户端黑名单默认每 7 天清空一次；在线黑名单默认每 1 天检查更新一次。这些都是可定制项。</p><p>systemd 方式默认工作目录为 <code>/var/lib/transmission-block/</code>（请勿手动创建），结构示例如下：</p><pre tabindex=0><code>/var/lib/transmission-block/
+├── extern                                      &lt;--- 在线黑名单目录
+│   ├── b56582a4987b9324003eadc4fced8127.data   &lt;--- 在线黑名单原始文件
+│   └── b56582a4987b9324003eadc4fced8127.etag   &lt;--- 在线黑名单 Etag 信息
+├── leechers.p2p                                &lt;--- 客户端黑名单
+└── web                                         &lt;--- HTTP 服务根目录
+    └── blocklist.p2p.gz                        &lt;--- 最终黑名单文件
+</code></pre><p>Transmission
+会更新黑名单到<a href=https://github.com/transmission/transmission/blob/main/docs/Configuration-Files.md target=_blank rel="noopener noreferrer">配置目录</a>下的
+<code>blocklists/blocklist.bin</code>。</p><blockquote><p>[!TIP]
+如果遇到可疑
+IP，你可以在配置目录下新建一个<a href=https://en.wikipedia.org/wiki/PeerGuardian#P2P_plaintext_format target=_blank rel="noopener noreferrer">文本文件</a>，格式为
+<code>描述:起始IP-结束IP</code>，例如 <code>suspect:106.8.130.0-106.8.130.255</code>，然后重新加载或重启 Transmission。</p></blockquote></details><hr><h2 id=加戏时间>加戏时间</h2><p>不吸血我怎么办？开会员？</p><p>更不能用。</p><p>一个号称离线下载的？</p><p>正经人谁用离线啊。</p><p>是啊。</p><p>你用离线吗？</p><p>我不用，你用吗？</p><p>玩 P2P 的能用离线下载？</p><p>用离线下载的能叫 P2P？</p><p>（异口同声）__！</p><div class=footnotes role=doc-endnotes><hr><ol><li id=fn:1><p><a href=https://github.com/transmission/transmission/issues/735#issuecomment-1016820802 target=_blank rel="noopener noreferrer">Feature request: client-based blocking · Issue #735 · transmission/transmission</a>&#160;<a href=#fnref:1 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li></ol></div></article><section class="article labels"><a class=tag href=/tags/linux/>Linux</a><a class=tag href=/tags/macos/>macOS</a><a class=tag href=/tags/shell/>Shell</a><a class=tag href=/tags/bittorrent/>BitTorrent</a></section><section class="article license"><p xmlns:cc=http://creativecommons.org/ns# style=text-align:center>本作品根据 <a href=http://creativecommons.org/licenses/by-nc-sa/4.0/ target=_blank rel="license noopener noreferrer" style=display:inline-block>署名-非商业性使用-相同方式共享 4.0 国际许可<img style=height:15px!important;margin-left:1px;vertical-align:text-bottom src=/cc-icons/cc.svg><img style=height:15px!important;margin-left:1px;vertical-align:text-bottom src=/cc-icons/by.svg><img style=height:15px!important;margin-left:1px;vertical-align:text-bottom src=/cc-icons/nc.svg><img style=height:15px!important;margin-left:1px;vertical-align:text-bottom src=/cc-icons/sa.svg></a> 进行授权。</p></section></div><div class="article bottom"><section class="article navigation"><p><a class=link href=/posts/deploying-linux-on-android/><span class="iconfont icon-article"></span>在 Android 上部署 Linux</a></p><p><a class=link href=/posts/combating-dns-pollution-and-ads-with-dnsmasq/><span class="iconfont icon-article"></span>使用 Dnsmasq 去 DNS 污染和广告</a></p></section><section class="article discussion"><script>function loadComment(){let e=document.createElement("script");e.src="https://utteranc.es/client.js",e.setAttribute("repo","qianbinbin/qianbinbin.github.io"),e.setAttribute("issue-term","pathname"),e.setAttribute("theme","preferred-color-scheme"),e.setAttribute("crossorigin","anonymous"),e.setAttribute("async",""),document.querySelector("section.article.discussion").innerHTML="",document.querySelector("section.article.discussion").appendChild(e)}loadComment(),window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change",()=>{loadComment()})</script></section></div></section><section id=footer><div class=footer-wrap><p class=copyright>© 2017-2026 Binac.</p></div></section><script async src="https://www.googletagmanager.com/gtag/js?id=G-N7VZY53PLB"></script><script>var doNotTrack=!1,dnt=navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack,doNotTrack=dnt=="1"||dnt=="yes";if(!doNotTrack){window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-N7VZY53PLB")}</script><script defer src=/js/search-zh-CN.696e28b41c4d253b37e083e79150453edf2b4d3bf467a79cd65c5852fcc4c650.js integrity="sha256-aW4otBxNJTs34IPnkVBFPt8rTTv0Z6ec1lxYUvzExlA="></script><script src=https://unpkg.com/vanilla-back-to-top@7.2.1/dist/vanilla-back-to-top.min.js></script><script>addBackToTop({diameter:42})</script></body></html>

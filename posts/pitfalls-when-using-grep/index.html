@@ -1,0 +1,77 @@
+<!doctype html><html lang=zh><meta charset=utf-8><meta name=generator content="Hugo 0.163.3"><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name=color-scheme content="light dark"><meta name=supported-color-schemes content="light dark"><link rel=icon href=/favicons/favicon.svg><meta name=description content="换行符和回车符
+首先我们知道，类 Unix 系统都习惯使用换行符 \n（LF，Line Feed）换行，Mac OS 9 及之前则使用回车符
+\r（CR，Carriage Return），Windows 则使用 \r\n（CR+LF）换行。
+而在 HTTP Header 中，也是以 CR+LF 换行。就算世界上大部分服务器托管在 Linux 上，它还是这么用了，别问，问就是规定。"><title>grep 使用中的一些坑&nbsp;&ndash;&nbsp;Binac</title><link rel=stylesheet href=/css/core.min.b64f0786f9b4c30882b5efa609e88ed5b645d9a105201e05a9f862bb09522be0c2949684da05264891016a296344e631.css integrity=sha384-tk8Hhvm0wwiCte+mCeiO1bZF2aEFIB4FqfhiuwlSK+DClJaE2gUmSJEBailjROYx><meta name=twitter:card content="summary"><meta name=twitter:title content="grep 使用中的一些坑"><body><section id=header><div class="header wrap"><span class="header left-side"><a class="site home" href=/><img alt loading=lazy class="site logo" src=/favicons/favicon.svg><span class="site name">Binac</span></a></span>
+<span class="header right-side"><div class="nav wrap"><nav class=nav><div id=search_btn><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div><div id=search_menu_wrapper class=hidden><div id=search_menu><div id=search_menu_toolbar><div id=search_menu_input_wrapper><input id=search_menu_input type=text placeholder=搜索...></div><div id=search_menu_close_btn><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-darkreader-inline-stroke="" style="--darkreader-inline-stroke:currentcolor"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div></div><ul id=search_menu_results class="note list"></ul></div></div><a class='nav item active' href=/posts/ title=文章>文章</a>
+<a class='nav item' href=/nonsense/ title=妄言>妄言</a>
+<a class='nav item' href=/tuya/ title=涂鸦>涂鸦</a>
+<a class='nav item' href=/tags/ title>标签</a></nav></div></span></div></section><section id=content><div class=article-container><section class="article header"><h1 class="article title">grep 使用中的一些坑</h1><p class="article date">2024-01-02<span class=lastmod> • 更新于 2025-03-25</span></p></section><article class="article markdown-body"><h2 id=换行符和回车符>换行符和回车符</h2><p>首先我们知道，类 Unix 系统都习惯使用换行符 <code>\n</code>（LF，Line Feed）换行，Mac OS 9 及之前则使用回车符
+<code>\r</code>（CR，Carriage Return），Windows 则使用 <code>\r\n</code>（CR+LF）换行。</p><p>而在 HTTP Header 中，也是以 CR+LF 换行。就算世界上大部分服务器托管在 Linux 上，它还是这么用了，别问，问就是规定。</p><p>产生不必要的字符就算了，有时真叫人迷惑。当我在处理 Header 时，发现 grep 莫名其妙“无法匹配”。</p><p>为了简化问题，打开终端试试：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl><span class=nb>printf</span> <span class=s1>&#39;ab\r\n&#39;</span>
+</span></span></code></pre></td></tr></table></div></div><p>结果是显然的，为 <code>ab</code>。</p><p>这个呢：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl><span class=nb>printf</span> <span class=s1>&#39;ab\r\n&#39;</span> <span class=p>|</span> grep <span class=s1>&#39;^a&#39;</span>
+</span></span></code></pre></td></tr></table></div></div><p>废话，还是 <code>ab</code>。</p><p>别急，这个呢：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl><span class=nb>printf</span> <span class=s1>&#39;ab\r\n&#39;</span> <span class=p>|</span> grep <span class=s1>&#39;^a.*&#39;</span>
+</span></span></code></pre></td></tr></table></div></div><p>如果你输出“正常”，那么恭喜你，不用踩这个坑。但我还是建议看下去。</p><p>如果你的结果是空行，哪天遇到，这破问题能卡老半天。</p><p>其实仔细分析，如果 grep 不匹配，连空行都不会打印的。</p><p>更别说用 <code>$?</code> 检查返回值了，grep 返回值为 0，这说明根本就是匹配成功的。</p><p>把这个问题丢给 DeepSeek 或者 GPT-4o，它们会一本正经地胡说八道。</p><p>用以下命令查看真实数据：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl><span class=nb>printf</span> <span class=s1>&#39;ab\r\n&#39;</span> <span class=p>|</span> grep <span class=s1>&#39;^a.*&#39;</span> <span class=p>|</span> hexdump -C
+</span></span><span class=line><span class=cl><span class=m>00000000</span>  <span class=m>61</span> <span class=m>62</span> 0d 0a                                       <span class=p>|</span>ab..<span class=p>|</span>
+</span></span><span class=line><span class=cl><span class=m>00000004</span>
+</span></span><span class=line><span class=cl><span class=nb>printf</span> <span class=s1>&#39;ab\r\n&#39;</span> <span class=p>|</span> grep <span class=s1>&#39;^a.*&#39;</span> <span class=p>|</span> cat -v
+</span></span><span class=line><span class=cl>ab^M
+</span></span></code></pre></td></tr></table></div></div><p>因此 grep 确实匹配到了，莫名其妙就对用户不可见了。</p><p>如果这个字符串本身不可见，那么问题来了，为什么 <code>printf 'ab\r\n'</code> 可以正常打印？</p><p>难道是因为终端有对控制字符的特殊处理，而管道不行？</p><p>如果是管道的问题，为什么 <code>printf 'ab\r\n' | cat</code> 可以打印？</p><p>我还尝试了不同机器上包括 BSD 和 GNU 的 grep，都打印空行。</p><p>好了，揭晓答案。</p><p>最终，我注意到，为了方便查找文本，我在所有机器上都设置了
+<code>alias grep="grep --color=auto"</code>，这样本身很正常，我相信很多人也是这么干的。</p><p>问题就在于，grep 会对结果二次处理，用来显示颜色，回车后原来的字符串自然就被覆盖了！</p><p>啊，这……</p><p>那么问题来了，为什么 hexdump 结果正常？</p><p>其实是因为 <code>grep --color=auto</code> 会自动处理颜色，当不与终端输出挂钩时，是不会二次处理颜色的。</p><p>比如，<code>printf 'ab\r\n' | grep '^a.*' | cat</code> 就可以得到匹配文本。</p><p>当使用 <code>--color=always</code> 时，就会强行处理颜色：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl><span class=nb>printf</span> <span class=s1>&#39;ab\r\n&#39;</span> <span class=p>|</span> grep --color<span class=o>=</span>always <span class=s1>&#39;^.*&#39;</span> <span class=p>|</span> hexdump -C
+</span></span><span class=line><span class=cl><span class=m>00000000</span>  1b 5b <span class=m>30</span> <span class=m>31</span> 3b <span class=m>33</span> <span class=m>31</span> 6d  1b 5b 4b <span class=m>61</span> <span class=m>62</span> 0d 1b 5b  <span class=p>|</span>.<span class=o>[</span>01<span class=p>;</span>31m.<span class=o>[</span>Kab..<span class=o>[</span><span class=p>|</span>
+</span></span><span class=line><span class=cl><span class=m>00000010</span>  6d 1b 5b 4b 0a                                    <span class=p>|</span>m.<span class=o>[</span>K.<span class=p>|</span>
+</span></span><span class=line><span class=cl><span class=m>00000015</span>
+</span></span></code></pre></td></tr></table></div></div><p>或者：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl><span class=nb>printf</span> <span class=s1>&#39;ab\r\n&#39;</span> <span class=p>|</span> grep --color<span class=o>=</span>always <span class=s1>&#39;^.*&#39;</span> <span class=p>|</span> cat -v
+</span></span><span class=line><span class=cl>^<span class=o>[[</span>01<span class=p>;</span>31m^<span class=o>[[</span>Kab^M^<span class=o>[[</span>m^<span class=o>[[</span>K
+</span></span></code></pre></td></tr></table></div></div><p>草，破案了……</p><h2 id=不要使用-grep--v-来检查文件是否不包含特定字符串>不要使用 grep -v 来检查文件是否不包含特定字符串</h2><p>刷到 StackOverflow 上一个回答<sup id=fnref:1><a href=#fn:1 class=footnote-ref role=doc-noteref>1</a></sup>：</p><span class=image-container><span class=link><a href=answer.png target=_blank><img loading=lazy class=img src=answer.png></a></span></span><p>回答没毛病，但是底下这个点评的 Tom Harrison 言之凿凿地说，可以使用 <code>-v</code> 来反转条件……真是如此？</p><p>假设有一个文件 <code>test</code>，内容如下：</p><pre tabindex=0><code>a
+b
+</code></pre><p>先查找文件中<strong>不存在</strong>的字符串 <code>c</code> 试试：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>grep c test<span class=p>;</span> <span class=nb>echo</span> <span class=nv>$?</span>
+</span></span><span class=line><span class=cl><span class=m>1</span>
+</span></span><span class=line><span class=cl>! grep c test<span class=p>;</span> <span class=nb>echo</span> <span class=nv>$?</span>
+</span></span><span class=line><span class=cl><span class=m>0</span>
+</span></span><span class=line><span class=cl>grep -v c test<span class=p>;</span> <span class=nb>echo</span> <span class=nv>$?</span>
+</span></span><span class=line><span class=cl>a
+</span></span><span class=line><span class=cl>b
+</span></span><span class=line><span class=cl><span class=m>0</span>
+</span></span></code></pre></td></tr></table></div></div><p>似乎没问题，两种都对。</p><p>再查找文件中<strong>存在</strong>的字符串 <code>a</code> 呢：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span><span class=lnt>9
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>grep a test<span class=p>;</span> <span class=nb>echo</span> <span class=nv>$?</span>
+</span></span><span class=line><span class=cl>a
+</span></span><span class=line><span class=cl><span class=m>0</span>
+</span></span><span class=line><span class=cl>! grep a test<span class=p>;</span> <span class=nb>echo</span> <span class=nv>$?</span>
+</span></span><span class=line><span class=cl>a
+</span></span><span class=line><span class=cl><span class=m>1</span>
+</span></span><span class=line><span class=cl>grep -v a test<span class=p>;</span> <span class=nb>echo</span> <span class=nv>$?</span>
+</span></span><span class=line><span class=cl>b
+</span></span><span class=line><span class=cl><span class=m>0</span>
+</span></span></code></pre></td></tr></table></div></div><p>扯犊子了吧？</p><p>原因就在于，<code>-v</code> 反转的是查找条件，而不是查找结果。GNU grep 的手册是这么解释 <code>-v</code> 的：</p><pre tabindex=0><code>       -v, --invert-match
+              Invert the sense of matching, to select non-matching lines.
+</code></pre><p><code>-v</code> 会匹配那些不包含 <code>a</code> 的行，自然 <code>b</code> 就被查找出来了。</p><p>你可以说这人的意思是 <code>-v</code> 可以反转查找条件，问题是这里是 <code>if</code> 语句，要根据结果的条件来判断，然后进行其他操作，明显这人以为 <code>-v</code> 和 <code>!</code>
+是一样的效果。这种点评带有很大的误导性。</p><p>那么 <code>-v</code> 能不能实现类似的功能呢？其实是可以的，只不过要结合自己的使用情境配合复杂一点的正则罢了，没必要。</p><p>多句嘴，StackOverflow 这个网站虽然很有用，但是对用户并不友好。</p><p>我连点赞的权限都没有，还有很多人在瞎点评，而且还是错误的。</p><p>有时好不容易搜到一个和自己类似问题，然后就有人点评让你去看某些要么屁用没有要么一堆冗余信息的链接，还说不要重复提问 blah blah……贼烦这种伪精英主义。</p><div class=footnotes role=doc-endnotes><hr><ol><li id=fn:1><p><a href=https://stackoverflow.com/a/57158235 target=_blank rel="noopener noreferrer">https://stackoverflow.com/a/57158235</a>&#160;<a href=#fnref:1 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li></ol></div></article><section class="article labels"><a class=tag href=/tags/shell/>Shell</a><a class=tag href=/tags/linux/>Linux</a></section><section class="article license"><p xmlns:cc=http://creativecommons.org/ns# style=text-align:center>本作品根据 <a href=http://creativecommons.org/licenses/by-nc-sa/4.0/ target=_blank rel="license noopener noreferrer" style=display:inline-block>署名-非商业性使用-相同方式共享 4.0 国际许可<img style=height:15px!important;margin-left:1px;vertical-align:text-bottom src=/cc-icons/cc.svg><img style=height:15px!important;margin-left:1px;vertical-align:text-bottom src=/cc-icons/by.svg><img style=height:15px!important;margin-left:1px;vertical-align:text-bottom src=/cc-icons/nc.svg><img style=height:15px!important;margin-left:1px;vertical-align:text-bottom src=/cc-icons/sa.svg></a> 进行授权。</p></section></div><div class="article bottom"><section class="article navigation"><p><a class=link href=/posts/downloading-older-versions-of-chrome-and-disabling-updates/><span class="iconfont icon-article"></span>下载官方旧版本 Chrome 并禁止更新</a></p><p><a class=link href=/posts/video-related-commands-and-scripts/><span class="iconfont icon-article"></span>视频相关的命令和脚本</a></p></section><section class="article discussion"><script>function loadComment(){let e=document.createElement("script");e.src="https://utteranc.es/client.js",e.setAttribute("repo","qianbinbin/qianbinbin.github.io"),e.setAttribute("issue-term","pathname"),e.setAttribute("theme","preferred-color-scheme"),e.setAttribute("crossorigin","anonymous"),e.setAttribute("async",""),document.querySelector("section.article.discussion").innerHTML="",document.querySelector("section.article.discussion").appendChild(e)}loadComment(),window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change",()=>{loadComment()})</script></section></div></section><section id=footer><div class=footer-wrap><p class=copyright>© 2017-2026 Binac.</p></div></section><script async src="https://www.googletagmanager.com/gtag/js?id=G-N7VZY53PLB"></script><script>var doNotTrack=!1,dnt=navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack,doNotTrack=dnt=="1"||dnt=="yes";if(!doNotTrack){window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-N7VZY53PLB")}</script><script defer src=/js/search-zh-CN.696e28b41c4d253b37e083e79150453edf2b4d3bf467a79cd65c5852fcc4c650.js integrity="sha256-aW4otBxNJTs34IPnkVBFPt8rTTv0Z6ec1lxYUvzExlA="></script><script src=https://unpkg.com/vanilla-back-to-top@7.2.1/dist/vanilla-back-to-top.min.js></script><script>addBackToTop({diameter:42})</script></body></html>

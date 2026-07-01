@@ -1,0 +1,153 @@
+#!/usr/bin/env bash
+
+# Copyright (c) 2026 Binbin Qian
+# All rights reserved. (MIT Licensed)
+#
+# clean-mac-dumbs
+# Clean .DS_Store, __MACOSX and ._* files, recursively for directories.
+# https://qianbinbin.github.io/posts/cleaning-dumb-dotfiles-on-macos/
+
+set -euo pipefail
+
+NAME=clean-mac-dumbs
+VERSION=1.1.0
+
+VERSION_MSG=$(
+  cat <<-END
+$NAME $VERSION
+
+Copyright (C) 2026 Binbin Qian
+
+License: MIT
+END
+)
+
+USAGE=$(
+  cat <<-END
+Usage: $0 [OPTION]... [FILE]...
+Clean .DS_Store, __MACOSX and ._* files, recursively for directories.
+
+With no FILE, clean current directory.
+
+Options:
+  -F, --fd                use sharkdp/fd for faster find if possible
+  -n, --dry-run           perform a trial run with no changes made
+      --no-recursion      do not clean recursively
+  -h, --help              display this help
+  -V, --version           display version
+
+Home page: <https://qianbinbin.github.io/posts/cleaning-dumb-dotfiles-on-macos/>
+END
+)
+
+COLOR=false
+if [ -t 1 ] && [ "$TERM" != "dumb" ]; then
+  COLOR=true
+fi
+
+RESET=
+BOLD=
+RED=
+GREEN=
+YELLOW=
+BLUE=
+CYAN=
+if $COLOR; then
+  RESET='\033[0m'
+  BOLD='\033[1m'
+  RED='\033[31m'
+  GREEN='\033[32m'
+  YELLOW='\033[33m'
+  BLUE='\033[34m'
+  CYAN='\033[36m'
+fi
+
+_date() { date +'%F %T'; }
+log_d() { printf "${GREEN}[$(_date)]$RESET $BOLD%s$RESET\n" "$@" >&2; }
+log_i() { printf "${CYAN}[$(_date)]$RESET $BOLD%s$RESET\n" "$@" >&2; }
+log_w() { printf "${YELLOW}[$(_date)] %s$RESET\n" "$@" >&2; }
+log_e() { printf "${RED}[$(_date)] %s$RESET\n" "$@" >&2; }
+
+USE_FD=false
+RECURSION=true
+DRY_RUN=false
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+  -F | --fd) USE_FD=true && shift ;;
+  -n | --dry-run) DRY_RUN=true && shift ;;
+  --no-recursion) RECURSION=false && shift ;;
+  -h | --help) echo "$USAGE" && exit ;;
+  -V | --version) echo "$VERSION_MSG" && exit ;;
+  --) shift && break ;;
+  *) break ;;
+  esac
+done
+
+run() {
+  printf "$BLUE%s$RESET $BOLD" "[$(_date)]" >&2
+  if [ $# -ge 1 ]; then
+    printf "%q" "$1" >&2
+    [ $# -eq 1 ] || printf ' %q' "${@:2}" >&2
+  fi
+  printf "$RESET%s\n" '' >&2
+  $DRY_RUN || "$@"
+}
+
+HAS_FD=true
+{ fd --version 2>/dev/null | grep -q '^fd '; } || HAS_FD=false
+
+clean() {
+  if [ $# -ne 1 ]; then
+    log_e "$# parameters found." && return 1
+  fi
+  _file=$(realpath -- "$1")
+  log_i "Cleaning dumb files: '$_file'..."
+  log_d 'Cleaning .DS_Store and __MACOSX...'
+  opt_depth=
+  # files are not allowed:
+  # https://github.com/sharkdp/fd/issues/1565
+  if $USE_FD && $HAS_FD && [ -d "$_file" ]; then
+    $RECURSION || opt_depth='--exact-depth 1'
+    # fd cannot specify file or directory in one command
+    # shellcheck disable=SC2086
+    run fd --hidden $opt_depth '(^\.DS_Store$)|(^__MACOSX$)' "$_file" \
+      --exec-batch rm -rfv --
+  else
+    if $USE_FD; then
+      $HAS_FD || log_w 'fd not found.'
+      [ -d "$_file" ] || log_w 'fd can only search in directories.'
+      log_w 'Falling back to find...'
+    fi
+    if ! $RECURSION && [ -d "$_file" ]; then
+      opt_depth='-mindepth 1 -maxdepth 1'
+    fi
+    # shellcheck disable=SC2086
+    run find "$_file" $opt_depth \
+      \( -name __MACOSX -type d -prune -exec rm -rfv -- {} + \) \
+      -o \
+      \( -name .DS_Store -type f -exec rm -fv -- {} + \)
+  fi
+  log_d 'Done!'
+  if [ -d "$_file" ]; then
+    log_d 'Cleaning ._* files...'
+    opt_flat=
+    $RECURSION || opt_flat='-f'
+    run dot_clean $opt_flat -mnv "$_file" 2>&1 | grep -v '^Merging directory '
+    log_d 'Done!'
+  fi
+}
+
+if [ "$(uname)" != Darwin ]; then
+  log_e 'Please run on macOS.' && exit 3
+fi
+
+! $DRY_RUN || log_i '.'
+
+if [ $# -eq 0 ]; then
+  clean .
+else
+  for _file in "$@"; do
+    clean "$_file"
+  done
+fi

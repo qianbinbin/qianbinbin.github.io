@@ -1,0 +1,47 @@
+<!doctype html><html lang=zh><meta charset=utf-8><meta name=generator content="Hugo 0.163.3"><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name=color-scheme content="light dark"><meta name=supported-color-schemes content="light dark"><link rel=icon href=/favicons/favicon.svg><meta name=description content="众所周知，macOS 会自作聪明地生成一些隐藏的垃圾文件，它们不仅烦人，还有泄露隐私的风险。
+.DS_Store 是 Finder 自动生成的隐藏文件，__MACOSX 是 Finder 创建 zip 时生成的资源目录。._*
+是资源分叉的独立文件，通常在不同文件系统之间复制文件时产生，可以用自带的 dot_clean 工具清除（看来苹果自己也知道这是垃圾文件啊）。"><title>macOS 清除 .DS_Store、__MACOSX、._* 垃圾文件&nbsp;&ndash;&nbsp;Binac</title><link rel=stylesheet href=/css/core.min.b64f0786f9b4c30882b5efa609e88ed5b645d9a105201e05a9f862bb09522be0c2949684da05264891016a296344e631.css integrity=sha384-tk8Hhvm0wwiCte+mCeiO1bZF2aEFIB4FqfhiuwlSK+DClJaE2gUmSJEBailjROYx><meta name=twitter:card content="summary"><meta name=twitter:title content="macOS 清除 .DS_Store、__MACOSX、._* 垃圾文件"><body><section id=header><div class="header wrap"><span class="header left-side"><a class="site home" href=/><img alt loading=lazy class="site logo" src=/favicons/favicon.svg><span class="site name">Binac</span></a></span>
+<span class="header right-side"><div class="nav wrap"><nav class=nav><div id=search_btn><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div><div id=search_menu_wrapper class=hidden><div id=search_menu><div id=search_menu_toolbar><div id=search_menu_input_wrapper><input id=search_menu_input type=text placeholder=搜索...></div><div id=search_menu_close_btn><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-darkreader-inline-stroke="" style="--darkreader-inline-stroke:currentcolor"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div></div><ul id=search_menu_results class="note list"></ul></div></div><a class='nav item active' href=/posts/ title=文章>文章</a>
+<a class='nav item' href=/nonsense/ title=妄言>妄言</a>
+<a class='nav item' href=/tuya/ title=涂鸦>涂鸦</a>
+<a class='nav item' href=/tags/ title>标签</a></nav></div></span></div></section><section id=content><div class=article-container><section class="article header"><h1 class="article title">macOS 清除 .DS_Store、__MACOSX、._* 垃圾文件</h1><p class="article date">2021-05-11<span class=lastmod> • 更新于 2026-07-02</span></p></section><article class="article markdown-body"><p>众所周知，macOS 会自作聪明地生成一些隐藏的垃圾文件，它们不仅烦人，还有泄露隐私的风险。</p><p><code>.DS_Store</code> 是 Finder 自动生成的隐藏文件，<code>__MACOSX</code> 是 Finder 创建 zip 时生成的资源目录。<code>._*</code>
+是资源分叉的独立文件，通常在不同文件系统之间复制文件时产生，可以用自带的 dot_clean 工具清除（看来苹果自己也知道这是垃圾文件啊）。</p><p>为此写了一个简单的脚本，需要的可以<a href=clean-mac-dumbs>点击下载</a>，或者通过 Homebrew 安装：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>brew tap qianbinbin/tap
+</span></span><span class=line><span class=cl>brew install qianbinbin/tap/clean-mac-dumbs
+</span></span></code></pre></td></tr></table></div></div><h2 id=使用>使用</h2><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>$ clean-mac-dumbs --help
+</span></span><span class=line><span class=cl>Usage: /usr/local/bin/clean-mac-dumbs <span class=o>[</span>OPTION<span class=o>]</span>... <span class=o>[</span>FILE<span class=o>]</span>...
+</span></span><span class=line><span class=cl>Clean .DS_Store, __MACOSX and ._* files, recursively <span class=k>for</span> directories.
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>With no FILE, clean current directory.
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>Options:
+</span></span><span class=line><span class=cl>  -F, --fd                use sharkdp/fd <span class=k>for</span> faster find <span class=k>if</span> possible
+</span></span><span class=line><span class=cl>  -n, --dry-run           perform a trial run with no changes made
+</span></span><span class=line><span class=cl>      --no-recursion      <span class=k>do</span> not clean recursively
+</span></span><span class=line><span class=cl>  -h, --help              display this <span class=nb>help</span>
+</span></span><span class=line><span class=cl>  -V, --version           display version
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>Home page: &lt;https://qianbinbin.github.io/posts/cleaning-dumb-dotfiles-on-macos/&gt;
+</span></span></code></pre></td></tr></table></div></div><p>直接运行 <code>clean-mac-dumbs</code> 会递归清理当前目录。</p><p>如果安装了 fd，可以使用 <code>--fd</code> 加速，比 find 命令快得多，但一条命令无法区分文件和文件夹（分成多条命令则加速效果不佳）。因此使用 fd 时，名为
+<code>.DS_Store</code> 的文件夹和 <code>__MACOSX</code> 的普通文件也会被清理。</p><h2 id=定时任务>定时任务</h2><p>要在 macOS 上设置定时任务，可以 <code>mkdir -p ~/.local/state/clean-mac-dumbs</code>，并运行 <code>crontab -e</code>
+并添加以下条目：</p><pre tabindex=0><code class=language-crontab data-lang=crontab>PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin
+
+0 20 * * * clean-mac-dumbs --fd ~ &gt;&gt;~/.local/state/clean-mac-dumbs/clean-mac-dumbs.log 2&gt;&amp;1
+</code></pre><p>这里在每天 20:00 递归清理 HOME 目录。需要注意的是，如果 HOME 中挂载了其他存储，可能会造成清理过慢，此时可以手动指定多个路径以避开挂载目录。</p><p>cron 环境中 PATH 默认只有 <code>/usr/bin:/bin</code>，因此手动设置了 PATH（注意不支持变量展开），或者在命令前添加
+<code>export PATH=/usr/local/bin:$PATH:/usr/sbin;</code>，<code>/usr/sbin</code>是 dot_clean
+所在路径。Silicon 芯片的系统可能需要把 <code>/usr/local</code> 改为 <code>/opt/homebrew</code>。</p></article><section class="article labels"><a class=tag href=/tags/macos/>macOS</a><a class=tag href=/tags/shell/>Shell</a></section><section class="article license"><p xmlns:cc=http://creativecommons.org/ns# style=text-align:center>本作品根据 <a href=http://creativecommons.org/licenses/by-nc-sa/4.0/ target=_blank rel="license noopener noreferrer" style=display:inline-block>署名-非商业性使用-相同方式共享 4.0 国际许可<img style=height:15px!important;margin-left:1px;vertical-align:text-bottom src=/cc-icons/cc.svg><img style=height:15px!important;margin-left:1px;vertical-align:text-bottom src=/cc-icons/by.svg><img style=height:15px!important;margin-left:1px;vertical-align:text-bottom src=/cc-icons/nc.svg><img style=height:15px!important;margin-left:1px;vertical-align:text-bottom src=/cc-icons/sa.svg></a> 进行授权。</p></section></div><div class="article bottom"><section class="article navigation"><p><a class=link href=/posts/moebooru-crawler/><span class="iconfont icon-article"></span>Y 站、K 站下载器 moebooru-crawler</a></p><p><a class=link href=/posts/the-next-array-in-the-kmp-algorithm/><span class="iconfont icon-article"></span>KMP 算法中的 next 数组</a></p></section><section class="article discussion"><script>function loadComment(){let e=document.createElement("script");e.src="https://utteranc.es/client.js",e.setAttribute("repo","qianbinbin/qianbinbin.github.io"),e.setAttribute("issue-term","pathname"),e.setAttribute("theme","preferred-color-scheme"),e.setAttribute("crossorigin","anonymous"),e.setAttribute("async",""),document.querySelector("section.article.discussion").innerHTML="",document.querySelector("section.article.discussion").appendChild(e)}loadComment(),window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change",()=>{loadComment()})</script></section></div></section><section id=footer><div class=footer-wrap><p class=copyright>© 2017-2026 Binac.</p></div></section><script async src="https://www.googletagmanager.com/gtag/js?id=G-N7VZY53PLB"></script><script>var doNotTrack=!1,dnt=navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack,doNotTrack=dnt=="1"||dnt=="yes";if(!doNotTrack){window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-N7VZY53PLB")}</script><script defer src=/js/search-zh-CN.696e28b41c4d253b37e083e79150453edf2b4d3bf467a79cd65c5852fcc4c650.js integrity="sha256-aW4otBxNJTs34IPnkVBFPt8rTTv0Z6ec1lxYUvzExlA="></script><script src=https://unpkg.com/vanilla-back-to-top@7.2.1/dist/vanilla-back-to-top.min.js></script><script>addBackToTop({diameter:42})</script></body></html>

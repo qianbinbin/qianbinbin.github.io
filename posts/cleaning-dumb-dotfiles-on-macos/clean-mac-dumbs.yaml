@@ -1,0 +1,23 @@
+prog: "clean-mac-dumbs"
+options:
+  - option_strings: ["-F", "--fd"]
+    help: "use sharkdp/fd for faster find if possible"
+
+  - option_strings: ["-n", "--dry-run"]
+    help: "perform a trial run with no changes made"
+
+  - option_strings: ["--no-recursion"]
+    help: "do not clean recursively"
+
+  - option_strings: ["-h", "--help"]
+    help: "display this help"
+    final: true
+
+  - option_strings: ["-V", "--version"]
+    help: "display version"
+    final: true
+
+positionals:
+  - number: 1
+    repeatable: true
+    complete: ["file"]

@@ -1,0 +1,497 @@
+<!doctype html><html lang=zh><meta charset=utf-8><meta name=generator content="Hugo 0.163.3"><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name=color-scheme content="light dark"><meta name=supported-color-schemes content="light dark"><link rel=icon href=/favicons/favicon.svg><meta name=description content="对于 Homebrew 用户，我只想说：如果不追求最新 macOS，请尽快转投 MacPorts。那是一个更符合 UNIX 哲学、速度堪比 Linux
+的包管理器，它甚至支持 Mac OS X 10.6 &ldquo;Snow Leopard&rdquo; 的预编译二进制文件（除了那些需要更新工具链的包），简直是业界良心。"><title>Homebrew 使用中的一些问题&nbsp;&ndash;&nbsp;Binac</title><link rel=stylesheet href=/css/core.min.b64f0786f9b4c30882b5efa609e88ed5b645d9a105201e05a9f862bb09522be0c2949684da05264891016a296344e631.css integrity=sha384-tk8Hhvm0wwiCte+mCeiO1bZF2aEFIB4FqfhiuwlSK+DClJaE2gUmSJEBailjROYx><meta name=twitter:card content="summary"><meta name=twitter:title content="Homebrew 使用中的一些问题"><body><section id=header><div class="header wrap"><span class="header left-side"><a class="site home" href=/><img alt loading=lazy class="site logo" src=/favicons/favicon.svg><span class="site name">Binac</span></a></span>
+<span class="header right-side"><div class="nav wrap"><nav class=nav><div id=search_btn><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div><div id=search_menu_wrapper class=hidden><div id=search_menu><div id=search_menu_toolbar><div id=search_menu_input_wrapper><input id=search_menu_input type=text placeholder=搜索...></div><div id=search_menu_close_btn><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-darkreader-inline-stroke="" style="--darkreader-inline-stroke:currentcolor"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div></div><ul id=search_menu_results class="note list"></ul></div></div><a class='nav item active' href=/posts/ title=文章>文章</a>
+<a class='nav item' href=/nonsense/ title=妄言>妄言</a>
+<a class='nav item' href=/tuya/ title=涂鸦>涂鸦</a>
+<a class='nav item' href=/tags/ title>标签</a></nav></div></span></div></section><section id=content><div class=article-container><section class="article header"><h1 class="article title">Homebrew 使用中的一些问题</h1><p class="article date">2023-03-31<span class=lastmod> • 更新于 2026-06-14</span></p></section><article class="article markdown-body"><p>对于 Homebrew 用户，我只想说：如果不追求最新 macOS，请尽快转投 MacPorts。那是一个更符合 UNIX 哲学、速度堪比 Linux
+的包管理器，它甚至支持 Mac OS X 10.6 &ldquo;Snow Leopard&rdquo; 的预编译二进制文件（除了那些需要更新工具链的包），简直是业界良心。</p><p>现在的 Homebrew 真把自己当成第一方了。不尊重用户习惯，默认不信任第三方 tap，连没有签名的 cask 都要移除。</p><p>我目前使用它的唯一用途是自定义 tap/formula/cask。</p><h2 id=no-cask-quarantine-support-available-swift-runtime-error-或-listxattr-for-destination-failed-2>No Cask quarantine support available: Swift runtime error 或 listxattr for destination failed: 2</h2><p>遇到这个问题，首先要确定 CommandLineTools 是否安装了正确版本，查看 <code>brew doctor</code> 的提示。</p><p>如果安装正确，有可能是使用 OCLP 安装 Sequoia 导致，传递给 Swift 脚本的参数不正确，受影响的包括：</p><pre tabindex=0><code>/usr/local/Homebrew/Library/Homebrew/cask/utils/copy-xattrs.swift
+/usr/local/Homebrew/Library/Homebrew/cask/utils/quarantine.swift
+/usr/local/Homebrew/Library/Homebrew/cask/utils/trash.swift
+</code></pre><p>以我个人使用经验，这不仅影响安装 Cask，还会导致卸载 Cask 时 CommandLineTools 莫名其妙损坏。</p><p>解决方案见此<a href=https://github.com/orgs/Homebrew/discussions/5482#discussioncomment-15682533 target=_blank rel="noopener noreferrer">讨论</a>，但他的<a href=https://github.com/ajorpheus/homebrew-oclp-patches target=_blank rel="noopener noreferrer">仓库</a>中使用了不换行空格
+<code>U+00A0</code>，会导致 Swift 报错。我替换为常规空格并提了 PR，还没合并。</p><p><del>以下是可以直接使用的 patch：</del></p><pre tabindex=0><code><del>curl -fsSL https://qianbinbin.github.io/posts/some-issues-when-using-homebrew/homebrew-oclp.patch | git -C $(brew --repository) apply</del>
+</code></pre><p>该 patch 在 Homebrew 最新版可能无法使用，可使用
+<a href=https://github.com/ajorpheus/homebrew-oclp-patches/pull/2 target=_blank rel="noopener noreferrer">https://github.com/ajorpheus/homebrew-oclp-patches/pull/2</a>。</p><blockquote><p><strong>2026-06-14 重要补充：</strong></p><p>新版 Homebrew 不会再自动 pop stash 了，所做的修改会在 <code>brew update</code> 后失效。查看
+<code>$(brew --repository)/Library/Homebrew/cmd/update.sh</code>，发现一个文档里不写的环境变量
+<code>HOMEBREW_NO_UPDATE_CLEANUP</code>，将其设置为 <code>1</code>。</p></blockquote><details><summary>原解决方案（已过时）</summary><pre tabindex=0><code>/Library/Developer/CommandLineTools/usr/bin/swift-frontend, -frontend, -interpret, /usr/local/Homebrew/Library/Homebrew/cask/utils/copy-xattrs.swift, -target, x86_64-apple-macosx15, -enable-objc-interop, -stack-check, -sdk, /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk, -color-diagnostics, -new-driver-path, /Library/Developer/CommandLineTools/usr/bin/swift-driver, -empty-abi-descriptor, -resource-dir, /Library/Developer/CommandLineTools/usr/lib/swift, -module-name, main, -disable-clang-spi, -target-sdk-version, 15.5, -target-sdk-name, macosx15.5, -external-plugin-path, /Library/Developer/Developer/usr/lib/swift/host/plugins#/Library/Developer/Developer/usr/bin/swift-plugin-server, -external-plugin-path, /Library/Developer/Developer/usr/local/lib/swift/host/plugins#/Library/Developer/Developer/usr/bin/swift-plugin-server, -in-process-plugin-server-path, /Library/Developer/CommandLineTools/usr/lib/swift/host/libSwiftInProcPluginServer.dylib, -plugin-path, /Library/Developer/CommandLineTools/usr/lib/swift/host/plugins, -plugin-path, /Library/Developer/CommandLineTools/usr/local/lib/swift/host/plugins, --, /usr/local/Caskroom/visual-studio-code/1.104.1/Visual Studio Code.app, /Applications/Visual Studio Code.app
+</code></pre><p><code>copy-xattrs.swift</code> 期望两个参数，即源目录和目标目录，但最终传递的打印出来很长（参数可能与系统或 CLT 版本有关）。</p><p><code>--</code> 及其之前的参数应该被移除，刚好保留两个，但不知为何没有。这是 OCLP 的 bug。</p><p>一个临时解决方案：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-diff data-lang=diff><span class=line><span class=cl><span class=gh>diff --git a/Library/Homebrew/cask/utils/copy-xattrs.swift b/Library/Homebrew/cask/utils/copy-xattrs.swift
+</span></span></span><span class=line><span class=cl><span class=gh>index 794242ed13..9d43c906fb 100755
+</span></span></span><span class=line><span class=cl><span class=gd>--- a/Library/Homebrew/cask/utils/copy-xattrs.swift
+</span></span></span><span class=line><span class=cl><span class=gi>+++ b/Library/Homebrew/cask/utils/copy-xattrs.swift
+</span></span></span><span class=line><span class=cl><span class=gu>@@ -15,7 +15,7 @@ guard CommandLine.arguments.count &gt;= 3 else {
+</span></span></span><span class=line><span class=cl>     exit(2)
+</span></span><span class=line><span class=cl> }
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=gd>-CommandLine.arguments[2].withCString { destinationPath in
+</span></span></span><span class=line><span class=cl><span class=gi>+CommandLine.arguments.last!.withCString { destinationPath in
+</span></span></span><span class=line><span class=cl>     let destinationNamesLength = listxattr(destinationPath, nil, 0, 0)
+</span></span><span class=line><span class=cl>     if destinationNamesLength == -1 {
+</span></span><span class=line><span class=cl>         print(&#34;listxattr for destination failed: \(errno)&#34;, to: &amp;SwiftErr.stream)
+</span></span><span class=line><span class=cl><span class=gu>@@ -40,7 +40,7 @@ CommandLine.arguments[2].withCString { destinationPath in
+</span></span></span><span class=line><span class=cl>     }
+</span></span><span class=line><span class=cl>     destinationNamesBuffer.deallocate()
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=gd>-    CommandLine.arguments[1].withCString { sourcePath in
+</span></span></span><span class=line><span class=cl><span class=gi>+    CommandLine.arguments.dropLast().last!.withCString { sourcePath in
+</span></span></span><span class=line><span class=cl>         let sourceNamesLength = listxattr(sourcePath, nil, 0, 0)
+</span></span><span class=line><span class=cl>         if sourceNamesLength == -1 {
+</span></span><span class=line><span class=cl>             print(&#34;listxattr for source failed: \(errno)&#34;, to: &amp;SwiftErr.stream)
+</span></span></code></pre></td></tr></table></div></div></details><h2 id=downloadclfjetbrainscomcn-证书不受信任><code>download.clf.jetbrains.com.cn</code> 证书不受信任</h2><p>安装 JetBrains 家的 3A 大作时，例如 pycharm-ce，会从 <code>download.jetbrains.com</code> 下载，从国内访问会重定向到
+<code>download.clf.jetbrains.com.cn</code>，然后重定向到 <code>download-cdn.jetbrains.com.cn</code>。</p><p>问题是如果使用 brew 版 curl（通过环境变量
+<code>HOMEBREW_FORCE_BREWED_CURL=1</code>），<code>download.clf.jetbrains.com.cn</code> 的证书链不受信任：</p><pre tabindex=0><code>curl: (60) SSL certificate problem: unable to get local issuer certificate
+More details here: https://curl.se/docs/sslcerts.html
+
+curl failed to verify the legitimacy of the server and therefore could not
+establish a secure connection to it. To learn more about this situation and
+how to fix it, please visit the webpage mentioned above.
+</code></pre><p>原因是 <code>download.clf.jetbrains.com.cn</code> 使用了 Cloudflare 服务，证书链最终依赖的根证书颁发机构
+<code>AAA Certificate Services</code>
+<a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1957685" target=_blank rel="noopener noreferrer">在 2025 年四月被 Mozilla 移除</a>，而
+Mozilla 又被多个下游使用，如
+ca-certificates、curl、<a href=https://github.com/certifi/python-certifi/issues/349 target=_blank rel="noopener noreferrer">certifi</a>
+等。具体可以运行
+<code>openssl s_client -connect download.clf.jetbrains.com.cn:443 -showcerts</code> 查看证书链。</p><p>然而令人震惊的是，时隔这么长时间居然都没有修复。</p><p>尽管如此，只要不依赖新版证书就可以访问，例如系统内置 curl，或者指定新版 curl 使用系统内置证书
+<code>SSL_CERT_FILE=/etc/ssl/cert.pem</code>，或者直接信任该域名。以下介绍几种解决办法：</p><ol><li><p>首先当然可以让 brew 临时使用系统内置 curl（版本不能太新）。但是我的内置 curl 有点古老，不支持目前一些服务器已经要求的 TLS
+1.3，每次切回去也麻烦。</p></li><li><p>把 <code>download.jetbrains.com</code> 加入代理，自动重定向到境外服务器，就不会跳转到
+<code>download.clf.jetbrains.com.cn</code> 了。</p></li><li><p><del>先让 brew 安装，获取 URL 和缓存路径，用 curl 手动下载文件，然后重新安装即可：</del></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>$ brew upgrade pycharm-ce --cask --debug --verbose
+</span></span><span class=line><span class=cl><span class=o>==</span>&gt; Downloading https://download.jetbrains.com/python/pycharm-community-2025.1.3.dmg
+</span></span><span class=line><span class=cl><span class=o>==</span>&gt; Downloading from https://download.clf.jetbrains.com.cn/python/pycharm-community-2025.1.3.dmg?Key-Pair-Id<span class=o>=</span>KP3KOP89OO9G7<span class=p>&amp;</span><span class=nv>Expires</span><span class=o>=</span>1751722972<span class=p>&amp;</span><span class=nv>Signature</span><span class=o>=</span>dEnUsSeV~PS3oII1M6613eB90R
+</span></span><span class=line><span class=cl>/usr/bin/env /usr/local/Homebrew/Library/Homebrew/shims/shared/curl --disable --cookie /dev/null --globoff --show-error --user-agent Homebrew/4.5.8-138-g94606f3-dirty<span class=se>\ \(</span>Macintosh<span class=se>\;\ </span>Intel<span class=se>\ </span>Mac<span class=se>\ </span>OS<span class=se>\ </span>X<span class=se>\ </span>10.15.7<span class=se>\)\ </span>curl/8.14.1 --header Accept-Language:<span class=se>\ </span>en --fail --progress-bar --retry <span class=m>3</span> --remote-time --output /Users/qianbinbin/Library/Caches/Homebrew/downloads/06b43bd257e6ea2fe184885df215ab7d22f5c33845d2f439284faa538602e4da--pycharm-community-2025.1.3.dmg.incomplete --location https://download.clf.jetbrains.com.cn/python/pycharm-community-2025.1.3.dmg<span class=se>\?</span>Key-Pair-Id<span class=o>=</span>KP3KOP89OO9G7<span class=se>\&amp;</span><span class=nv>Expires</span><span class=o>=</span>1751722972<span class=se>\&amp;</span><span class=nv>Signature</span><span class=o>=</span>dEnUsSeV<span class=se>\~</span>PS3oII1M6613eB90RM2SNn18hIeXHuJbNhIiKN-7b0p6RSP5J2m8hGJHBV5orYV-w52kHbdyIb7rdCrVxsblrEE6kUfGF8f-GX9wa1Kw0UKRLiNr7HyzgCLkDPDbscFw<span class=se>\~</span>oyURmnS7lijpefqJPoCzKT3r5UP<span class=se>\~</span>ifpyUI2Sf3zEozoaF69Nvx0k9mobFF6MJPHCAfz9WNZaSXkejEgfUyMHKrNp6PS6<span class=se>\~</span>BjerZ4IIhgjriTNntqlWNWvU7u65QjefXe3W8eeTS5DmHVqUMU4332N7xRAV4cBDoHKICOabQqcWGEqwqk9hyYeF92Jd3gXJagSFj4eRHAjsqnw__
+</span></span><span class=line><span class=cl>$ <span class=c1># 新版 curl 可以使用 -k 进行不安全连接</span>
+</span></span><span class=line><span class=cl>$ /usr/bin/curl -L -o /Users/qianbinbin/Library/Caches/Homebrew/downloads/06b43bd257e6ea2fe184885df215ab7d22f5c33845d2f439284faa538602e4da--pycharm-community-2025.1.3.dmg.incomplete https://download.jetbrains.com/python/pycharm-community-2025.1.3.dmg
+</span></span><span class=line><span class=cl>$ brew upgrade pycharm-ce --cask
+</span></span></code></pre></td></tr></table></div></div><blockquote><p>此方法已不可行，brew 近期已经必须要能连接到服务器，才会去校验下载的文件。</p></blockquote></li><li><p>直接信任该域名证书链。</p><p>设置环境变量 <code>HOMEBREW_FORCE_BREWED_CA_CERTIFICATES=1</code>，这会让 curl 读取
+<code>$(brew --prefix)/etc/ca-certificates/cert.pem</code> 文件以及同目录下的证书。brew 调用 curl
+实际上执行的是一个包装脚本，位于
+<code>$(brew --repository)/Library/Homebrew/shims/shared/curl</code>，它里面有证书相关的细节。</p><p>然后运行以下脚本将证书下载到该目录下：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl><span class=nv>domain</span><span class=o>=</span>download.clf.jetbrains.com.cn
+</span></span><span class=line><span class=cl><span class=nv>cert</span><span class=o>=</span><span class=k>$(</span>brew --prefix<span class=k>)</span>/etc/ca-certificates/<span class=nv>$domain</span>.pem
+</span></span><span class=line><span class=cl>openssl s_client -connect <span class=nv>$domain</span>:443 -showcerts &lt;/dev/null <span class=p>|</span>
+</span></span><span class=line><span class=cl>  awk <span class=s1>&#39;/-----BEGIN CERTIFICATE-----/{flag=1} flag{print} /-----END CERTIFICATE-----/{flag=0}&#39;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl>  &gt;<span class=s2>&#34;</span><span class=nv>$cert</span><span class=s2>&#34;</span>
+</span></span><span class=line><span class=cl>ln -s <span class=k>$(</span>basename <span class=nv>$cert</span><span class=k>)</span> <span class=k>$(</span>brew --prefix<span class=k>)</span>/etc/ca-certificates/<span class=k>$(</span>openssl x509 -noout -hash -in <span class=nv>$cert</span><span class=k>)</span>.0
+</span></span></code></pre></td></tr></table></div></div><p>现在 brew 已经可以正常下载了。</p></li></ol><h2 id=编译-go-项目超时>编译 Go 项目超时</h2><p>众所周知，国内网络环境编译 Go 项目会超时，只要设置国内镜像即可：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl><span class=nb>export</span> <span class=nv>GO111MODULE</span><span class=o>=</span>on
+</span></span><span class=line><span class=cl><span class=nb>export</span> <span class=nv>GOPROXY</span><span class=o>=</span>https://goproxy.cn,direct
+</span></span></code></pre></td></tr></table></div></div><p><del>我想了十天十夜也不明白，源码服务器也要屏蔽？多少有点脑瘫哦。</del></p><p>然而即使设置了镜像，brew 在编译 Go 项目时也<strong>不会读取用户设置</strong>，于是也会超时：</p><pre tabindex=0><code>==&gt; go build -o=/usr/local/Cellar/v2ray/5.3.0/libexec/v2ray -ldflags=-s -w -buildid= ./main
+Last 15 lines from /Users/username/Library/Logs/Homebrew/v2ray/01.go:
+proxy/vmess/encoding/auth.go:8:2: golang.org/x/crypto@v0.4.0: Get &#34;https://proxy.golang.org/golang.org/x/crypto/@v/v0.4.0.zip&#34;: dial tcp 142.251.42.241:443: i/o timeout
+common/protocol/dns/io.go:7:2: golang.org/x/net@v0.4.0: Get &#34;https://proxy.golang.org/golang.org/x/net/@v/v0.4.0.zip&#34;: dial tcp 142.251.43.17:443: i/o timeout
+app/dns/nameserver_quic.go:14:2: golang.org/x/net@v0.4.0: Get &#34;https://proxy.golang.org/golang.org/x/net/@v/v0.4.0.zip&#34;: dial tcp 142.251.43.17:443: i/o timeout
+transport/internet/http/hub.go:11:2: golang.org/x/net@v0.4.0: Get &#34;https://proxy.golang.org/golang.org/x/net/@v/v0.4.0.zip&#34;: dial tcp 142.251.43.17:443: i/o timeout
+common/strmatcher/matchers.go:9:2: golang.org/x/net@v0.4.0: Get &#34;https://proxy.golang.org/golang.org/x/net/@v/v0.4.0.zip&#34;: dial tcp 142.251.43.17:443: i/o timeout
+common/protocol/headers.go:6:2: golang.org/x/sys@v0.3.0: Get &#34;https://proxy.golang.org/golang.org/x/sys/@v/v0.3.0.zip&#34;: dial tcp [2404:6800:4012:2::2011]:443: i/o timeout
+transport/internet/filelocker_other.go:9:2: golang.org/x/sys@v0.3.0: Get &#34;https://proxy.golang.org/golang.org/x/sys/@v/v0.3.0.zip&#34;: dial tcp [2404:6800:4012:2::2011]:443: i/o timeout
+app/commander/commander.go:10:2: google.golang.org/grpc@v1.51.0: Get &#34;https://proxy.golang.org/google.golang.org/grpc/@v/v1.51.0.zip&#34;: dial tcp 142.251.43.17:443: i/o timeout
+transport/internet/grpc/dial.go:13:2: google.golang.org/grpc@v1.51.0: Get &#34;https://proxy.golang.org/google.golang.org/grpc/@v/v1.51.0.zip&#34;: dial tcp 142.251.43.17:443: i/o timeout
+app/instman/command/command_grpc.pb.go:6:2: google.golang.org/grpc@v1.51.0: Get &#34;https://proxy.golang.org/google.golang.org/grpc/@v/v1.51.0.zip&#34;: dial tcp 142.251.43.17:443: i/o timeout
+transport/internet/grpc/dial.go:14:2: google.golang.org/grpc@v1.51.0: Get &#34;https://proxy.golang.org/google.golang.org/grpc/@v/v1.51.0.zip&#34;: dial tcp 142.251.43.17:443: i/o timeout
+transport/internet/grpc/dial.go:15:2: google.golang.org/grpc@v1.51.0: Get &#34;https://proxy.golang.org/google.golang.org/grpc/@v/v1.51.0.zip&#34;: dial tcp 142.251.43.17:443: i/o timeout
+transport/internet/grpc/encoding/conn.go:13:2: google.golang.org/grpc@v1.51.0: Get &#34;https://proxy.golang.org/google.golang.org/grpc/@v/v1.51.0.zip&#34;: dial tcp 142.251.43.17:443: i/o timeout
+app/commander/service.go:7:2: google.golang.org/grpc@v1.51.0: Get &#34;https://proxy.golang.org/google.golang.org/grpc/@v/v1.51.0.zip&#34;: dial tcp 142.251.43.17:443: i/o timeout
+app/instman/command/command_grpc.pb.go:7:2: google.golang.org/grpc@v1.51.0: Get &#34;https://proxy.golang.org/google.golang.org/grpc/@v/v1.51.0.zip&#34;: dial tcp 142.251.43.17:443: i/o timeout
+</code></pre><p>brew 编译时实际上调用的是 Ruby 脚本，那就可以直接修改脚本。以 <code>v2ray</code> 为例，在
+<code>$(brew --repository homebrew/core)</code> 目录应用以下 patch：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-diff data-lang=diff><span class=line><span class=cl><span class=gh>diff --git a/Formula/v2ray.rb b/Formula/v2ray.rb
+</span></span></span><span class=line><span class=cl><span class=gh>index 297d0759440..baef313f96f 100644
+</span></span></span><span class=line><span class=cl><span class=gd>--- a/Formula/v2ray.rb
+</span></span></span><span class=line><span class=cl><span class=gi>+++ b/Formula/v2ray.rb
+</span></span></span><span class=line><span class=cl><span class=gu>@@ -39,6 +39,9 @@ class V2ray &lt; Formula
+</span></span></span><span class=line><span class=cl>   end
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>   def install
+</span></span><span class=line><span class=cl><span class=gi>+    ENV[&#39;GO111MODULE&#39;] = &#39;on&#39;
+</span></span></span><span class=line><span class=cl><span class=gi>+    ENV[&#39;GOPROXY&#39;] = &#39;https://goproxy.cn,direct&#39;
+</span></span></span><span class=line><span class=cl><span class=gi>+
+</span></span></span><span class=line><span class=cl>     ldflags = &#34;-s -w -buildid=&#34;
+</span></span><span class=line><span class=cl>     system &#34;go&#34;, &#34;build&#34;, *std_go_args(ldflags: ldflags, output: libexec/&#34;v2ray&#34;), &#34;./main&#34;
+</span></span></code></pre></td></tr></table></div></div><h2 id=perl-版本过低>Perl 版本过低</h2><p>此类问题没有统一的错误日志，但是查看编译日志，例如 <code>~/Library/Logs/Homebrew/openssl@3/04.make</code>，如果看到一堆关于
+perl 的错误<sup id=fnref:1><a href=#fn:1 class=footnote-ref role=doc-noteref>1</a></sup>，就基本确定是 perl 版本的问题了：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>$ grep <span class=s1>&#39;you may need to install&#39;</span> ~/Library/Logs/Homebrew/openssl@3/04.make
+</span></span><span class=line><span class=cl>Can<span class=s1>&#39;t locate IO/Socket/IP.pm in @INC (you may need to install the IO::Socket::IP module) (@INC contains: /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/Configurations . /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/util/perl /Library/Perl/5.18/darwin-thread-multi-2level /Library/Perl/5.18 /Network/Library/Perl/5.18/darwin-thread-multi-2level /Network/Library/Perl/5.18 /Library/Perl/Updates/5.18.4 /System/Library/Perl/5.18/darwin-thread-multi-2level /System/Library/Perl/5.18 /System/Library/Perl/Extras/5.18/darwin-thread-multi-2level /System/Library/Perl/Extras/5.18 /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/external/perl/Text-Template-1.56/lib) at /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/util/perl/TLSProxy/Proxy.pm line 100.70-test_certtypeext.t ...................
+</span></span></span><span class=line><span class=cl><span class=s1>Can&#39;</span>t locate IO/Socket/IP.pm in @INC <span class=o>(</span>you may need to install the IO::Socket::IP module<span class=o>)</span> <span class=o>(</span>@INC contains: /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/Configurations . /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/util/perl /Library/Perl/5.18/darwin-thread-multi-2level /Library/Perl/5.18 /Network/Library/Perl/5.18/darwin-thread-multi-2level /Network/Library/Perl/5.18 /Library/Perl/Updates/5.18.4 /System/Library/Perl/5.18/darwin-thread-multi-2level /System/Library/Perl/5.18 /System/Library/Perl/Extras/5.18/darwin-thread-multi-2level /System/Library/Perl/Extras/5.18 /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/external/perl/Text-Template-1.56/lib<span class=o>)</span> at /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/util/perl/TLSProxy/Proxy.pm line 100.70-test_comp.t ..........................
+</span></span><span class=line><span class=cl>Can<span class=s1>&#39;t locate IO/Socket/IP.pm in @INC (you may need to install the IO::Socket::IP module) (@INC contains: /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/Configurations . /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/util/perl /Library/Perl/5.18/darwin-thread-multi-2level /Library/Perl/5.18 /Network/Library/Perl/5.18/darwin-thread-multi-2level /Network/Library/Perl/5.18 /Library/Perl/Updates/5.18.4 /System/Library/Perl/5.18/darwin-thread-multi-2level /System/Library/Perl/5.18 /System/Library/Perl/Extras/5.18/darwin-thread-multi-2level /System/Library/Perl/Extras/5.18 /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/external/perl/Text-Template-1.56/lib) at /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/util/perl/TLSProxy/Proxy.pm line 100.70-test_key_share.t .....................
+</span></span></span><span class=line><span class=cl><span class=s1>Can&#39;</span>t locate IO/Socket/IP.pm in @INC <span class=o>(</span>you may need to install the IO::Socket::IP module<span class=o>)</span> <span class=o>(</span>@INC contains: /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/Configurations . /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/util/perl /Library/Perl/5.18/darwin-thread-multi-2level /Library/Perl/5.18 /Network/Library/Perl/5.18/darwin-thread-multi-2level /Network/Library/Perl/5.18 /Library/Perl/Updates/5.18.4 /System/Library/Perl/5.18/darwin-thread-multi-2level /System/Library/Perl/5.18 /System/Library/Perl/Extras/5.18/darwin-thread-multi-2level /System/Library/Perl/Extras/5.18 /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/external/perl/Text-Template-1.56/lib<span class=o>)</span> at /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/util/perl/TLSProxy/Proxy.pm line 100.70-test_npn.t ...........................
+</span></span><span class=line><span class=cl>Can<span class=s1>&#39;t locate IO/Socket/IP.pm in @INC (you may need to install the IO::Socket::IP module) (@INC contains: /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/Configurations . /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/util/perl /Library/Perl/5.18/darwin-thread-multi-2level /Library/Perl/5.18 /Network/Library/Perl/5.18/darwin-thread-multi-2level /Network/Library/Perl/5.18 /Library/Perl/Updates/5.18.4 /System/Library/Perl/5.18/darwin-thread-multi-2level /System/Library/Perl/5.18 /System/Library/Perl/Extras/5.18/darwin-thread-multi-2level /System/Library/Perl/Extras/5.18 /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/external/perl/Text-Template-1.56/lib) at /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/util/perl/TLSProxy/Proxy.pm line 100.
+</span></span></span><span class=line><span class=cl><span class=s1>Can&#39;</span>t locate IO/Socket/IP.pm in @INC <span class=o>(</span>you may need to install the IO::Socket::IP module<span class=o>)</span> <span class=o>(</span>@INC contains: /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/Configurations . /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/util/perl /Library/Perl/5.18/darwin-thread-multi-2level /Library/Perl/5.18 /Network/Library/Perl/5.18/darwin-thread-multi-2level /Network/Library/Perl/5.18 /Library/Perl/Updates/5.18.4 /System/Library/Perl/5.18/darwin-thread-multi-2level /System/Library/Perl/5.18 /System/Library/Perl/Extras/5.18/darwin-thread-multi-2level /System/Library/Perl/Extras/5.18 /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/external/perl/Text-Template-1.56/lib<span class=o>)</span> at /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/util/perl/TLSProxy/Proxy.pm line 100.70-test_sslcbcpadding.t .................
+</span></span><span class=line><span class=cl>Can<span class=s1>&#39;t locate IO/Socket/IP.pm in @INC (you may need to install the IO::Socket::IP module) (@INC contains: /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/Configurations . /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/util/perl /Library/Perl/5.18/darwin-thread-multi-2level /Library/Perl/5.18 /Network/Library/Perl/5.18/darwin-thread-multi-2level /Network/Library/Perl/5.18 /Library/Perl/Updates/5.18.4 /System/Library/Perl/5.18/darwin-thread-multi-2level /System/Library/Perl/5.18 /System/Library/Perl/Extras/5.18/darwin-thread-multi-2level /System/Library/Perl/Extras/5.18 /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/external/perl/Text-Template-1.56/lib) at /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/util/perl/TLSProxy/Proxy.pm line 100.70-test_sslcertstatus.t .................
+</span></span></span><span class=line><span class=cl><span class=s1>Can&#39;</span>t locate IO/Socket/IP.pm in @INC <span class=o>(</span>you may need to install the IO::Socket::IP module<span class=o>)</span> <span class=o>(</span>@INC contains: /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/Configurations . /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/util/perl /Library/Perl/5.18/darwin-thread-multi-2level /Library/Perl/5.18 /Network/Library/Perl/5.18/darwin-thread-multi-2level /Network/Library/Perl/5.18 /Library/Perl/Updates/5.18.4 /System/Library/Perl/5.18/darwin-thread-multi-2level /System/Library/Perl/5.18 /System/Library/Perl/Extras/5.18/darwin-thread-multi-2level /System/Library/Perl/Extras/5.18 /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/external/perl/Text-Template-1.56/lib<span class=o>)</span> at /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/util/perl/TLSProxy/Proxy.pm line 100.70-test_sslextension.t ..................
+</span></span><span class=line><span class=cl>Can<span class=s1>&#39;t locate IO/Socket/IP.pm in @INC (you may need to install the IO::Socket::IP module) (@INC contains: /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/Configurations . /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/util/perl /Library/Perl/5.18/darwin-thread-multi-2level /Library/Perl/5.18 /Network/Library/Perl/5.18/darwin-thread-multi-2level /Network/Library/Perl/5.18 /Library/Perl/Updates/5.18.4 /System/Library/Perl/5.18/darwin-thread-multi-2level /System/Library/Perl/5.18 /System/Library/Perl/Extras/5.18/darwin-thread-multi-2level /System/Library/Perl/Extras/5.18 /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/external/perl/Text-Template-1.56/lib) at /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/util/perl/TLSProxy/Proxy.pm line 100.
+</span></span></span><span class=line><span class=cl><span class=s1>Can&#39;</span>t locate IO/Socket/IP.pm in @INC <span class=o>(</span>you may need to install the IO::Socket::IP module<span class=o>)</span> <span class=o>(</span>@INC contains: /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/Configurations . /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/util/perl /Library/Perl/5.18/darwin-thread-multi-2level /Library/Perl/5.18 /Network/Library/Perl/5.18/darwin-thread-multi-2level /Network/Library/Perl/5.18 /Library/Perl/Updates/5.18.4 /System/Library/Perl/5.18/darwin-thread-multi-2level /System/Library/Perl/5.18 /System/Library/Perl/Extras/5.18/darwin-thread-multi-2level /System/Library/Perl/Extras/5.18 /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/external/perl/Text-Template-1.56/lib<span class=o>)</span> at /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/util/perl/TLSProxy/Proxy.pm line 100.70-test_sslmessages.t ...................
+</span></span><span class=line><span class=cl>Can<span class=s1>&#39;t locate IO/Socket/IP.pm in @INC (you may need to install the IO::Socket::IP module) (@INC contains: /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/Configurations . /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/util/perl /Library/Perl/5.18/darwin-thread-multi-2level /Library/Perl/5.18 /Network/Library/Perl/5.18/darwin-thread-multi-2level /Network/Library/Perl/5.18 /Library/Perl/Updates/5.18.4 /System/Library/Perl/5.18/darwin-thread-multi-2level /System/Library/Perl/5.18 /System/Library/Perl/Extras/5.18/darwin-thread-multi-2level /System/Library/Perl/Extras/5.18 /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/external/perl/Text-Template-1.56/lib) at /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/util/perl/TLSProxy/Proxy.pm line 100.70-test_sslsigalgs.t ....................
+</span></span></span><span class=line><span class=cl><span class=s1>Can&#39;</span>t locate IO/Socket/IP.pm in @INC <span class=o>(</span>you may need to install the IO::Socket::IP module<span class=o>)</span> <span class=o>(</span>@INC contains: /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/Configurations . /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/util/perl /Library/Perl/5.18/darwin-thread-multi-2level /Library/Perl/5.18 /Network/Library/Perl/5.18/darwin-thread-multi-2level /Network/Library/Perl/5.18 /Library/Perl/Updates/5.18.4 /System/Library/Perl/5.18/darwin-thread-multi-2level /System/Library/Perl/5.18 /System/Library/Perl/Extras/5.18/darwin-thread-multi-2level /System/Library/Perl/Extras/5.18 /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/external/perl/Text-Template-1.56/lib<span class=o>)</span> at /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/util/perl/TLSProxy/Proxy.pm line 100.70-test_sslsessiontick.t ................
+</span></span><span class=line><span class=cl>Can<span class=s1>&#39;t locate IO/Socket/IP.pm in @INC (you may need to install the IO::Socket::IP module) (@INC contains: /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/Configurations . /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/util/perl /Library/Perl/5.18/darwin-thread-multi-2level /Library/Perl/5.18 /Network/Library/Perl/5.18/darwin-thread-multi-2level /Network/Library/Perl/5.18 /Library/Perl/Updates/5.18.4 /System/Library/Perl/5.18/darwin-thread-multi-2level /System/Library/Perl/5.18 /System/Library/Perl/Extras/5.18/darwin-thread-multi-2level /System/Library/Perl/Extras/5.18 /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/external/perl/Text-Template-1.56/lib) at /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/util/perl/TLSProxy/Proxy.pm line 100.70-test_sslsignature.t ..................
+</span></span></span><span class=line><span class=cl><span class=s1>Can&#39;</span>t locate IO/Socket/IP.pm in @INC <span class=o>(</span>you may need to install the IO::Socket::IP module<span class=o>)</span> <span class=o>(</span>@INC contains: /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/Configurations . /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/util/perl /Library/Perl/5.18/darwin-thread-multi-2level /Library/Perl/5.18 /Network/Library/Perl/5.18/darwin-thread-multi-2level /Network/Library/Perl/5.18 /Library/Perl/Updates/5.18.4 /System/Library/Perl/5.18/darwin-thread-multi-2level /System/Library/Perl/5.18 /System/Library/Perl/Extras/5.18/darwin-thread-multi-2level /System/Library/Perl/Extras/5.18 /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/external/perl/Text-Template-1.56/lib<span class=o>)</span> at /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/util/perl/TLSProxy/Proxy.pm line 100.70-test_sslskewith0p.t ..................
+</span></span><span class=line><span class=cl>Can<span class=s1>&#39;t locate IO/Socket/IP.pm in @INC (you may need to install the IO::Socket::IP module) (@INC contains: /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/Configurations . /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/util/perl /Library/Perl/5.18/darwin-thread-multi-2level /Library/Perl/5.18 /Network/Library/Perl/5.18/darwin-thread-multi-2level /Network/Library/Perl/5.18 /Library/Perl/Updates/5.18.4 /System/Library/Perl/5.18/darwin-thread-multi-2level /System/Library/Perl/5.18 /System/Library/Perl/Extras/5.18/darwin-thread-multi-2level /System/Library/Perl/Extras/5.18 /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/external/perl/Text-Template-1.56/lib) at /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/util/perl/TLSProxy/Proxy.pm line 100.70-test_sslversions.t ...................
+</span></span></span><span class=line><span class=cl><span class=s1>Can&#39;</span>t locate IO/Socket/IP.pm in @INC <span class=o>(</span>you may need to install the IO::Socket::IP module<span class=o>)</span> <span class=o>(</span>@INC contains: /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/Configurations . /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/util/perl /Library/Perl/5.18/darwin-thread-multi-2level /Library/Perl/5.18 /Network/Library/Perl/5.18/darwin-thread-multi-2level /Network/Library/Perl/5.18 /Library/Perl/Updates/5.18.4 /System/Library/Perl/5.18/darwin-thread-multi-2level /System/Library/Perl/5.18 /System/Library/Perl/Extras/5.18/darwin-thread-multi-2level /System/Library/Perl/Extras/5.18 /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/external/perl/Text-Template-1.56/lib<span class=o>)</span> at /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/util/perl/TLSProxy/Proxy.pm line 100.70-test_sslvertol.t .....................
+</span></span><span class=line><span class=cl>Can<span class=s1>&#39;t locate IO/Socket/IP.pm in @INC (you may need to install the IO::Socket::IP module) (@INC contains: /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/Configurations . /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/util/perl /Library/Perl/5.18/darwin-thread-multi-2level /Library/Perl/5.18 /Network/Library/Perl/5.18/darwin-thread-multi-2level /Network/Library/Perl/5.18 /Library/Perl/Updates/5.18.4 /System/Library/Perl/5.18/darwin-thread-multi-2level /System/Library/Perl/5.18 /System/Library/Perl/Extras/5.18/darwin-thread-multi-2level /System/Library/Perl/Extras/5.18 /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/external/perl/Text-Template-1.56/lib) at /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/util/perl/TLSProxy/Proxy.pm line 100.70-test_tls13alerts.t ...................
+</span></span></span><span class=line><span class=cl><span class=s1>Can&#39;</span>t locate IO/Socket/IP.pm in @INC <span class=o>(</span>you may need to install the IO::Socket::IP module<span class=o>)</span> <span class=o>(</span>@INC contains: /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/Configurations . /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/util/perl /Library/Perl/5.18/darwin-thread-multi-2level /Library/Perl/5.18 /Network/Library/Perl/5.18/darwin-thread-multi-2level /Network/Library/Perl/5.18 /Library/Perl/Updates/5.18.4 /System/Library/Perl/5.18/darwin-thread-multi-2level /System/Library/Perl/5.18 /System/Library/Perl/Extras/5.18/darwin-thread-multi-2level /System/Library/Perl/Extras/5.18 /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/external/perl/Text-Template-1.56/lib<span class=o>)</span> at /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/util/perl/TLSProxy/Proxy.pm line 100.70-test_tls13cookie.t ...................
+</span></span><span class=line><span class=cl>Can<span class=s1>&#39;t locate IO/Socket/IP.pm in @INC (you may need to install the IO::Socket::IP module) (@INC contains: /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/Configurations . /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/util/perl /Library/Perl/5.18/darwin-thread-multi-2level /Library/Perl/5.18 /Network/Library/Perl/5.18/darwin-thread-multi-2level /Network/Library/Perl/5.18 /Library/Perl/Updates/5.18.4 /System/Library/Perl/5.18/darwin-thread-multi-2level /System/Library/Perl/5.18 /System/Library/Perl/Extras/5.18/darwin-thread-multi-2level /System/Library/Perl/Extras/5.18 /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/external/perl/Text-Template-1.56/lib) at /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/util/perl/TLSProxy/Proxy.pm line 100.70-test_tls13downgrade.t ................
+</span></span></span><span class=line><span class=cl><span class=s1>Can&#39;</span>t locate IO/Socket/IP.pm in @INC <span class=o>(</span>you may need to install the IO::Socket::IP module<span class=o>)</span> <span class=o>(</span>@INC contains: /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/Configurations . /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/util/perl /Library/Perl/5.18/darwin-thread-multi-2level /Library/Perl/5.18 /Network/Library/Perl/5.18/darwin-thread-multi-2level /Network/Library/Perl/5.18 /Library/Perl/Updates/5.18.4 /System/Library/Perl/5.18/darwin-thread-multi-2level /System/Library/Perl/5.18 /System/Library/Perl/Extras/5.18/darwin-thread-multi-2level /System/Library/Perl/Extras/5.18 /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/external/perl/Text-Template-1.56/lib<span class=o>)</span> at /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/util/perl/TLSProxy/Proxy.pm line 100.70-test_tls13hrr.t ......................
+</span></span><span class=line><span class=cl>Can<span class=s1>&#39;t locate IO/Socket/IP.pm in @INC (you may need to install the IO::Socket::IP module) (@INC contains: /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/Configurations . /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/util/perl /Library/Perl/5.18/darwin-thread-multi-2level /Library/Perl/5.18 /Network/Library/Perl/5.18/darwin-thread-multi-2level /Network/Library/Perl/5.18 /Library/Perl/Updates/5.18.4 /System/Library/Perl/5.18/darwin-thread-multi-2level /System/Library/Perl/5.18 /System/Library/Perl/Extras/5.18/darwin-thread-multi-2level /System/Library/Perl/Extras/5.18 /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/external/perl/Text-Template-1.56/lib) at /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/util/perl/TLSProxy/Proxy.pm line 100.70-test_tls13kexmodes.t .................
+</span></span></span><span class=line><span class=cl><span class=s1>Can&#39;</span>t locate IO/Socket/IP.pm in @INC <span class=o>(</span>you may need to install the IO::Socket::IP module<span class=o>)</span> <span class=o>(</span>@INC contains: /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/Configurations . /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/util/perl /Library/Perl/5.18/darwin-thread-multi-2level /Library/Perl/5.18 /Network/Library/Perl/5.18/darwin-thread-multi-2level /Network/Library/Perl/5.18 /Library/Perl/Updates/5.18.4 /System/Library/Perl/5.18/darwin-thread-multi-2level /System/Library/Perl/5.18 /System/Library/Perl/Extras/5.18/darwin-thread-multi-2level /System/Library/Perl/Extras/5.18 /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/external/perl/Text-Template-1.56/lib<span class=o>)</span> at /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/util/perl/TLSProxy/Proxy.pm line 100.70-test_tls13messages.t .................
+</span></span><span class=line><span class=cl>Can<span class=s1>&#39;t locate IO/Socket/IP.pm in @INC (you may need to install the IO::Socket::IP module) (@INC contains: /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/Configurations . /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/util/perl /Library/Perl/5.18/darwin-thread-multi-2level /Library/Perl/5.18 /Network/Library/Perl/5.18/darwin-thread-multi-2level /Network/Library/Perl/5.18 /Library/Perl/Updates/5.18.4 /System/Library/Perl/5.18/darwin-thread-multi-2level /System/Library/Perl/5.18 /System/Library/Perl/Extras/5.18/darwin-thread-multi-2level /System/Library/Perl/Extras/5.18 /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/external/perl/Text-Template-1.56/lib) at /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/util/perl/TLSProxy/Proxy.pm line 100.70-test_tls13psk.t ......................
+</span></span></span><span class=line><span class=cl><span class=s1>Can&#39;</span>t locate IO/Socket/IP.pm in @INC <span class=o>(</span>you may need to install the IO::Socket::IP module<span class=o>)</span> <span class=o>(</span>@INC contains: /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/Configurations . /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/util/perl /Library/Perl/5.18/darwin-thread-multi-2level /Library/Perl/5.18 /Network/Library/Perl/5.18/darwin-thread-multi-2level /Network/Library/Perl/5.18 /Library/Perl/Updates/5.18.4 /System/Library/Perl/5.18/darwin-thread-multi-2level /System/Library/Perl/5.18 /System/Library/Perl/Extras/5.18/darwin-thread-multi-2level /System/Library/Perl/Extras/5.18 /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/external/perl/Text-Template-1.56/lib<span class=o>)</span> at /private/tmp/opensslA3-20250703-82846-1idqq/openssl-3.5.1/util/perl/TLSProxy/Proxy.pm line 100.70-test_tlsextms.t ......................
+</span></span></code></pre></td></tr></table></div></div><p>这种情况可以尝试加入 <code>depends_on "perl"</code>（运行时依赖） 或
+<code>depends_on "perl" => :build</code>（编译时依赖），让软件依赖 brew 版 perl：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-diff data-lang=diff><span class=line><span class=cl><span class=gh>diff --git a/Formula/o/openssl@3.rb b/Formula/o/openssl@3.rb
+</span></span></span><span class=line><span class=cl><span class=gh>index af7fd717b72..8a966060f04 100644
+</span></span></span><span class=line><span class=cl><span class=gd>--- a/Formula/o/openssl@3.rb
+</span></span></span><span class=line><span class=cl><span class=gi>+++ b/Formula/o/openssl@3.rb
+</span></span></span><span class=line><span class=cl><span class=gu>@@ -23,6 +23,7 @@ class OpensslAT3 &lt; Formula
+</span></span></span><span class=line><span class=cl>   end
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>   depends_on &#34;ca-certificates&#34;
+</span></span><span class=line><span class=cl><span class=gi>+  depends_on &#34;perl&#34; =&gt; :build
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>   on_linux do
+</span></span><span class=line><span class=cl>     resource &#34;Test::Harness&#34; do
+</span></span></code></pre></td></tr></table></div></div><p>这样就可以编译了。</p><p>不过，<a href=https://github.com/openssl/openssl/pull/27941 target=_blank rel="noopener noreferrer">openssl 已经在修复 perl 版本问题</a>，毕竟他们的文档里说只需
+perl 5.10 就行。</p><p>如果不想依赖 brew 版 perl，要应用此 patch，在脚本中加入断点：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-diff data-lang=diff><span class=line><span class=cl><span class=gh>diff --git a/Formula/o/openssl@3.rb b/Formula/o/openssl@3.rb
+</span></span></span><span class=line><span class=cl><span class=gh>index af7fd717b72..b502996acc0 100644
+</span></span></span><span class=line><span class=cl><span class=gd>--- a/Formula/o/openssl@3.rb
+</span></span></span><span class=line><span class=cl><span class=gi>+++ b/Formula/o/openssl@3.rb
+</span></span></span><span class=line><span class=cl><span class=gu>@@ -107,6 +107,7 @@ class OpensslAT3 &lt; Formula
+</span></span></span><span class=line><span class=cl>     system &#34;make&#34;, &#34;install&#34;, &#34;MANDIR=#{man}&#34;, &#34;MANSUFFIX=ssl&#34;
+</span></span><span class=line><span class=cl>     # AF_ALG support isn&#39;t always enabled (e.g. some containers), which breaks the tests.
+</span></span><span class=line><span class=cl>     # AF_ALG is a kernel feature and failures are unlikely to be issues with the formula.
+</span></span><span class=line><span class=cl><span class=gi>+    raise &#34;DEBUG BREAKPOINT&#34;
+</span></span></span><span class=line><span class=cl>     system &#34;make&#34;, &#34;HARNESS_JOBS=#{ENV.make_jobs}&#34;, &#34;test&#34;, &#34;TESTS=-test_afalg&#34;
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>     # Prevent `brew` from pruning the `certs` and `private` directories.
+</span></span></code></pre></td></tr></table></div></div><p>然后执行 <code>brew install openssl@3.rb --debug</code>，到 make test 前一步自动停止，进入 shell，下载并应用
+patch：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>curl -LO https://github.com/openssl/openssl/pull/27941.diff
+</span></span><span class=line><span class=cl>git apply 27941.diff
+</span></span></code></pre></td></tr></table></div></div><p>然后退出并继续即可。</p><p>但并不是所有的 perl 版本问题都可以这么简单解决，例如下面的 git 编译问题，就需要大体了解 git 构建过程。</p><h2 id=t-git-credential-netrcsh-no-such-file-or-directory>./t-git-credential-netrc.sh: No such file or directory</h2><p>编译安装 git 时出现错误：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl><span class=c1># ~/Library/Logs/Homebrew/git/05.make</span>
+</span></span><span class=line><span class=cl>make
+</span></span><span class=line><span class=cl><span class=nb>test</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>/Applications/Xcode.app/Contents/Developer/usr/bin/make -C ../../.. <span class=nv>SCRIPT_PERL</span><span class=o>=</span><span class=s2>&#34;contrib/credential/netrc/git-credential-netrc.perl&#34;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl>                build-perl-script
+</span></span><span class=line><span class=cl>    * new perl-specific parameters
+</span></span><span class=line><span class=cl><span class=se>\
+</span></span></span><span class=line><span class=cl>	<span class=nv>INSTLIBDIR</span><span class=o>=</span><span class=s1>&#39;/private/tmp/git-20250521-61559-k2ku4o/git-2.49.0/.brew_home/share/perl5&#39;</span> <span class=o>&amp;&amp;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl>	<span class=nv>INSTLIBDIR_EXTRA</span><span class=o>=</span><span class=s1>&#39;/Applications/Xcode.app/Contents/Developer/Library/Perl/5.18/darwin-thread-multi-2level:/Library/Developer/CommandLineTools/Library/Perl/5.18/darwin-thread-multi-2level&#39;</span> <span class=o>&amp;&amp;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl>	<span class=nv>INSTLIBDIR</span><span class=o>=</span><span class=s2>&#34;</span><span class=nv>$INSTLIBDIR</span><span class=si>${</span><span class=nv>INSTLIBDIR_EXTRA</span><span class=p>:+:</span><span class=nv>$INSTLIBDIR_EXTRA</span><span class=si>}</span><span class=s2>&#34;</span> <span class=o>&amp;&amp;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl>	sed -e <span class=s1>&#39;s=@PATHSEP@=:=g&#39;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl>	    -e <span class=s2>&#34;s=@INSTLIBDIR@=</span><span class=nv>$INSTLIBDIR</span><span class=s2>=g&#34;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl>	    -e <span class=s1>&#39;s=@PERLLIBDIR_REL@=share/perl5=g&#39;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl>	    -e <span class=s1>&#39;s=@GITEXECDIR_REL@=libexec/git-core=g&#39;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl>	    -e <span class=s1>&#39;s=@LOCALEDIR_REL@=share/locale=g&#39;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl>	    perl/header_templates/fixed_prefix.template.pl &gt;GIT-PERL-HEADER+ <span class=o>&amp;&amp;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl>	mv GIT-PERL-HEADER+ GIT-PERL-HEADER
+</span></span><span class=line><span class=cl>/bin/sh generate-perl.sh ./GIT-BUILD-OPTIONS ./GIT-VERSION-FILE GIT-PERL-HEADER <span class=s2>&#34;contrib/credential/netrc/git-credential-netrc.perl&#34;</span> <span class=s2>&#34;contrib/credential/netrc/git-credential-netrc+&#34;</span> <span class=o>&amp;&amp;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl>	mv contrib/credential/netrc/git-credential-netrc+ contrib/credential/netrc/git-credential-netrc
+</span></span><span class=line><span class=cl>./t-git-credential-netrc.sh
+</span></span><span class=line><span class=cl>?!ERR?! ./t-git-credential-netrc.sh: No such file or directory
+</span></span><span class=line><span class=cl>ok <span class=m>1</span> - <span class=nb>set</span> up <span class=nb>test</span> repository
+</span></span><span class=line><span class=cl>not ok <span class=m>2</span> - git-credential-netrc
+</span></span><span class=line><span class=cl><span class=c1>#</span>
+</span></span><span class=line><span class=cl><span class=c1>#			perl &#34;$GIT_SOURCE_DIR&#34;/contrib/credential/netrc/test.pl</span>
+</span></span><span class=line><span class=cl><span class=c1>#</span>
+</span></span><span class=line><span class=cl><span class=c1># failed 1 among 2 test(s)</span>
+</span></span><span class=line><span class=cl>1..2
+</span></span><span class=line><span class=cl>make: *** <span class=o>[</span>test<span class=o>]</span> Error <span class=m>1</span>
+</span></span></code></pre></td></tr></table></div></div><p>提示找不到 <code>./t-git-credential-netrc.sh</code> 这个文件，这个错误让人很容易以为是路径问题。</p><p>从 2.47.1 版本以后就这样，就先 pin 了，以为过一段时间会有 brew 或 git 维护人员发现并修复，然而都 2.49.0 了还是不行。</p><p>如果在 git 源码 <code>contrib/credential/netrc</code> 目录下运行 <code>make testverbose</code>，会出现以下错误：</p><pre tabindex=0><code>Perl v5.26.0 required--this is only v5.18.4
+</code></pre><p>继续查阅源码可知
+<a href=https://github.com/git/git/commit/702d8c1f3b5377a64670b0f22add157b0bfc33dd target=_blank rel="noopener noreferrer">git 从 2.48 就开始要求 perl 5.26 了</a>。</p><p>Catalina 自带的 /usr/bin/perl 只有 5.18，brew 编译 git 时并不使用 brew 版 perl，而是系统自带，于是我这个
+Catalina 老同志就被偷袭了。</p><p>如果指定较新的 perl <code>export PERL_PATH=/usr/local/bin/perl</code>，就可以正常编译。</p><p>对此，考虑以下几种解决方法：</p><ol><li><p>如果不追求新版，可以 pin 在 2.47.1。</p><p>如果还没有用 brew 安装 git，本地有 homebrew-core 源码的话，可以提取历史版本并编译：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>git show aecf26f53d0:Formula/g/git.rb &gt;git.rb
+</span></span><span class=line><span class=cl>brew install ./git.rb --formula
+</span></span><span class=line><span class=cl>rm ./git.rb
+</span></span></code></pre></td></tr></table></div></div><p>或者去<a href=https://github.com/Homebrew/homebrew-core/blob/master/Formula/g/git.rb target=_blank rel="noopener noreferrer">官方仓库</a>下载历史版本。</p><p>brew 脚本我认为是有 bug 的，它编译出的 git-credential-netrc 中模块路径错误，用的是编译时的临时目录，例如
+<code>/private/tmp/git-20250527-25582-blyz61/git-2.49.0/.brew_home/share/perl5</code>。</p><p>如果不需要 git-credential-netrc，可以将相关脚本注释掉。或者参考方法 3 修改路径。</p></li><li><p>如果想升级 git，可以将脚本中与 perl 相关部分注释掉，包括
+git-credential-netrc、diff-highlight、git-send-email 相关代码，以及 Net::SMTP::SSL
+模块（git-send-email 依赖它）。这也意味着这些工具将无法使用。</p><p>git 源码中还有一个 <code>NO_PERL</code> 环境变量，但我没试过。</p><p>git-credential-netrc 可能用的人不多，毕竟 macOS 上一般用 SSH、git-credential-osxkeychain。但
+diff-highlight 还是很有用的，可以在 diff 高亮显示不同的部分。git-send-email 用于发送邮件。</p></li><li><p>如果想升级 git 且需要 perl 相关工具，可以使用 brew 版 perl。</p><p>在 brew 脚本中做如下修改：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-diff data-lang=diff><span class=line><span class=cl><span class=gh>diff --git a/Formula/g/git.rb b/Formula/g/git.rb
+</span></span></span><span class=line><span class=cl><span class=gh>index a58a53ea0d6..82200f7576f 100644
+</span></span></span><span class=line><span class=cl><span class=gd>--- a/Formula/g/git.rb
+</span></span></span><span class=line><span class=cl><span class=gi>+++ b/Formula/g/git.rb
+</span></span></span><span class=line><span class=cl><span class=gu>@@ -23,6 +23,7 @@ class Git &lt; Formula
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>   depends_on &#34;gettext&#34;
+</span></span><span class=line><span class=cl>   depends_on &#34;pcre2&#34;
+</span></span><span class=line><span class=cl><span class=gi>+  depends_on &#34;perl&#34;
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>   uses_from_macos &#34;curl&#34;, since: :catalina # macOS &lt; 10.15.6 has broken cert path logic
+</span></span><span class=line><span class=cl>   uses_from_macos &#34;expat&#34;
+</span></span><span class=line><span class=cl><span class=gu>@@ -125,12 +126,13 @@ class Git &lt; Formula
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>     # Generate diff-highlight perl script executable
+</span></span><span class=line><span class=cl>     cd &#34;contrib/diff-highlight&#34; do
+</span></span><span class=line><span class=cl><span class=gd>-      system &#34;make&#34;
+</span></span></span><span class=line><span class=cl><span class=gi>+      system &#34;make&#34;, &#34;PERL_PATH=#{ENV[&#34;PERL_PATH&#34;]}&#34;
+</span></span></span><span class=line><span class=cl>     end
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>     # Install the netrc credential helper
+</span></span><span class=line><span class=cl>     cd &#34;contrib/credential/netrc&#34; do
+</span></span><span class=line><span class=cl><span class=gd>-      system &#34;make&#34;, &#34;test&#34;
+</span></span></span><span class=line><span class=cl><span class=gi>+      system &#34;make&#34;, &#34;PERL_PATH=#{ENV[&#34;PERL_PATH&#34;]}&#34;, &#34;test&#34;
+</span></span></span><span class=line><span class=cl><span class=gi>+      inreplace &#34;git-credential-netrc&#34;, %r{(?&lt;=\$ENV\{GITPERLLIB\} \|\| &#39;)[^:&#39;]+}, share/&#34;perl5&#34;
+</span></span></span><span class=line><span class=cl>       git_core.install &#34;git-credential-netrc&#34;
+</span></span><span class=line><span class=cl>     end
+</span></span></code></pre></td></tr></table></div></div><p><code>depends_on "perl"</code> 指定 brew 版 perl，脚本会将路径保存在 <code>PERL_PATH</code> 环境变量。</p><p>子模块编译时此环境变量无效，因此 make 命令还是需要 <code>PERL_PATH=</code>。</p><p><code>inreplace</code> 一行会将 git-credential-netrc 脚本中的临时路径</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-perl data-lang=perl><span class=line><span class=cl><span class=k>use</span> <span class=nn>lib</span> <span class=p>(</span><span class=nb>split</span><span class=p>(</span><span class=sr>/:/</span><span class=p>,</span> <span class=nv>$ENV</span><span class=p>{</span><span class=n>GITPERLLIB</span><span class=p>}</span> <span class=o>||</span> <span class=s>&#39;/private/tmp/git-20250527-25582-blyz61/git-2.49.0/.brew_home/share/perl5:/Applications/Xcode.app/Contents/Developer/Library/Perl/5.40/darwin-thread-multi-2level:/Library/Developer/CommandLineTools/Library/Perl/5.40/darwin-thread-multi-2level&#39;</span><span class=p>));</span>
+</span></span></code></pre></td></tr></table></div></div><p>修改为形如 <code>/usr/local/Cellar/git/2.49.0/share/perl5</code>，这也是编译脚本中模块安装位置。</p><p>另外，临时路径之后的几个路径也是错误的。它在 brew 脚本里通过 <code>PERLLIB_EXTRA</code> 设置，这可能是新版 macOS 的路径。但不影响使用。</p><p>最后可将 <code>/usr/local/opt/git/share/git-core/contrib/diff-highlight</code> 加入 <code>PATH</code>
+环境变量，并添加到 git 配置：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>git config --global pager.diff <span class=s1>&#39;diff-highlight | less&#39;</span>
+</span></span><span class=line><span class=cl>git config --global pager.log <span class=s1>&#39;diff-highlight | less&#39;</span>
+</span></span><span class=line><span class=cl>git config --global pager.show <span class=s1>&#39;diff-highlight | less&#39;</span>
+</span></span></code></pre></td></tr></table></div></div></li></ol><h2 id=sha256-mismatch>sha256 mismatch</h2><p>这类问题出现频率很高，在官方仓库可以看到大量相关的 issue、commit 和 PR。</p><p>除了网络问题外，通常有两种原因。</p><h3 id=上游重新发布同一版本>上游重新发布同一版本</h3><p>这时依旧修改脚本，例如修改 <code>launchcontrol</code>，在 <code>$(brew --repository homebrew/cask)</code> 目录下：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-diff data-lang=diff><span class=line><span class=cl><span class=gh>diff --git a/Casks/launchcontrol.rb b/Casks/launchcontrol.rb
+</span></span></span><span class=line><span class=cl><span class=gh>index 5c2db44947..db25b721a8 100644
+</span></span></span><span class=line><span class=cl><span class=gd>--- a/Casks/launchcontrol.rb
+</span></span></span><span class=line><span class=cl><span class=gi>+++ b/Casks/launchcontrol.rb
+</span></span></span><span class=line><span class=cl><span class=gu>@@ -1,7 +1,7 @@
+</span></span></span><span class=line><span class=cl> cask &#34;launchcontrol&#34; do
+</span></span><span class=line><span class=cl>   on_catalina :or_older do
+</span></span><span class=line><span class=cl>     version &#34;1.52.7&#34;
+</span></span><span class=line><span class=cl><span class=gd>-    sha256 &#34;16c3d89e41a99cbf43e6996681358e8e7a4bc63fa770b9f8c0bc72c5356a0b8a&#34;
+</span></span></span><span class=line><span class=cl><span class=gi>+    sha256 &#34;760edc3f3238ecbbc9f0c14b17ced9ac2a46c46a4ed8feec6bfb532fced37b7e&#34;
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>     livecheck do
+</span></span><span class=line><span class=cl>       skip &#34;Legacy version&#34;
+</span></span></code></pre></td></tr></table></div></div><p>确认没问题的话可以去提 PR。</p><h3 id=源码归档在服务端重新生成>源码归档在服务端重新生成</h3><p>GitHub 和 Gitlab 都使用 <code>git archive</code> 将源码归档为 tar 包，但不管是 GitHub<sup id=fnref:2><a href=#fn:2 class=footnote-ref role=doc-noteref>2</a></sup> 还是
+Gitlab<sup id=fnref:3><a href=#fn:3 class=footnote-ref role=doc-noteref>3</a></sup>，都不保证源码归档的稳定性。</p><p>例如我发现的 Gitlab 校验变化问题：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>$ curl -fsSL https://gitlab.com/AOMediaCodec/SVT-AV1/-/archive/v1.4.1/SVT-AV1-v1.4.1.tar.bz2 <span class=p>|</span> sha256sum
+</span></span><span class=line><span class=cl>2ddef549e1eaeecc1fc48f0d8332ea3545809e46509db69beb3a0a4bf19ef906  -
+</span></span><span class=line><span class=cl>$ <span class=c1># 过一段时间</span>
+</span></span><span class=line><span class=cl>$ curl -fsSL https://gitlab.com/AOMediaCodec/SVT-AV1/-/archive/v1.4.1/SVT-AV1-v1.4.1.tar.bz2 <span class=p>|</span> sha256sum
+</span></span><span class=line><span class=cl>0e988582f315fe76c909accf5e7f81b975c5bd2b850ee760d8e9fac297f70b5d  -
+</span></span></code></pre></td></tr></table></div></div><p>两个 tar 包内容完全一样，只有文件夹名不同：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>$ curl -fsSL https://gitlab.com/AOMediaCodec/SVT-AV1/-/archive/v1.4.1/SVT-AV1-v1.4.1.tar.bz2 &gt;old
+</span></span><span class=line><span class=cl>$ <span class=c1># 过一段时间</span>
+</span></span><span class=line><span class=cl>$ curl -fsSL https://gitlab.com/AOMediaCodec/SVT-AV1/-/archive/v1.4.1/SVT-AV1-v1.4.1.tar.bz2 &gt;new
+</span></span><span class=line><span class=cl>$ tar xf old
+</span></span><span class=line><span class=cl>$ ls
+</span></span><span class=line><span class=cl>SVT-AV1-v1.4.1
+</span></span><span class=line><span class=cl>$ tar xf new
+</span></span><span class=line><span class=cl>$ ls
+</span></span><span class=line><span class=cl>SVT-AV1-018276d714ce65d9b586f6205ee016cbd8d5425d
+</span></span><span class=line><span class=cl>SVT-AV1-v1.4.1
+</span></span><span class=line><span class=cl>$ diff SVT-AV1-v1.4.1 SVT-AV1-018276d714ce65d9b586f6205ee016cbd8d5425d -r
+</span></span><span class=line><span class=cl>$ <span class=nb>echo</span> <span class=nv>$?</span>
+</span></span><span class=line><span class=cl><span class=m>0</span>
+</span></span></code></pre></td></tr></table></div></div><p>我也是服了某些 brew 的维护者，复现不了我的问题就说是我配置问题，神他妈配置问题😅</p><p>Gitlab 官方人员解释如下：</p><blockquote><p>The root cause was discussed in a confidential issue, but I can share a
+general idea what went wrong.</p><p>One of deployed fixes had a side-effect of changing the hash sum of the
+archived files. When it was discovered, we reverted the code. However,
+Cloudflare still responded with old archive files for some regions. We updated
+the cache and that resolved the problem.</p></blockquote><p>好了，破案了。Gitlab 也是个鬼才，归档生成机制变了也就算了，同一个老 URL，还能返回不同的文件。</p><p>要是不幸遇到这种问题，自认倒霉吧，依旧直接改脚本。鬼知道什么时候抽风。</p><p>其结果就是，明明服务商不保证自动归档的稳定性，而 brew 却依赖这一点。</p><p>要保证源码包的稳定性，应该由作者官方以 release 形式发布，就像各种开源软件官网那样，然后由官方提供校验方法。</p><p>那么从全局看，怎么避免这种错误？我觉得 brew 完全可以定期检查哈希值，如果变更则自动提 PR，这一点可以通过 CI/CD 自动化完成。</p><h2 id=warning-you-are-using-macos-1015>Warning: You are using macOS 10.15.</h2><pre tabindex=0><code>We (and Apple) do not provide support for this old version.
+It is expected behaviour that some formulae will fail to build in this old version.
+It is expected behaviour that Homebrew will be buggy and slow.
+Do not create any issues about this on Homebrew&#39;s GitHub repositories.
+Do not create any issues even if you think this message is unrelated.
+Any opened issues will be immediately closed without response.
+Do not ask for help from Homebrew or its maintainers on social media.
+You may ask for help in Homebrew&#39;s discussions but are unlikely to receive a response.
+Try to figure out the problem yourself and submit a fix as a pull request.
+We will review it but may or may not accept it.
+</code></pre><p>啊对对对，我知道我们老古董不配用高贵的 brew，出了问题后果自负我理解。</p><p>但是你每次一大堆烦人的警告跳脸连个他妈的开关都没有？哪怕减到一行呢？</p><p>何况苹果只是对系统停止了支持，你一个包管理器，不想支持老系统直接大方说不就行了，和苹果对系统的支持有个毛线关系？难道苹果不让 Catalina 用户用 App
+Store 了？Ubuntu 就连 12.04 甚至更老的版本，改一下源就能继续用官方的老仓库。</p><p>对于一个非盈利的开源软件，我表示支持，但你别又当又立😅</p><p>发现我脾气逐渐暴躁，管他的，反正鬼佬看不懂中文。</p><p>编辑 <code>$(brew --repository)/Library/Homebrew/extend/os/mac/diagnostic.rb</code> 这个脚本，在
+<code>check_for_unsupported_macos</code> 方法第一行直接返回：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-diff data-lang=diff><span class=line><span class=cl><span class=gh>diff --git a/Library/Homebrew/extend/os/mac/diagnostic.rb b/Library/Homebrew/extend/os/mac/diagnostic.rb
+</span></span></span><span class=line><span class=cl><span class=gh>index 1cbc907f3..37b5b91ba 100644
+</span></span></span><span class=line><span class=cl><span class=gd>--- a/Library/Homebrew/extend/os/mac/diagnostic.rb
+</span></span></span><span class=line><span class=cl><span class=gi>+++ b/Library/Homebrew/extend/os/mac/diagnostic.rb
+</span></span></span><span class=line><span class=cl><span class=gu>@@ -106,6 +106,7 @@ module Homebrew
+</span></span></span><span class=line><span class=cl>       end
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>       def check_for_unsupported_macos
+</span></span><span class=line><span class=cl><span class=gi>+        return
+</span></span></span><span class=line><span class=cl>         return if Homebrew::EnvConfig.developer?
+</span></span><span class=line><span class=cl>         return if ENV[&#34;HOMEBREW_INTEGRATION_TEST&#34;]
+</span></span></code></pre></td></tr></table></div></div><p>整个世界都清净了！</p><div class=footnotes role=doc-endnotes><hr><ol><li id=fn:1><p><a href=https://github.com/openssl/openssl/issues/27950#issuecomment-3032659229 target=_blank rel="noopener noreferrer">https://github.com/openssl/openssl/issues/27950#issuecomment-3032659229</a>&#160;<a href=#fnref:1 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li><li id=fn:2><p><a href=https://github.blog/2023-02-21-update-on-the-future-stability-of-source-code-archives-and-hashes/ target=_blank rel="noopener noreferrer">https://github.blog/2023-02-21-update-on-the-future-stability-of-source-code-archives-and-hashes/</a>&#160;<a href=#fnref:2 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li><li id=fn:3><p><a href=https://gitlab.com/gitlab-org/gitlab/-/issues/402616 target=_blank rel="noopener noreferrer">https://gitlab.com/gitlab-org/gitlab/-/issues/402616</a>&#160;<a href=#fnref:3 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li></ol></div></article><section class="article labels"><a class=tag href=/tags/macos/>macOS</a><a class=tag href=/tags/go/>Go</a><a class=tag href=/tags/homebrew/>Homebrew</a><a class=tag href=/tags/git/>Git</a><a class=tag href=/tags/perl/>Perl</a></section><section class="article license"><p xmlns:cc=http://creativecommons.org/ns# style=text-align:center>本作品根据 <a href=http://creativecommons.org/licenses/by-nc-sa/4.0/ target=_blank rel="license noopener noreferrer" style=display:inline-block>署名-非商业性使用-相同方式共享 4.0 国际许可<img style=height:15px!important;margin-left:1px;vertical-align:text-bottom src=/cc-icons/cc.svg><img style=height:15px!important;margin-left:1px;vertical-align:text-bottom src=/cc-icons/by.svg><img style=height:15px!important;margin-left:1px;vertical-align:text-bottom src=/cc-icons/nc.svg><img style=height:15px!important;margin-left:1px;vertical-align:text-bottom src=/cc-icons/sa.svg></a> 进行授权。</p></section></div><div class="article bottom"><section class="article navigation"><p><a class=link href=/posts/sending-emails-with-exim4-on-linux/><span class="iconfont icon-article"></span>在 Linux 上使用 Exim4 发送邮件</a></p><p><a class=link href=/posts/deploying-linux-on-android/><span class="iconfont icon-article"></span>在 Android 上部署 Linux</a></p></section><section class="article discussion"><script>function loadComment(){let e=document.createElement("script");e.src="https://utteranc.es/client.js",e.setAttribute("repo","qianbinbin/qianbinbin.github.io"),e.setAttribute("issue-term","pathname"),e.setAttribute("theme","preferred-color-scheme"),e.setAttribute("crossorigin","anonymous"),e.setAttribute("async",""),document.querySelector("section.article.discussion").innerHTML="",document.querySelector("section.article.discussion").appendChild(e)}loadComment(),window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change",()=>{loadComment()})</script></section></div></section><section id=footer><div class=footer-wrap><p class=copyright>© 2017-2026 Binac.</p></div></section><script async src="https://www.googletagmanager.com/gtag/js?id=G-N7VZY53PLB"></script><script>var doNotTrack=!1,dnt=navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack,doNotTrack=dnt=="1"||dnt=="yes";if(!doNotTrack){window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-N7VZY53PLB")}</script><script defer src=/js/search-zh-CN.696e28b41c4d253b37e083e79150453edf2b4d3bf467a79cd65c5852fcc4c650.js integrity="sha256-aW4otBxNJTs34IPnkVBFPt8rTTv0Z6ec1lxYUvzExlA="></script><script src=https://unpkg.com/vanilla-back-to-top@7.2.1/dist/vanilla-back-to-top.min.js></script><script>addBackToTop({diameter:42})</script></body></html>

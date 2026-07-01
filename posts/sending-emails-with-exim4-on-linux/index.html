@@ -1,0 +1,80 @@
+<!doctype html><html lang=zh><meta charset=utf-8><meta name=generator content="Hugo 0.163.3"><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name=color-scheme content="light dark"><meta name=supported-color-schemes content="light dark"><link rel=icon href=/favicons/favicon.svg><meta name=description content="带有 GUI 的 Linux 可以直接使用集成的邮件客户端，比如 Thunderbird。但在服务器上，发送邮件需要一些配置，踩一些坑。
+邮件系统由三个部分组成：
+
+Mail User Agent (MUA)，发送和接收邮件。
+Mail Transfer Agent (MTA)，在计算机之间传输邮件。
+Mail Delivery Agent (MDA)，将收到的邮件投递到用户收件箱。
+"><title>在 Linux 上使用 Exim4 发送邮件&nbsp;&ndash;&nbsp;Binac</title><link rel=stylesheet href=/css/core.min.b64f0786f9b4c30882b5efa609e88ed5b645d9a105201e05a9f862bb09522be0c2949684da05264891016a296344e631.css integrity=sha384-tk8Hhvm0wwiCte+mCeiO1bZF2aEFIB4FqfhiuwlSK+DClJaE2gUmSJEBailjROYx><meta name=twitter:card content="summary"><meta name=twitter:title content="在 Linux 上使用 Exim4 发送邮件"><body><section id=header><div class="header wrap"><span class="header left-side"><a class="site home" href=/><img alt loading=lazy class="site logo" src=/favicons/favicon.svg><span class="site name">Binac</span></a></span>
+<span class="header right-side"><div class="nav wrap"><nav class=nav><div id=search_btn><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div><div id=search_menu_wrapper class=hidden><div id=search_menu><div id=search_menu_toolbar><div id=search_menu_input_wrapper><input id=search_menu_input type=text placeholder=搜索...></div><div id=search_menu_close_btn><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-darkreader-inline-stroke="" style="--darkreader-inline-stroke:currentcolor"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div></div><ul id=search_menu_results class="note list"></ul></div></div><a class='nav item active' href=/posts/ title=文章>文章</a>
+<a class='nav item' href=/nonsense/ title=妄言>妄言</a>
+<a class='nav item' href=/tuya/ title=涂鸦>涂鸦</a>
+<a class='nav item' href=/tags/ title>标签</a></nav></div></span></div></section><section id=content><div class=article-container><section class="article header"><h1 class="article title">在 Linux 上使用 Exim4 发送邮件</h1><p class="article date">2023-05-12<span class=lastmod> • 更新于 2025-08-19</span></p></section><article class="article markdown-body"><p>带有 GUI 的 Linux 可以直接使用集成的邮件客户端，比如 Thunderbird。但在服务器上，发送邮件需要一些配置，踩一些坑。</p><p>邮件系统由三个部分组成：</p><ul><li>Mail User Agent (MUA)，发送和接收邮件。</li><li>Mail Transfer Agent (MTA)，在计算机之间传输邮件。</li><li>Mail Delivery Agent (MDA)，将收到的邮件投递到用户收件箱。</li></ul><p>MUA 我使用的是 GNU Mailutils，MTA/MDA 使用的是 Exim4。</p><p><del>下面以网易 163 邮箱为例，</del> 说明怎么在 Debian 上配置 Exim4。</p><p>脑瘫的网易把我服务器 IP 屏蔽了，发邮件就报错 <code>553 authentication is required</code>。</p><p><del>换 QQ 邮箱了，</del> 苟曰的腾讯也把我屏蔽了，改 Gmail<sup id=fnref:1><a href=#fn:1 class=footnote-ref role=doc-noteref>1</a></sup> 了，但是教程对网易和 QQ 也适用，前提是你的 IP 没被屏蔽。</p><p>先安装：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>apt install exim4 mailutils
+</span></span></code></pre></td></tr></table></div></div><h2 id=smtp-端口号>SMTP 端口号</h2><h3 id=25>25</h3><p>25 端口最初作为明文传输的 SMTP 端口，现在经常被 ISP 和云服务器提供商屏蔽。</p><p>使用 telnet 检测端口是否可用：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>telnet smtp.163.com <span class=m>25</span>
+</span></span></code></pre></td></tr></table></div></div><p>个人测试发现，家用电信宽带、Vultr 可用，AWS 不可用。</p><h3 id=465>465</h3><p>465 是非标准的 SMTPS 端口，SMTPS 实际上就是 SMTP + TLS，类似 HTTPS 和 HTTP
+的关系。虽然不是标准端口，但确实有一些邮件提供商支持。</p><h3 id=587>587</h3><p>587 是现在比较通用的标准端口，使用 STARTTLS 加密通信。</p><hr><p>从上面我们可以知道，规范的 SMTP 端口为 25，TLS 版本为 465，STARTTLS 版本为 587。</p><p>后两者支持加密通信，不过只要服务端有支持，25 端口也可以加密通信，各邮件提供商有不同的实现。</p><p>可以在 <a href=https://esmtp.email/tools/tls/ target=_blank rel="noopener noreferrer">https://esmtp.email/tools/tls/</a> 检测各端口的加密支持情况。</p><blockquote><p>这个网站的服务出现错误，可以通过下面的 openssl 方式检测。</p></blockquote><p>如果以下命令有 TLS 握手并输出证书，说明支持 TLS：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>openssl s_client -connect smtp.gmail.com:465 &lt;/dev/null
+</span></span></code></pre></td></tr></table></div></div><p>如果以下命令输出证书，说明支持 STARTTLS：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>openssl s_client -connect smtp.gmail.com:587 -starttls smtp &lt;/dev/null
+</span></span></code></pre></td></tr></table></div></div><h3 id=gmail>Gmail</h3><p>Gmail 使用标准的 STARTTLS 587 端口，和非标准的 SMTPS 465 端口。</p><h3 id=qq-邮箱>QQ 邮箱</h3><p>和 Gmail 一样，即 465 支持 SMTPS，587 支持 STARTTLS。</p><h3 id=网易邮箱>网易邮箱</h3><p>网易比较坑爹，它确实支持 25、465、587 三个端口，但只有 25 支持 STARTTLS，后两者都是 SMTPS，而它显然没有在官网进行相关说明。</p><h2 id=配置-exim4>配置 Exim4</h2><p>以 root 运行：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>dpkg-reconfigure exim4-config
+</span></span></code></pre></td></tr></table></div></div><p>这会打开一个 TUI 配置向导。</p><p>依次设置：</p><ul><li><p><code>mail sent by smarthost; received via SMTP or fetchmail</code></p></li><li><p><code>System mail name</code> 保持 <code>localhost</code></p></li><li><p><code>IP-addresses to listen on for incoming SMTP connections</code> 保持默认的环回地址</p></li><li><p><code>Other destinations for which mail is accepted</code> 留空</p></li><li><p><code>Machines to relay mail for</code> 留空</p></li><li><p><code>IP address or host name of the outgoing smarthost</code> 填入 <code>smtp.gmail.com::587</code>
+，注意两个半角冒号，这里使用 STARTTLS，配置比 SMTPS 简单。</p><blockquote><p>如果用 QQ 邮箱，就用 <code>smtp.qq.com::587</code>。</p><p>如果用网易 163，就用 <code>smtp.163.com::465</code>，这里的 465 是网易支持的 SMTPS 端口，587
+也可以，因为网易这逗比俩端口都是 SMTPS，效果完全一样。</p></blockquote></li><li><p><code>Hide local mail name in outgoing mail</code> 如果选择 <code>NO</code>，那么本地发件人不会隐藏（例如
+root@localhost 之类），<code>YES</code> 则会改为邮箱地址。</p></li></ul><p>其余选项按喜好配置即可。</p><p>需要注意的是，出于安全原因，root 用户不能接收邮件，因此通常设置别名转发到常规用户。</p><p>这需要设置 <code>/etc/aliases</code>，此外还可以设置当常规用户收到邮件时，将邮件投递到某个互联网邮箱，例如：</p><pre tabindex=0><code>root: admin
+admin: admin@example.com
+</code></pre><p>运行 <code>newaliases</code> 使其生效。当系统收到邮件时（例如 root 用户的 Cron 定时任务），<code>admin@example.com</code>
+就可以收到邮件提醒了。</p><p>接着在 <code>/etc/exim4/passwd.client</code> 中配置邮箱和密码：</p><pre tabindex=0><code># QQ
+smtp.qq.com:username@qq.com:password
+# 163
+smtp.163.com:username@163.com:password
+# Gmail
+*.gmail.com:username@gmail.com:password
+</code></pre><p>对于 QQ 和网易，这里的密码都要用授权码，登录 <a href=https://mail.qq.com target=_blank rel="noopener noreferrer">https://mail.qq.com</a> <a href=https://mail.163.com target=_blank rel="noopener noreferrer">https://mail.163.com</a> 获取。</p><p>Gmail 可以使用类似的专用密码 <a href=https://support.google.com/accounts/answer/185833 target=_blank rel="noopener noreferrer">https://support.google.com/accounts/answer/185833</a>。</p><p><code>*.gmail.com</code> 是 Gmail SMTP 服务器包含通配符的域名，如果以下查询有类似的别名（CNAME），要改成匹配的，例如
+<code>gmail*.google.com</code>：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>$ host smtp.gmail.com
+</span></span><span class=line><span class=cl>smtp.gmail.com is an <span class=nb>alias</span> <span class=k>for</span> gmail-smtp-msa.l.google.com.
+</span></span><span class=line><span class=cl>gmail-smtp-msa.l.google.com has address 74.125.127.109
+</span></span><span class=line><span class=cl>gmail-smtp-msa.l.google.com has address 74.125.127.108
+</span></span></code></pre></td></tr></table></div></div><p>接着配置本地用户与发件邮箱的映射关系。</p><p>先在 <code>/etc/hostname</code> 和 <code>/etc/hosts</code> 中查看主机名和 FQDN/PQDN（一般就是 hosts 文件中 <code>127.0.1.1</code>
+对应的域名），或者通过 <code>hostname</code> 和 <code>hostname -f</code> 获取。普通用户没有公网可解析的 FQDN，此时 FQDN 其实是
+PQDN，与主机名相同。</p><p>下面以主机名 <code>myhostname</code>、FQDN <code>myhostname.mylocaldomain</code> 为例，编辑
+<code>/etc/email-addresses</code>：</p><pre tabindex=0><code>root: username@gmail.com
+root@localhost: username@gmail.com
+root@myhostname: username@gmail.com
+root@myhostname.mylocaldomain: username@gmail.com
+admin: username@gmail.com
+admin@localhost: username@gmail.com
+admin@myhostname: username@gmail.com
+admin@myhostname.mylocaldomain: username@gmail.com
+</code></pre><p>这一步对于 Gmail 可能不是必须的，因为 Gmail 会自动重写发件人。但是其他邮件就不一定了。</p><p>如果在之前 <code>Hide local mail name in outgoing mail</code> 的设置中选择了 <code>YES</code>，这一步或许可以省略。</p><blockquote><p>首先声明我不是邮件专家。</p><p>有段时间，Cron 任务发送的邮件如果不设置 <code>MAILFROM</code> 为邮件地址就无法发送，网易和 QQ 都出现过。在一次更新软件包后，把
+<code>MAILFROM</code> 去掉，结果又可以了。不确定到底是网易或 QQ 的问题，还是 Cron 或 Exim4
+的问题，又或者是别的什么问题。毕竟就像我说的，我不是邮件专家。</p><p><del>***真有邮件专家吗？为什么有这么蛋疼的配置？</del></p></blockquote><p>更新配置并重启服务：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>update-exim4.conf
+</span></span><span class=line><span class=cl>service exim4 restart
+</span></span></code></pre></td></tr></table></div></div><p>发个邮件试试：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl><span class=nb>echo</span> <span class=s2>&#34;邮件内容&#34;</span> <span class=p>|</span> mail -s <span class=s2>&#34;邮件标题&#34;</span> admin@example.com
+</span></span></code></pre></td></tr></table></div></div><p>日志位于 <code>/var/log/exim4/mainlog</code>。</p><p>如果你是 STARTTLS，那应该已经发送成功了。如果日志里有 TLS 没有正确关闭的报错：</p><pre tabindex=0><code>H=smtp.gmail.com [2607:f8b0:400e:c01::6c] TLS error on connection (recv): The TLS connection was non-properly terminated.
+</code></pre><p>属于正常现象，网易、QQ 也有。这是因为服务器有意省略 close_notify 以节省往返时间，尽管这违反了 TLS 协议<sup id=fnref:2><a href=#fn:2 class=footnote-ref role=doc-noteref>2</a></sup>。尾注链接是
+hestiacp 开发者给 Exim4 提交的 PR，然而 Exim4 对 GitHub 不感兴趣，不知道什么时候才能合并。如果你使用的工具会封禁错误日志中的
+IP，你可能需要自行编译 Exim4。</p><p>SMTPS 还需要接下来的一些配置。</p><h2 id=smtps-配置>SMTPS 配置<sup id=fnref:3><a href=#fn:3 class=footnote-ref role=doc-noteref>3</a></sup></h2><p>STARTTLS 请忽略此步骤。</p><p>创建 <code>/etc/exim4/exim4.conf.localmacros</code>：</p><pre tabindex=0><code>MAIN_TLS_ENABLE = 1
+REMOTE_SMTP_SMARTHOST_HOSTS_REQUIRE_TLS = *
+TLS_ON_CONNECT_PORTS = 465
+REQUIRE_PROTOCOL = smtps
+</code></pre><p>注意端口 465 与上面一致。</p><p>编辑 <code>/etc/exim4/exim4.conf.template</code>，在
+<code>.ifdef REMOTE_SMTP_SMARTHOST_HOSTS_REQUIRE_TLS ... .endif</code> 后（注意 <code>.endif</code>）添加：</p><pre tabindex=0><code>.ifdef REQUIRE_PROTOCOL
+    protocol = REQUIRE_PROTOCOL
+.endif
+</code></pre><p>在 <code>.ifdef MAIN_TLS_ENABLE</code> 后添加：</p><pre tabindex=0><code>.ifdef TLS_ON_CONNECT_PORTS
+    tls_on_connect_ports = TLS_ON_CONNECT_PORTS
+.endif
+</code></pre><p>更新配置并重启服务：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>update-exim4.conf
+</span></span><span class=line><span class=cl>service exim4 restart
+</span></span></code></pre></td></tr></table></div></div><p>运行 <code>exim4 -qff</code> 强制发送之前发送失败而暂存的邮件。</p><p>这下终于可以了。</p><div class=footnotes role=doc-endnotes><hr><ol><li id=fn:1><p><a href=https://wiki.debian.org/Exim4Gmail target=_blank rel="noopener noreferrer">https://wiki.debian.org/Exim4Gmail</a>&#160;<a href=#fnref:1 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li><li id=fn:2><p><a href=https://github.com/Exim/exim/pull/94 target=_blank rel="noopener noreferrer">https://github.com/Exim/exim/pull/94</a>&#160;<a href=#fnref:2 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li><li id=fn:3><p><a href=https://wiki.debian.org/Exim#Communicating_with_a_smarthost target=_blank rel="noopener noreferrer">https://wiki.debian.org/Exim#Communicating_with_a_smarthost</a>&#160;<a href=#fnref:3 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li></ol></div></article><section class="article labels"><a class=tag href=/tags/linux/>Linux</a></section><section class="article license"><p xmlns:cc=http://creativecommons.org/ns# style=text-align:center>本作品根据 <a href=http://creativecommons.org/licenses/by-nc-sa/4.0/ target=_blank rel="license noopener noreferrer" style=display:inline-block>署名-非商业性使用-相同方式共享 4.0 国际许可<img style=height:15px!important;margin-left:1px;vertical-align:text-bottom src=/cc-icons/cc.svg><img style=height:15px!important;margin-left:1px;vertical-align:text-bottom src=/cc-icons/by.svg><img style=height:15px!important;margin-left:1px;vertical-align:text-bottom src=/cc-icons/nc.svg><img style=height:15px!important;margin-left:1px;vertical-align:text-bottom src=/cc-icons/sa.svg></a> 进行授权。</p></section></div><div class="article bottom"><section class="article navigation"><p><a class=link href=/posts/video-related-commands-and-scripts/><span class="iconfont icon-article"></span>视频相关的命令和脚本</a></p><p><a class=link href=/posts/some-issues-when-using-homebrew/><span class="iconfont icon-article"></span>Homebrew 使用中的一些问题</a></p></section><section class="article discussion"><script>function loadComment(){let e=document.createElement("script");e.src="https://utteranc.es/client.js",e.setAttribute("repo","qianbinbin/qianbinbin.github.io"),e.setAttribute("issue-term","pathname"),e.setAttribute("theme","preferred-color-scheme"),e.setAttribute("crossorigin","anonymous"),e.setAttribute("async",""),document.querySelector("section.article.discussion").innerHTML="",document.querySelector("section.article.discussion").appendChild(e)}loadComment(),window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change",()=>{loadComment()})</script></section></div></section><section id=footer><div class=footer-wrap><p class=copyright>© 2017-2026 Binac.</p></div></section><script async src="https://www.googletagmanager.com/gtag/js?id=G-N7VZY53PLB"></script><script>var doNotTrack=!1,dnt=navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack,doNotTrack=dnt=="1"||dnt=="yes";if(!doNotTrack){window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-N7VZY53PLB")}</script><script defer src=/js/search-zh-CN.696e28b41c4d253b37e083e79150453edf2b4d3bf467a79cd65c5852fcc4c650.js integrity="sha256-aW4otBxNJTs34IPnkVBFPt8rTTv0Z6ec1lxYUvzExlA="></script><script src=https://unpkg.com/vanilla-back-to-top@7.2.1/dist/vanilla-back-to-top.min.js></script><script>addBackToTop({diameter:42})</script></body></html>

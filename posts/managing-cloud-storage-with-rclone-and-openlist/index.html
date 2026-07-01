@@ -1,0 +1,370 @@
+<!doctype html><html lang=zh><meta charset=utf-8><meta name=generator content="Hugo 0.163.3"><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name=color-scheme content="light dark"><meta name=supported-color-schemes content="light dark"><link rel=icon href=/favicons/favicon.svg><meta name=description content="在没有图形界面的服务器上，或不想使用客户端软件时，如何方便地管理云存储是个问题。
+rclone 就是为此而生的，号称云存储版 rsync。它可以方便地在命令行下挂载网盘，例如 Google Drive、Dropbox、OneDrive
+等，还支持 Amazon S3 对象存储服务。"><title>使用 rclone 和 openlist 管理云存储&nbsp;&ndash;&nbsp;Binac</title><link rel=stylesheet href=/css/core.min.b64f0786f9b4c30882b5efa609e88ed5b645d9a105201e05a9f862bb09522be0c2949684da05264891016a296344e631.css integrity=sha384-tk8Hhvm0wwiCte+mCeiO1bZF2aEFIB4FqfhiuwlSK+DClJaE2gUmSJEBailjROYx><meta name=twitter:card content="summary"><meta name=twitter:title content="使用 rclone 和 openlist 管理云存储"><body><section id=header><div class="header wrap"><span class="header left-side"><a class="site home" href=/><img alt loading=lazy class="site logo" src=/favicons/favicon.svg><span class="site name">Binac</span></a></span>
+<span class="header right-side"><div class="nav wrap"><nav class=nav><div id=search_btn><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div><div id=search_menu_wrapper class=hidden><div id=search_menu><div id=search_menu_toolbar><div id=search_menu_input_wrapper><input id=search_menu_input type=text placeholder=搜索...></div><div id=search_menu_close_btn><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-darkreader-inline-stroke="" style="--darkreader-inline-stroke:currentcolor"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div></div><ul id=search_menu_results class="note list"></ul></div></div><a class='nav item active' href=/posts/ title=文章>文章</a>
+<a class='nav item' href=/nonsense/ title=妄言>妄言</a>
+<a class='nav item' href=/tuya/ title=涂鸦>涂鸦</a>
+<a class='nav item' href=/tags/ title>标签</a></nav></div></span></div></section><section id=content><div class=article-container><section class="article header"><h1 class="article title">使用 rclone 和 openlist 管理云存储</h1><p class="article date">2020-02-01<span class=lastmod> • 更新于 2025-08-02</span></p></section><article class="article markdown-body"><p>在没有图形界面的服务器上，或不想使用客户端软件时，如何方便地管理云存储是个问题。</p><p>rclone 就是为此而生的，号称云存储版 rsync。它可以方便地在命令行下挂载网盘，例如 Google Drive、Dropbox、OneDrive
+等，还支持 Amazon S3 对象存储服务。</p><hr><blockquote><p><strong>2025 年 6 月 11
+日前后，<a href=https://github.com/AlistGo/alist/issues/8649 target=_blank rel="noopener noreferrer">alist 被曝出被某公司收购</a>。该公司有不良前科，而且可能早在几个月前就已经收购了，安全性存在问题。</strong></p><p><strong>我习惯在使用官方脚本安装前先大体查看一下，alist 在 Linux 上的运行方式，尤其是 root
+运行我不喜欢，所以手动管理，事实证明谨慎一点总没错。</strong></p><p><strong>原本想改进 macOS 上的 launchd 运行方式，让服务使用受限的用户运行，但发现对于普通用户来说太麻烦，这需要 dscl 建立用户，还需要
+sudo 管理 launchd。因此对于 macOS 用户来说，本文还是继续使用 launchd（brew
+services），服务将会以常规用户（也就是你登录的用户）运行。</strong></p><p><strong>目前新分支 <a href=https://github.com/OpenListTeam/OpenList target=_blank rel="noopener noreferrer">https://github.com/OpenListTeam/OpenList</a> 已经发布正式版。本文已经将 alist 全部更换为
+openlist。</strong></p><p><strong>rclone 不受影响。</strong></p></blockquote><hr><p>openlist 是一个云存储管理工具，它把众多网盘整合起来，其中就包括很多 rclone 不支持的国内网盘，但它是通过网页前端来管理的，不支持挂载到本地。</p><p>普通网盘没什么好说的，rclone 就能搞定，对于阿里云、百度云等国内网盘，可以使用 openlist 建立 WebDAV，然后用 rclone 挂载。</p><p>下面以 S3 和阿里云盘为例进行配置。</p><h2 id=安装>安装</h2><h3 id=rclone>rclone</h3><h4 id=linux>Linux</h4><p>Debian 的官方源中 rclone 版本过于陈旧，网盘的 API
+可能发生变化，建议到官网下载最新版：<a href=https://rclone.org/downloads/ target=_blank rel="noopener noreferrer">https://rclone.org/downloads/</a></p><p>或者脚本一键安装：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>curl https://rclone.org/install.sh <span class=p>|</span> sudo bash
+</span></span></code></pre></td></tr></table></div></div><h4 id=macos>macOS</h4><p>macOS 上可以用 brew 安装，不过大概是开源协议的缘故，由于缺少 FUSE 的支持，没有内置 mount 子命令，只能使用 nfsmount<sup id=fnref:1><a href=#fn:1 class=footnote-ref role=doc-noteref>1</a></sup>。</p><p>如果你需要完整的功能，也可以用上面的脚本安装。但我建议通过我的
+<a href=https://github.com/qianbinbin/homebrew-tap target=_blank rel="noopener noreferrer">Tap</a> 安装：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>brew tap qianbinbin/tap
+</span></span><span class=line><span class=cl>brew install qianbinbin/tap/rclone
+</span></span></code></pre></td></tr></table></div></div><p>它安装的是官方最新正式版，自动添加命令行补全和 man 手册文件。</p><blockquote><p>该 Tap 的目的是绕过编译，直接安装开发者官方提供的二进制文件，通过 CI/CD 自动化升级，你可以用 brew 愉快地管理。</p></blockquote><p>完整版安装后还需要额外安装 FUSE：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>brew install --cask macfuse
+</span></span></code></pre></td></tr></table></div></div><p>然后重启。</p><h3 id=openlist>openlist</h3><p>图方便的直接用官方的脚本即可，目前只有 <a href=https://doc.oplist.org/guide/installation/script target=_blank rel="noopener noreferrer">Linux</a>。</p><p>但是对我来说，openlist 继承自 alist 的奇葩目录管理，默认把二进制文件、配置文件、缓存目录、日志等全弄一个目录里了，而且 systemd 服务是以
+root 用户运行的，我不喜欢，所以手动下载。</p><blockquote><p>openlist 更新了 v4 脚本，但他们仍然使用 root 来运行。</p><p>此外，官方还一声不吭地更新了一个
+<a href=https://github.com/OpenListTeam/OpenList-APT target=_blank rel="noopener noreferrer">APT 仓库</a>，看起来可以通过 apt
+方便地管理了，而且是以新建的受限用户来运行，提高了安全性。但不知为何没有更新到文档。</p></blockquote><h4 id=linux-1>Linux</h4><p>以 x86-64 Linux 为例，安装二进制文件：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>curl -L https://github.com/OpenListTeam/OpenList/releases/latest/download/openlist-linux-amd64.tar.gz <span class=p>|</span> tar xz -C /usr/local/bin openlist
+</span></span></code></pre></td></tr></table></div></div><p>安装 systemd 脚本：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>cat <span class=s>&lt;&lt;END &gt;/usr/local/lib/systemd/system/openlist.service
+</span></span></span><span class=line><span class=cl><span class=s>[Unit]
+</span></span></span><span class=line><span class=cl><span class=s>Description=OpenList Service
+</span></span></span><span class=line><span class=cl><span class=s>Documentation=https://qianbinbin.github.io/posts/managing-cloud-storage-with-rclone-and-openlist/
+</span></span></span><span class=line><span class=cl><span class=s>After=network-online.target
+</span></span></span><span class=line><span class=cl><span class=s>Wants=network-online.target
+</span></span></span><span class=line><span class=cl><span class=s>StartLimitIntervalSec=60
+</span></span></span><span class=line><span class=cl><span class=s>StartLimitBurst=4
+</span></span></span><span class=line><span class=cl><span class=s>
+</span></span></span><span class=line><span class=cl><span class=s>[Service]
+</span></span></span><span class=line><span class=cl><span class=s>DynamicUser=yes
+</span></span></span><span class=line><span class=cl><span class=s>StateDirectory=%p
+</span></span></span><span class=line><span class=cl><span class=s>LogsDirectory=%p
+</span></span></span><span class=line><span class=cl><span class=s>Environment=OPENLIST_LOG_NAME=/var/log/openlist/openlist.log
+</span></span></span><span class=line><span class=cl><span class=s>Environment=OPENLIST_ADDR=localhost
+</span></span></span><span class=line><span class=cl><span class=s>ExecStart=/usr/local/bin/openlist server --data &#34;\$STATE_DIRECTORY&#34;
+</span></span></span><span class=line><span class=cl><span class=s>Restart=on-failure
+</span></span></span><span class=line><span class=cl><span class=s>RestartSec=5
+</span></span></span><span class=line><span class=cl><span class=s>
+</span></span></span><span class=line><span class=cl><span class=s>[Install]
+</span></span></span><span class=line><span class=cl><span class=s>WantedBy=multi-user.target
+</span></span></span><span class=line><span class=cl><span class=s>END</span>
+</span></span><span class=line><span class=cl>systemctl daemon-reload
+</span></span><span class=line><span class=cl>systemctl <span class=nb>enable</span> openlist.service
+</span></span><span class=line><span class=cl>systemctl start openlist.service
+</span></span></code></pre></td></tr></table></div></div><p>openlist 将以受限的动态用户运行，服务运行在 <a href=http://localhost:5244 target=_blank rel="noopener noreferrer">http://localhost:5244</a>，配置文件、数据库、临时文件等保存在
+<code>/var/lib/openlist</code> 下，日志将位于 <code>/var/log/openlist/openlist.log</code>。</p><p>这些目录都会由 systemd 自动生成<sup id=fnref:2><a href=#fn:2 class=footnote-ref role=doc-noteref>2</a></sup>，通过动态用户的方式也能增强一下安全性。</p><blockquote><p>此前的脚本通过 <code>CacheDirectory</code> 配置临时目录路径，已经去除，因为按照设计目的 <code>/var/cache</code>
+下的缓存文件应该能随时删除，比如从互联网下载的资源文件，而 openlist 的 temp_dir 是上传时的临时目录，不能随意删除。</p></blockquote><p>日志路径是通过 <code>OPENLIST_LOG_NAME</code> 环境变量设置的。之所以写死，而不是
+<code>OPENLIST_LOG_NAME=$LOGS_DIRECTORY</code>，是因为只有运行时能获取其真实值。</p><p>当然可以通过包装脚本来实现这一点，但显得没必要，这些本来应该是由程序的命令行参数去支持的。</p><p>你也可以通过<a href=https://doc.oplist.org/guide/installation/docker#%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F target=_blank rel="noopener noreferrer">环境变量</a>配置其他路径和配置项。</p><p>需要注意的是，环境变量优先于配置文件，必须在配置文件中把 <code>force</code> 设置为 <code>true</code> 才能覆盖环境变量。</p><p>openlist 日志无法设置等级，令牌都是直接打印出来的，也是十分离谱。</p><p>而且默认 50M 才轮转，保存 30 个备份，还不压缩，虽然这些可以修改，但也是只有超过大小后才轮转，而不是按时间轮转。</p><p>我选择系统自带的 logrotate：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>cat <span class=s>&lt;&lt;END &gt;/etc/logrotate.d/openlist
+</span></span></span><span class=line><span class=cl><span class=s>/var/log/openlist/*.log {
+</span></span></span><span class=line><span class=cl><span class=s>  daily
+</span></span></span><span class=line><span class=cl><span class=s>  rotate 5
+</span></span></span><span class=line><span class=cl><span class=s>  compress
+</span></span></span><span class=line><span class=cl><span class=s>  delaycompress
+</span></span></span><span class=line><span class=cl><span class=s>  missingok
+</span></span></span><span class=line><span class=cl><span class=s>  notifempty
+</span></span></span><span class=line><span class=cl><span class=s>  copytruncate
+</span></span></span><span class=line><span class=cl><span class=s>}
+</span></span></span><span class=line><span class=cl><span class=s>END</span>
+</span></span></code></pre></td></tr></table></div></div><p>用 copytruncate 是因为 openlist 不支持重新打开日志，轮转后无法写入，因此采用先复制再清空原日志的方式，但可能会造成少量日志丢失。</p><p>原本 Web 服务默认运行在 <code>0.0.0.0</code>，直接把服务暴露给所有主机了，因此 systemd 服务中通过 <code>OPENLIST_ADDR</code> 环境变量修改为
+<code>localhost</code>。如果需要其他地址，比如在局域网中使用，也可以通过配置文件修改。没有配置防火墙的公网 IP 用户尤其要注意安全问题。</p><p>更多配置项参考 <a href=https://doc.oplist.org/configuration/configuration target=_blank rel="noopener noreferrer">https://doc.oplist.org/configuration/configuration</a>。</p><p>首次启动时 openlist 会自动生成 admin 用户和密码，使用 <code>journalctl -u openlist.service</code>
+查看，建议登陆后立即修改用户名和密码。</p><h5 id=nginx-反向代理>nginx 反向代理</h5><p>可以参考<a href=https://doc.oplist.org/faq/howto#%E5%A6%82%E4%BD%95%E5%AF%B9%E5%AD%90%E7%9B%AE%E5%BD%95%E8%BF%9B%E8%A1%8C%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86 target=_blank rel="noopener noreferrer">官方文档</a>建立一个
+nginx 反向代理：</p><pre tabindex=0><code>location /openlist/ {
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header Host $http_host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header Range $http_range;
+    proxy_set_header If-Range $http_if_range;
+    proxy_redirect off;
+    proxy_pass http://127.0.0.1:5244/openlist/;
+    # the max size of file to upload
+    client_max_body_size 20000m;
+}
+</code></pre><p>编辑 <code>/var/lib/openlist/config.json</code>，将 <code>site_url</code> 的值改为
+<code>/openlist</code>，并重启服务，否则路径无法正确映射。</p><p>之后就可以用 <code>http[s]://host/openlist/</code> 访问管理页面了。</p><h4 id=macos-1>macOS</h4><p>和 rclone 一样，建议通过我的 Tap 来安装：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>brew install qianbinbin/tap/openlist
+</span></span><span class=line><span class=cl>brew services start qianbinbin/tap/openlist
+</span></span></code></pre></td></tr></table></div></div><p>不仅提供命令行补全，还自带了服务管理，省去很多麻烦。</p><p>在 <code>$(brew --prefix)/var/log/openlist/error.log</code> 中查看初始密码。</p><p>由于系统自带的 newsyslog 不太好用，这里仍然使用 logrotate，使用 brew 安装，配置文件位于
+<code>$(brew --prefix)/etc/logrotate.d</code> 下，参考前文 Linux 安装部分。</p><p>brew 默认的 logrotate 服务默认把检查时间设置为每天 6:25，可以按需自行在
+<code>~/Library/LaunchAgents/homebrew.mxcl.logrotate.plist</code> 中修改并重新加载。</p><blockquote><p>如果使用 newsyslog，openlist 将无法自动打开新日志，不推荐，示例：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>sudo cat <span class=s>&lt;&lt;END &gt;/etc/newsyslog.d/openlist.conf
+</span></span></span><span class=line><span class=cl><span class=s># logfilename                      [owner:group]       mode    count  size    when flags [/pid_file] [sig_num]
+</span></span></span><span class=line><span class=cl><span class=s>/usr/local/var/log/openlist/*.log  qianbinbin:admin    640     5      *       $D0  GZ
+</span></span></span><span class=line><span class=cl><span class=s>END</span>
+</span></span></code></pre></td></tr></table></div></div></blockquote><h2 id=amazon-s3-对象存储>Amazon S3 对象存储</h2><h3 id=创建桶>创建桶</h3><p>赛博大善人 Cloudflare R2 兼容 S3，并且 10G 以内存储免费、出口流量免费，简直是个人和小型工作室的福报。</p><p>首先登录<a href=https://dash.cloudflare.com/ target=_blank rel="noopener noreferrer">控制台</a>，进入 R2 对象存储，绑定支付方式（例如 Visa），并创建一个桶。</p><p>创建完成后，如果只是私人使用（相当于网盘），不想暴露在公网，就不要设置自定义域和 R2.dev 子域，但用 rclone 创建临时链接也是可行的。</p><p>如果设置了域，则可以当作图床等使用。</p><p>然后创建 API 令牌，按照喜好选择是管理所有桶还是指定桶。令牌页面只会显示一次，要妥善保管，配置 rclone 时要用到。</p><h3 id=rclone-配置>rclone 配置</h3><p>运行 <code>rclone config</code> 进行配置，按提示来就可以了。</p><p>配置完成后，最好再编辑配置文件（通常为 <code>~/.config/rclone/rclone.conf</code>），在对应配置下增加一行
+<code>no_check_bucket = true</code> 以减少查询。</p><p>最终配置类似于：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-ini data-lang=ini><span class=line><span class=cl><span class=k>[&lt;remote&gt;]</span>
+</span></span><span class=line><span class=cl><span class=na>type</span> <span class=o>=</span> <span class=s>s3</span>
+</span></span><span class=line><span class=cl><span class=na>provider</span> <span class=o>=</span> <span class=s>Cloudflare</span>
+</span></span><span class=line><span class=cl><span class=na>access_key_id</span> <span class=o>=</span> <span class=s>&lt;key_id&gt;</span>
+</span></span><span class=line><span class=cl><span class=na>secret_access_key</span> <span class=o>=</span> <span class=s>&lt;key&gt;</span>
+</span></span><span class=line><span class=cl><span class=na>endpoint</span> <span class=o>=</span> <span class=s>https://&lt;user_id&gt;.r2.cloudflarestorage.com</span>
+</span></span><span class=line><span class=cl><span class=na>no_check_bucket</span> <span class=o>=</span> <span class=s>true</span>
+</span></span></code></pre></td></tr></table></div></div><p>运行 <code>rclone lsd &lt;remote>:</code> 查看根目录下的目录列表，<code>rclone ls &lt;remote>:</code> 列出所有文件。</p><p>可以运行
+<code>rclone mount &lt;remote>:&lt;桶名> &lt;挂载路径> --vfs-cache-mode full --vfs-cache-max-age 24h</code>
+来手动挂载。</p><h3 id=linux-自动挂载>Linux 自动挂载</h3><p><a href=https://rclone.org/commands/rclone_mount/#rclone-as-unix-mount-helper target=_blank rel="noopener noreferrer">rclone 可以作为 Unix mount helper</a>
+实现 mount 命令的挂载：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>ln -s /usr/bin/rclone /sbin/mount.rclone
+</span></span></code></pre></td></tr></table></div></div><p>还可以添加到 <code>/etc/fstab</code> 中，这就很方便了，不需要写什么蛋疼的 systemd 脚本，但需要 fuse3 支持：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>apt install fuse3
+</span></span></code></pre></td></tr></table></div></div><p>在 <code>/etc/fuse.conf</code> 中取消注释 <code>user_allow_other</code>，以允许其他用户访问挂载目录。</p><p>然后在 <code>/etc/fstab</code> 增加以下行：</p><pre tabindex=0><code>&lt;remote&gt;:&lt;桶名&gt; &lt;挂载路径&gt; rclone uid=&lt;用户&gt;,gid=&lt;组&gt;,nofail,_netdev,args2env,allow_other,vfs_cache_mode=full,vfs_cache_max_age=24h,cache_dir=/var/cache/rclone,config=&lt;/path/to/rclone.conf&gt; 0 0
+</code></pre><p><code>uid=&lt;用户>,gid=&lt;组></code> 改为需要挂载的用户和组，<code>config=&lt;/path/to/rclone.conf></code> 改为自己的配置文件路径。</p><p>然后使用 <code>mount -av</code> 挂载试试。</p><h3 id=macos-自动挂载>macOS 自动挂载</h3><p>创建 <code>~/Library/LaunchAgents/org.binac.rclone.cf-r2.plist</code>：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-xml data-lang=xml><span class=line><span class=cl><span class=cp>&lt;?xml version=&#34;1.0&#34; encoding=&#34;UTF-8&#34;?&gt;</span>
+</span></span><span class=line><span class=cl><span class=cp>&lt;!DOCTYPE plist PUBLIC &#34;-//Apple//DTD PLIST 1.0//EN&#34; &#34;http://www.apple.com/DTDs/PropertyList-1.0.dtd&#34;&gt;</span>
+</span></span><span class=line><span class=cl><span class=nt>&lt;plist</span> <span class=na>version=</span><span class=s>&#34;1.0&#34;</span><span class=nt>&gt;</span>
+</span></span><span class=line><span class=cl><span class=nt>&lt;dict&gt;</span>
+</span></span><span class=line><span class=cl>	<span class=nt>&lt;key&gt;</span>KeepAlive<span class=nt>&lt;/key&gt;</span>
+</span></span><span class=line><span class=cl>	<span class=nt>&lt;true/&gt;</span>
+</span></span><span class=line><span class=cl>	<span class=nt>&lt;key&gt;</span>Label<span class=nt>&lt;/key&gt;</span>
+</span></span><span class=line><span class=cl>	<span class=nt>&lt;string&gt;</span>org.binac.rclone.cf-r2<span class=nt>&lt;/string&gt;</span>
+</span></span><span class=line><span class=cl>	<span class=nt>&lt;key&gt;</span>ProgramArguments<span class=nt>&lt;/key&gt;</span>
+</span></span><span class=line><span class=cl>	<span class=nt>&lt;array&gt;</span>
+</span></span><span class=line><span class=cl>		<span class=nt>&lt;string&gt;</span>/usr/local/bin/rclone<span class=nt>&lt;/string&gt;</span>
+</span></span><span class=line><span class=cl>		<span class=nt>&lt;string&gt;</span>mount<span class=nt>&lt;/string&gt;</span>
+</span></span><span class=line><span class=cl>		<span class=nt>&lt;string&gt;&lt;remote&gt;</span>:<span class=nt>&lt;桶名&gt;&lt;/string&gt;</span>
+</span></span><span class=line><span class=cl>		<span class=nt>&lt;string&gt;&lt;挂载路径&gt;&lt;/string&gt;</span>
+</span></span><span class=line><span class=cl>		<span class=nt>&lt;string&gt;</span>--vfs-cache-mode<span class=nt>&lt;/string&gt;</span>
+</span></span><span class=line><span class=cl>		<span class=nt>&lt;string&gt;</span>full<span class=nt>&lt;/string&gt;</span>
+</span></span><span class=line><span class=cl>		<span class=nt>&lt;string&gt;</span>--vfs-cache-max-age<span class=nt>&lt;/string&gt;</span>
+</span></span><span class=line><span class=cl>		<span class=nt>&lt;string&gt;</span>24h<span class=nt>&lt;/string&gt;</span>
+</span></span><span class=line><span class=cl>	<span class=nt>&lt;/array&gt;</span>
+</span></span><span class=line><span class=cl>	<span class=nt>&lt;key&gt;</span>StandardErrorPath<span class=nt>&lt;/key&gt;</span>
+</span></span><span class=line><span class=cl>	<span class=nt>&lt;string&gt;</span>/usr/local/var/log/rclone-cf-r2.log<span class=nt>&lt;/string&gt;</span>
+</span></span><span class=line><span class=cl>	<span class=nt>&lt;key&gt;</span>StandardOutPath<span class=nt>&lt;/key&gt;</span>
+</span></span><span class=line><span class=cl>	<span class=nt>&lt;string&gt;</span>/usr/local/var/log/rclone-cf-r2.log<span class=nt>&lt;/string&gt;</span>
+</span></span><span class=line><span class=cl>	<span class=nt>&lt;key&gt;</span>RunAtLoad<span class=nt>&lt;/key&gt;</span>
+</span></span><span class=line><span class=cl>	<span class=nt>&lt;true/&gt;</span>
+</span></span><span class=line><span class=cl><span class=nt>&lt;/dict&gt;</span>
+</span></span><span class=line><span class=cl><span class=nt>&lt;/plist&gt;</span>
+</span></span></code></pre></td></tr></table></div></div><p>把 <code>&lt;remote>:&lt;桶名></code> 和 <code>&lt;挂载路径></code> 替换为自己的，接着加载：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>launchctl load ~/Library/LaunchAgents/org.binac.rclone.cf-r2.plist
+</span></span></code></pre></td></tr></table></div></div><p>下载速率实测北美可以跑到 30 MiB/s，国内电信晚高峰只有 4 MiB/s 左右，也不是不能用，比现在的阿里云盘快多了。</p><h2 id=阿里云盘>阿里云盘</h2><p>rclone 没有对阿里云盘的支持，需要通过第三方软件建立 WebDAV 服务，这一任务交给 openlist 完成。然后再通过 rclone 挂载。</p><p>国内其他网盘也差不多这个步骤。</p><h3 id=openlist-配置>openlist 配置</h3><p>首先，打开 openlist 管理页面，把用户权限 WebDAV 相关的都勾选上。</p><p>其次，按照官方文档 <a href=https://doc.oplist.org/guide/drivers/common target=_blank rel="noopener noreferrer">https://doc.oplist.org/guide/drivers/common</a> 和
+<a href=https://doc.oplist.org/guide/drivers/aliyundrive_open target=_blank rel="noopener noreferrer">https://doc.oplist.org/guide/drivers/aliyundrive_open</a> 建立存储。</p><p>他们的说明文字并不严谨，似乎是国内项目的通病。</p><p>其中，挂载路径是虚拟路径，是 Web 管理页面上的路径，不是本地文件系统的路径。openlist 应该也没有本地挂载的功能。</p><p>缓存过期时间是网盘内容缓存的有效时间，超过这个时间视为过期，程序自动重新获取，不是令牌刷新时间。</p><p>WebDAV 策略如果用本地代理，意思是请求网盘的流量会从运行 openlist 的主机发出，在网盘看来就只有一台机器在访问；如果使用 302 重定向，多个
+IP 直连有被封号的风险。</p><p>另外需要注意的是，获取刷新令牌时可能需要梯子，或者按照文档修改 API 链接。</p><p>然后回到主页查看是否连接成功。</p><h3 id=rclone-配置-1>rclone 配置</h3><p>前面已经建立了 WebDAV，接下来使用 <code>rclone config</code> 建立配置即可，没什么好说的，最终配置类似于：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-ini data-lang=ini><span class=line><span class=cl><span class=k>[&lt;remote&gt;]</span>
+</span></span><span class=line><span class=cl><span class=na>type</span> <span class=o>=</span> <span class=s>webdav</span>
+</span></span><span class=line><span class=cl><span class=na>url</span> <span class=o>=</span> <span class=s>http://localhost:5244/dav&lt;虚拟挂载路径&gt;</span>
+</span></span><span class=line><span class=cl><span class=na>user</span> <span class=o>=</span> <span class=s>&lt;openlist 用户名&gt;</span>
+</span></span><span class=line><span class=cl><span class=na>pass</span> <span class=o>=</span> <span class=s>&lt;openlist 密码&gt;</span>
+</span></span></code></pre></td></tr></table></div></div><p>唯一需要注意的是 url，如果本地挂载且没有使用反向代理，那么应该是
+<code>http://localhost:5244/dav&lt;虚拟挂载路径></code>，如果使用了反向代理，那么应该类似于
+<code>http://host/openlist/dav&lt;虚拟挂载路径></code>。</p><h3 id=linux-自动挂载-1>Linux 自动挂载</h3><p>参考<a href=#linux-%E8%87%AA%E5%8A%A8%E6%8C%82%E8%BD%BD>前文</a>，其他都一样，但 <code>/etc/fstab</code> 如此配置：</p><pre tabindex=0><code>&lt;remote&gt;: &lt;挂载路径&gt; rclone uid=&lt;用户&gt;,gid=&lt;组&gt;,x-systemd.requires=openlist.service,nofail,_netdev,args2env,allow_other,vfs_cache_mode=full,vfs_cache_max_age=24h,cache_dir=/var/cache/rclone,config=&lt;/path/to/rclone.conf&gt;,timeout=2h 0 0
+</code></pre><p>注意 <code>x-systemd.requires=openlist.service</code> 部分，这会声明对 openlist 服务的依赖，避免开机时 openlist
+还没启动导致挂载失败。</p><p>rclone 还有一个需要注意的全局参数 <code>--timeout</code>，默认值是 5 分钟。</p><p>在上传大文件时，由于缓存的存在，rclone 很快就复制完成，然后等待服务返回结果，要是上传带宽不够，rclone 等了 5 分钟判定为超时，断开重新上传。</p><p>这会造成后台反复上传反复失败，从 openlist 的 log 里也可以看到，openlist 就会出现 405 错误。其实这跟网盘服务器没关系，每次上传 5
+分钟即出错。运营商对上传流量还是管得比较严的，搞不好要被限制。</p><p>所以这里设置为 2h（2 小时），可以满足大部分上传要求。</p><h3 id=macos-自动挂载-1>macOS 自动挂载</h3><p>其实 macOS 原生就支持 WebDAV，在访达中按 <kbd>Command</kbd> + <kbd>K</kbd>
+输入链接即可，但总存在奇奇怪怪的问题。</p><p>因此还是建议用 rclone，launchd
+服务文件参考<a href=#macos-%E8%87%AA%E5%8A%A8%E6%8C%82%E8%BD%BD>前文</a>，也要注意 <code>--timeout</code> 参数。</p><details><summary>阿里云盘（更新于 2023 年，已废弃）</summary><h2 id=阿里云盘更新于-2023-年已废弃>阿里云盘（更新于 2023 年，已废弃）</h2><p><del>配合 <a href=https://github.com/messense/aliyundrive-webdav target=_blank rel="noopener noreferrer">aliyundrive-webdav</a> 项目，可以以
+WebDAV 方式挂载阿里云盘。</del> 这项目服务器经常 503，弃用了，建议使用 openlist。</p><p>以下以 Debian 为例，运行阿里云盘 WebDAV 服务并使用 rclone 自动挂载。</p><h3 id=aliyundrive-webdav>aliyundrive-webdav</h3><p>首先安装 aliyundrive-webdav：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl><span class=c1># pip install aliyundrive-webdav</span>
+</span></span></code></pre></td></tr></table></div></div><p>我讨厌虚拟环境，因为它总是把东西封装得面目全非，所以这里用特权用户安装，而且方便之后编写 systemd 脚本。根据个人喜好即可。</p><p>获取 token：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl><span class=c1># aliyundrive-webdav qr login</span>
+</span></span></code></pre></td></tr></table></div></div><p>手机打开阿里云盘 APP 扫码得到 token。</p><p>为 WebDAV 服务专门建立一个目录，用于存放 token：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl><span class=c1># mkdir /var/lib/private/aliyundrive-webdav</span>
+</span></span><span class=line><span class=cl><span class=c1># vim /var/lib/private/aliyundrive-webdav/refresh_token</span>
+</span></span></code></pre></td></tr></table></div></div><p>将 token 复制到 refresh_token 文件中。</p><p>新建 systemd 脚本：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl><span class=c1># cat /etc/systemd/system/aliyundrive-webdav.service</span>
+</span></span><span class=line><span class=cl><span class=o>[</span>Unit<span class=o>]</span>
+</span></span><span class=line><span class=cl><span class=nv>Description</span><span class=o>=</span>Aliyun Drive WebDAV Service
+</span></span><span class=line><span class=cl><span class=nv>After</span><span class=o>=</span>network-online.target
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=o>[</span>Service<span class=o>]</span>
+</span></span><span class=line><span class=cl><span class=nv>DynamicUser</span><span class=o>=</span>yes
+</span></span><span class=line><span class=cl><span class=nv>StateDirectory</span><span class=o>=</span>aliyundrive-webdav
+</span></span><span class=line><span class=cl><span class=nv>ExecStart</span><span class=o>=</span>/usr/local/bin/aliyundrive-webdav --host localhost --workdir <span class=s2>&#34;</span><span class=nv>$STATE_DIRECTORY</span><span class=s2>&#34;</span> --cache-ttl <span class=m>10</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=o>[</span>Install<span class=o>]</span>
+</span></span><span class=line><span class=cl><span class=nv>WantedBy</span><span class=o>=</span>multi-user.target
+</span></span></code></pre></td></tr></table></div></div><p><code>/var/lib/private</code> 是个特殊的目录。</p><p>systemd 脚本如果指定了 <code>StateDirectory</code>，就会从 <code>/var/lib</code> 寻找目标文件夹，通过 <code>$STATE_DIRECTORY</code>
+来访问它。但如果同时指定了 <code>DynamicUser=yes</code>，就会在 <code>/var/lib</code> 建立一个软链接指向 <code>/var/lib/private</code>
+中的同名目标文件夹：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl><span class=c1># ll /var/lib/aliyundrive-webdav</span>
+</span></span><span class=line><span class=cl>lrwxrwxrwx <span class=m>1</span> root root <span class=m>26</span> Mar <span class=m>21</span> 16:48 /var/lib/aliyundrive-webdav -&gt; private/aliyundrive-webdav
+</span></span></code></pre></td></tr></table></div></div><p>由于只有特权用户能访问 <code>/var/lib/private</code>，以此保证了安全性，这就是上面建立
+<code>/var/lib/private/aliyundrive-webdav</code> 目录的原因。</p><p>aliyundrive-webdav 通过 <code>--workdir</code> 参数指定工作目录，就可以读取和更新 token 了。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl><span class=c1># systemctl daemon-reload</span>
+</span></span><span class=line><span class=cl><span class=c1># systemctl start aliyundrive-webdav.service</span>
+</span></span><span class=line><span class=cl><span class=c1># systemctl enable aliyundrive-webdav.service</span>
+</span></span><span class=line><span class=cl><span class=c1># systemctl status aliyundrive-webdav.service</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=etcfstab-自动挂载>/etc/fstab 自动挂载</h3><p><a href=https://rclone.org/commands/rclone_mount/#rclone-as-unix-mount-helper target=_blank rel="noopener noreferrer">rclone 可以作为 Unix mount helper</a>
+实现 mount 命令的挂载：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl><span class=c1># ln -s /usr/bin/rclone /sbin/mount.rclone</span>
+</span></span></code></pre></td></tr></table></div></div><p>还可以添加到 <code>/etc/fstab</code> 中，这就很方便了，不需要写什么蛋疼的 systemd 脚本。</p><p>不过这一方法需要 fuse3（<del><code>rclone mount</code> 似乎 fuse2 就行</del> 新版 <code>rclone mount</code> 也需要 fuse3 了）：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl><span class=c1># apt install fuse3</span>
+</span></span><span class=line><span class=cl><span class=c1># vim /etc/fuse.conf</span>
+</span></span></code></pre></td></tr></table></div></div><p>取消注释 <code>user_allow_other</code>，以允许其他用户访问挂载目录。</p><p>添加挂载项：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl><span class=c1># mkdir /mnt/aliyun</span>
+</span></span><span class=line><span class=cl><span class=c1># cat &lt;&lt;-END &gt;&gt;/etc/fstab</span>
+</span></span><span class=line><span class=cl><span class=c1># https://rclone.org/commands/rclone_mount/#rclone-as-unix-mount-helper</span>
+</span></span><span class=line><span class=cl>:webdav: /mnt/aliyun rclone nofail,_netdev,args2env,webdav_url<span class=o>=</span>http://localhost:8080,allow_other,vfs_cache_mode<span class=o>=</span>full,vfs_cache_max_age<span class=o>=</span>24h,cache_dir<span class=o>=</span>/var/cache/rclone,config<span class=o>=</span>/dev/null <span class=m>0</span> <span class=m>0</span>
+</span></span><span class=line><span class=cl>END
+</span></span></code></pre></td></tr></table></div></div><p>第四列是关注的重点，各选项以 <code>,</code> 分隔，例如，需要以指定用户挂载，可以添加 <code>uid=xxx,gid=xxx</code> 选项。</p><blockquote><p>注：</p><p>Debian 从最近（2023 年 9 月前后）某次更新后，原本第四列的 <code>x-systemd.automount</code> 将会导致
+<code>Fatal error: mount not ready</code>，如果此时访问目录则会报错
+<code>Transport endpoint is not connected</code>，原因不明，因此删去这个选项。</p><p>这个选项的作用是让目录在实际访问时挂载（延迟挂载），而不是开机就立即启动。</p></blockquote><p>如果有其它需要的 rclone 参数也可以添加，但 GNU 风格的参数要手动翻译一下，前缀 <code>--</code> 去掉，<code>-</code> 改为 <code>_</code>，例如
+<code>--vfs-cache-mode=full</code> 要改为 <code>vfs_cache_mode=full</code>。</p><p>看看成功了没有：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl><span class=c1># mount -av</span>
+</span></span></code></pre></td></tr></table></div></div><p>需要 debug 的话，在第四列添加 <code>vv</code> 以查看更详细的 log。</p><p>这一配置会自动挂载，而且只有在访问挂载目录时真正挂载。</p></details><details><summary>OneDrive（写于 2020 年，可能已过时）</summary><h2 id=onedrive写于-2020-年可能已过时仅供参考>OneDrive（写于 2020 年，可能已过时，仅供参考）</h2><p>rclone 提供了简单的交互式配置方式，运行 <code>rclone config</code> 即可，一般就是打开浏览器获取一个 token，网上有很多教程，在此就不赘述了。</p><p>以 OneDrive for Business 为例，主要说明一下如何在没有图形界面的情况下获取 token。</p><p>一种是先用其他带图形界面的系统配置一次，直接把 token 复制过去。</p><p>另一种就是在命令行下执行到这一步时：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span><span class=lnt>9
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>Use auto config?
+</span></span><span class=line><span class=cl> * Say Y <span class=k>if</span> not sure
+</span></span><span class=line><span class=cl> * Say N <span class=k>if</span> you are working on a remote or headless machine
+</span></span><span class=line><span class=cl>y<span class=o>)</span> Yes
+</span></span><span class=line><span class=cl>n<span class=o>)</span> No
+</span></span><span class=line><span class=cl>y/n&gt; y
+</span></span><span class=line><span class=cl>If your browser doesn<span class=err>&#39;</span>t open automatically go to the following link: http://127.0.0.1:53682/auth?state<span class=o>=</span>xxxxxxxxxxxxxxxxxxxxxx
+</span></span><span class=line><span class=cl>Log in and authorize rclone <span class=k>for</span> access
+</span></span><span class=line><span class=cl>Waiting <span class=k>for</span> code...
+</span></span></code></pre></td></tr></table></div></div><p>选择 <code>y</code> 的话理论上会打开浏览器访问那个地址，当然由于是服务器，不可能打开浏览器，这时我们重开一个 SSH 连接，并用 <code>curl</code> 访问：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>$ curl http://127.0.0.1:53682/auth?state<span class=o>=</span>xxxxxxxxxxxxxxxxxxxxxx
+</span></span><span class=line><span class=cl>&lt;a <span class=nv>href</span><span class=o>=</span><span class=s2>&#34;https://login.microsoftonline.com/common/oauth2/v2.0/authorize?access_type=offline&amp;amp;client_id=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx&amp;amp;redirect_uri=http%3A%2F%2Flocalhost%3A53682%2F&amp;amp;response_type=code&amp;amp;scope=Files.Read+Files.ReadWrite+Files.Read.All+Files.ReadWrite.All+offline_access&amp;amp;state=xxxxxxxxxxxxxxxxxxxxxx&#34;</span>&gt;Temporary Redirect&lt;/a&gt;.
+</span></span></code></pre></td></tr></table></div></div><p>复制 <code>href</code> 中的链接，对其 URL 解码，可以使用 Python
+或其它工具，如：<a href=https://tool.chinaz.com/tools/urlencode.aspx target=_blank rel="noopener noreferrer">https://tool.chinaz.com/tools/urlencode.aspx</a></p><p>接着（客户端）使用浏览器访问解码后的 URL 并登陆账号，然后会重定向到一个本地 URL，在服务器上用 <code>curl</code> 访问此 URL。</p><p>这时 rclone 的配置应该会自动进行到下一步，其它照常配置即可。如果不行就多试几次。</p><h3 id=挂载>挂载</h3><p>安装 FUSE：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>sudo apt install fuse
+</span></span></code></pre></td></tr></table></div></div><p>将名为 <code>onedrive</code> 的配置挂载到 <code>/mnt/onedrive</code> 下：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>rclone mount onedrive:/ /mnt/onedrive --vfs-cache-mode full --vfs-cache-max-age 24h --vfs-cache-max-size 12G
+</span></span></code></pre></td></tr></table></div></div><p>其中 <code>vfs-cache-mode</code> 可选参数为 <code>off|minimal|writes|full</code>，默认为 <code>off</code>，写入文件时无法随机寻址，因此无法用于
+aria2、Transmission 等分块下载软件。<code>writes</code> 或 <code>full</code> 则可以很好地模拟本地文件系统，<code>writes</code>
+模式下只读打开的文件无缓存，<code>full</code> 模式下读写均有缓存。</p><p><code>vfs-cache-max-age</code> 设置缓存保存时间，<code>vfs-cache-max-size</code> 设置缓存大小。</p><p>有一个很重要的参数 <code>--allow-other</code>，表示允许其他用户访问挂载的目录，否则默认其他用户无法访问，不注意的话根本无从排查。而这个参数要求配置
+fuse，将 <code>/etc/fuse.conf</code> 中的 <code>user_allow_other</code> 取消注释。<code>--allow-root</code> 参数允许 root
+用户访问，同样需要设置 <code>user_allow_other</code>。</p><p>参数 <code>-vv</code> 可查看 log 以排查错误，<code>--daemon</code>
+以守护进程运行等。更多可参考：<a href=https://rclone.org/commands/rclone_mount/ target=_blank rel="noopener noreferrer">https://rclone.org/commands/rclone_mount/</a></p><p>查看一下是否已经挂载：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>$ df -h
+</span></span><span class=line><span class=cl>Filesystem      Size  Used Avail Use% Mounted on
+</span></span><span class=line><span class=cl>onedrive:       5.0T   18G  5.0T   1% /mnt/onedrive
+</span></span></code></pre></td></tr></table></div></div><h3 id=开机自启>开机自启</h3><p>systemd 脚本：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>$ cat /etc/systemd/system/rclone.service
+</span></span><span class=line><span class=cl><span class=o>[</span>Unit<span class=o>]</span>
+</span></span><span class=line><span class=cl><span class=nv>Description</span><span class=o>=</span>rclone Service
+</span></span><span class=line><span class=cl><span class=nv>Wants</span><span class=o>=</span>network-online.target
+</span></span><span class=line><span class=cl><span class=nv>After</span><span class=o>=</span>network-online.target
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=o>[</span>Service<span class=o>]</span>
+</span></span><span class=line><span class=cl><span class=nv>Type</span><span class=o>=</span>simple
+</span></span><span class=line><span class=cl><span class=nv>User</span><span class=o>=</span>username
+</span></span><span class=line><span class=cl><span class=nv>ExecStart</span><span class=o>=</span>/usr/bin/rclone mount onedrive:/ /mnt/onedrive --vfs-cache-mode full --vfs-cache-max-age 24h --vfs-cache-max-size 12G
+</span></span><span class=line><span class=cl><span class=nv>ExecStopPost</span><span class=o>=</span>/bin/fusermount -qzu /mnt/onedrive
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=o>[</span>Install<span class=o>]</span>
+</span></span><span class=line><span class=cl><span class=nv>WantedBy</span><span class=o>=</span>multi-user.target
+</span></span></code></pre></td></tr></table></div></div><p>其中 <code>User</code> 设置为所运行的用户。</p><p>我实际使用时，停止进程后无法自动取消挂载，文件夹异常，因此用 <code>fusermount -qzu /mnt/onedrive</code> 取消挂载。</p><p>另外，开机时 Transmission 可能会在 rclone 之前运行，此时目录未挂载，Transmission 就会出错，于是修改其 systemd 脚本：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>vim /lib/systemd/system/transmission-daemon.service
+</span></span></code></pre></td></tr></table></div></div><p>将 <code>After=network.target</code> 修改为 <code>After=network.target rclone.service</code>，这样
+Transmission 就在 rclone 后启动。</p></details><div class=footnotes role=doc-endnotes><hr><ol><li id=fn:1><p><a href=https://rclone.org/commands/rclone_nfsmount/#mounting-on-macos target=_blank rel="noopener noreferrer">https://rclone.org/commands/rclone_nfsmount/#mounting-on-macos</a>&#160;<a href=#fnref:1 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li><li id=fn:2><p><a href="https://www.freedesktop.org/software/systemd/man/latest/systemd.exec.html#RuntimeDirectory=" target=_blank rel="noopener noreferrer">https://www.freedesktop.org/software/systemd/man/latest/systemd.exec.html#RuntimeDirectory=</a>&#160;<a href=#fnref:2 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li></ol></div></article><section class="article labels"><a class=tag href=/tags/linux/>Linux</a><a class=tag href=/tags/macos/>macOS</a></section><section class="article license"><p xmlns:cc=http://creativecommons.org/ns# style=text-align:center>本作品根据 <a href=http://creativecommons.org/licenses/by-nc-sa/4.0/ target=_blank rel="license noopener noreferrer" style=display:inline-block>署名-非商业性使用-相同方式共享 4.0 国际许可<img style=height:15px!important;margin-left:1px;vertical-align:text-bottom src=/cc-icons/cc.svg><img style=height:15px!important;margin-left:1px;vertical-align:text-bottom src=/cc-icons/by.svg><img style=height:15px!important;margin-left:1px;vertical-align:text-bottom src=/cc-icons/nc.svg><img style=height:15px!important;margin-left:1px;vertical-align:text-bottom src=/cc-icons/sa.svg></a> 进行授权。</p></section></div><div class="article bottom"><section class="article navigation"><p><a class=link href=/posts/shrinking-disk-image-file-size/><span class="iconfont icon-article"></span>缩减 IMG 镜像文件</a></p><p><a class=link href=/posts/cross-compiling-samba-for-ios/><span class="iconfont icon-article"></span>移植 Samba 到 iOS 平台</a></p></section><section class="article discussion"><script>function loadComment(){let e=document.createElement("script");e.src="https://utteranc.es/client.js",e.setAttribute("repo","qianbinbin/qianbinbin.github.io"),e.setAttribute("issue-term","pathname"),e.setAttribute("theme","preferred-color-scheme"),e.setAttribute("crossorigin","anonymous"),e.setAttribute("async",""),document.querySelector("section.article.discussion").innerHTML="",document.querySelector("section.article.discussion").appendChild(e)}loadComment(),window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change",()=>{loadComment()})</script></section></div></section><section id=footer><div class=footer-wrap><p class=copyright>© 2017-2026 Binac.</p></div></section><script async src="https://www.googletagmanager.com/gtag/js?id=G-N7VZY53PLB"></script><script>var doNotTrack=!1,dnt=navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack,doNotTrack=dnt=="1"||dnt=="yes";if(!doNotTrack){window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-N7VZY53PLB")}</script><script defer src=/js/search-zh-CN.696e28b41c4d253b37e083e79150453edf2b4d3bf467a79cd65c5852fcc4c650.js integrity="sha256-aW4otBxNJTs34IPnkVBFPt8rTTv0Z6ec1lxYUvzExlA="></script><script src=https://unpkg.com/vanilla-back-to-top@7.2.1/dist/vanilla-back-to-top.min.js></script><script>addBackToTop({diameter:42})</script></body></html>
